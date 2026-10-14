@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Tulpar Line — прототип приложения водителя</title>
+  <meta name="theme-color" content="#111111">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <div class="stage">
+    <aside class="side">
+      <h1>Tulpar Line</h1>
+      <p>Кликабельный прототип приложения водителя по ТЗ v2.0. Все данные — демонстрационные, интеграции (Yandex, Kaspi) не подключены.</p>
+      <p class="side__hint">Демо-инструменты — в «Профиль → Демо-инструменты».</p>
+      <a href="../">← На сайт таксопарка</a>
+    </aside>
+    <div class="phone" id="phone">
+      <div class="screen" id="screen"></div>
+      <nav class="tabbar" id="tabbar" aria-label="Основное меню"></nav>
+      <div class="sheet-wrap" id="sheetWrap" hidden>
+        <div class="backdrop" data-act="closeSheet"></div>
+        <div class="sheet" id="sheet" role="dialog" aria-modal="true"></div>
+      </div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
