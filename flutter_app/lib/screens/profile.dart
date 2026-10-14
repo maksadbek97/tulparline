@@ -7,38 +7,6 @@ import 'deposit.dart';
 import 'misc.dart';
 import 'service.dart';
 
-/// Строка списка iOS: плашка-иконка 30, заголовок 15, шеврон, высота ≥ 44.
-class ListRow extends StatelessWidget {
-  const ListRow(this.icon, this.tone, this.title, {super.key, this.onTap, this.last = false, this.destructive = false, this.trailing});
-  final IconData icon;
-  final Tone tone;
-  final String title;
-  final VoidCallback? onTap;
-  final bool last, destructive;
-  final Widget? trailing;
-  @override
-  Widget build(BuildContext context) => InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 14),
-          child: Container(
-            constraints: const BoxConstraints(minHeight: 44),
-            padding: const EdgeInsets.only(right: 14),
-            decoration: BoxDecoration(border: last ? null : const Border(bottom: BorderSide(color: kLine, width: .5))),
-            child: Row(children: [
-              toneIcon(icon, tone),
-              const SizedBox(width: 12),
-              Expanded(child: Text(title, style: TextStyle(fontSize: 15, color: destructive ? kRed : kInk))),
-              ?trailing,
-              if (!destructive) const Icon(Icons.chevron_right, size: 18, color: Color(0xFFC4C4C7)),
-            ]),
-          ),
-        ),
-      );
-}
-
-Widget group(List<Widget> rows) => Container(margin: const EdgeInsets.only(bottom: 12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), clipBehavior: Clip.antiAlias, child: Column(children: rows));
-
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -46,41 +14,53 @@ class ProfilePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = AppScope.of(context);
     void push(Widget w) => Navigator.push(context, MaterialPageRoute(builder: (_) => w));
-    final rows = <(IconData, String, VoidCallback)>[
-      (Icons.person_outline, 'Личные данные', () => push(const SettingsPage())),
-      (Icons.directions_car_outlined, 'Мой автомобиль', () => push(const CarPage())),
-      (Icons.description_outlined, 'Документы', () => push(const DocumentsPage())),
-      (Icons.account_balance_wallet_outlined, 'Способы выплат', () => sheet(context, (_) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Способы выплат'), group([Padding(padding: const EdgeInsets.all(14), child: kv('Kaspi •• 4821', 'Основной'))]), note('Реквизиты маскированы. Добавление — после согласования платёжного провайдера.')]))),
-      (Icons.notifications_none, 'Уведомления', () => push(const SettingsPage())),
-      (Icons.lock_outline, 'Безопасность', () => toast(context, 'Face ID / Touch ID подключаются в полной версии')),
-      (Icons.language, 'Язык', () => push(const SettingsPage())),
-      (Icons.card_giftcard, 'Условия лояльности', () => push(const TermsPage())),
-      (Icons.help_outline, 'Помощь', () => push(const SupportPage())),
-      (Icons.science_outlined, 'Демо-инструменты', () => push(const DemoPage())),
+    final rows = <(IconData, String, String, VoidCallback)>[
+      (Icons.person_outline, 'Личные данные', 'ФИО, телефон, дата рождения', () => push(const SettingsPage())),
+      (Icons.directions_car_outlined, 'Мой автомобиль', 'Информация о машине', () => push(const CarPage())),
+      (Icons.description_outlined, 'Документы', 'Водительские права, техпаспорт, страховка', () => push(const DocumentsPage())),
+      (Icons.account_balance_wallet_outlined, 'Способы выплат', 'Kaspi, реквизиты', () => sheet(context, (_) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Способы выплат'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: kv('Kaspi •• 4821', 'Основной')), note('Реквизиты маскированы. Добавление — после согласования платёжного провайдера.')]))),
+      (Icons.notifications_none, 'Уведомления', 'Настройки уведомлений', () => push(const SettingsPage())),
+      (Icons.lock_outline, 'Безопасность', 'Смена пароля, Face ID / Touch ID', () => toast(context, 'Face ID / Touch ID подключаются в полной версии')),
+      (Icons.language, 'Язык', 'Қазақша / Русский', () => push(const SettingsPage())),
+      (Icons.card_giftcard, 'Условия лояльности', 'Кэшбэк, вывод, правила', () => push(const TermsPage())),
+      (Icons.help_outline, 'Помощь', 'Частые вопросы', () => push(const SupportPage())),
+      (Icons.science_outlined, 'Демо-инструменты', 'Только для показа прототипа', () => push(const DemoPage())),
+      (Icons.logout, 'Выйти из аккаунта', '', () => toast(context, 'Выход (демо)')),
     ];
-    return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 80), children: [
-      ScreenHead('Профиль', trailing: GestureDetector(onTap: () => push(const SettingsPage()), child: Container(width: 34, height: 34, decoration: const BoxDecoration(color: kFill, shape: BoxShape.circle), child: const Icon(Icons.settings_outlined, size: 18, color: kBlue)))),
+    return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
+      ScreenHead('Профиль', trailing: GestureDetector(onTap: () => push(const SettingsPage()), child: Container(width: 42, height: 42, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: kShadow), child: const Icon(Icons.settings_outlined, size: 22)))),
       Padding(
-        padding: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.fromLTRB(2, 0, 2, 16),
         child: Row(children: [
-          const Avatar(size: 64),
+          const Avatar(size: 72),
           const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${s.first} ${s.last}', style: const TextStyle(fontSize: 20, height: 25 / 20, fontWeight: FontWeight.w600, letterSpacing: -.3)), const Text('Водитель', style: TextStyle(color: kMut, fontSize: 13))])),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${s.first}\n${s.last}', style: const TextStyle(fontSize: 20, height: 24 / 20, fontWeight: FontWeight.w700, letterSpacing: -.5)), const Text('Водитель', style: TextStyle(color: kMut, fontSize: 15))])),
+          GestureDetector(
+            onTap: () => push(const DepositPage()),
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
+              decoration: BoxDecoration(color: Colors.white.withValues(alpha: .9), borderRadius: BorderRadius.circular(20), boxShadow: kShadow),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                IconBox(Icons.currency_exchange, bg: Tone.blue.bg, fg: kBlue, size: 30),
+                const SizedBox(width: 6),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Бонусы', style: TextStyle(color: kMut, fontSize: 12.5, height: 15 / 12.5)), Text(money(s.depBalance), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, height: 22 / 18, letterSpacing: -.5))]),
+              ]),
+            ),
+          ),
         ]),
       ),
-      group([
-        InkWell(
-          onTap: () => push(const DepositPage()),
-          child: Padding(padding: const EdgeInsets.all(12), child: Row(children: [
-            toneIcon(Icons.currency_exchange, Tone.blue),
-            const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Бонусный баланс', style: TextStyle(color: kMut, fontSize: 12, height: 15 / 12)), Text(money(s.depBalance), style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 17, height: 22 / 17))])),
-            const Icon(Icons.chevron_right, size: 18, color: Color(0xFFC4C4C7)),
-          ])),
+      for (final r in rows)
+        AppCard(
+          margin: const EdgeInsets.only(bottom: 10),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          onTap: r.$4,
+          child: Row(children: [
+            toneIcon(r.$1, Tone.gray),
+            const SizedBox(width: 14),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(r.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17, height: 21 / 17, letterSpacing: -.3)), if (r.$3.isNotEmpty) Text(r.$3, style: const TextStyle(color: kMut, fontSize: 13, height: 17 / 13))])),
+            const Icon(Icons.chevron_right, size: 17, color: Color(0xFFB4B9C8)),
+          ]),
         ),
-      ]),
-      group([for (final (i, r) in rows.indexed) ListRow(r.$1, Tone.gray, r.$2, onTap: r.$3, last: i == rows.length - 1)]),
-      group([ListRow(Icons.logout, Tone.gray, 'Выйти из аккаунта', destructive: true, last: true, onTap: () => toast(context, 'Выход (демо)'))]),
     ]);
   }
 }

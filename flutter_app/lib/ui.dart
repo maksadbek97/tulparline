@@ -1,35 +1,36 @@
 import 'package:flutter/material.dart';
 
-/// Дизайн-токены (iOS HIG). Сетка 4/8 pt, поля экрана 16, мин. зона касания 44.
-/// Типографика: Title 28/34 · Headline 15/20 · Body 15/20 · Footnote 13/18 · Caption 12/16 · Tab 10.
-const kBlue = Color(0xFF007AFF);
-const kGreen = Color(0xFF34C759);
-const kRed = Color(0xFFFF3B30);
-const kOrange = Color(0xFFFF9500);
-const kIndigo = Color(0xFF5856D6);
-const kInk = Color(0xFF000000);
-const kDark = Color(0xFF1C1C1E);
-const kMut = Color(0xFF8E8E93);
-const kBg = Color(0xFFF2F2F7);
-const kLine = Color(0x2E3C3C43);
-const kFill = Color(0x1F787880);
-const kOk = Color(0xFF248A3D);
-const kErr = Color(0xFFFF3B30);
-const double kM = 16; // поля экрана
-const double kR = 16; // радиус карточек
+/// Токены: мягкий стиль Apple по референсу. Поля 12, радиус карточек 22, SF Pro.
+const kBlue = Color(0xFF2F6BFF);
+const kBlue2 = Color(0xFF5F94FF);
+const kGreen = Color(0xFF16B05A);
+const kRed = Color(0xFFFF4D5A);
+const kOrange = Color(0xFFFF9F0A);
+const kIndigo = Color(0xFF6A5CF0);
+const kInk = Color(0xFF0B0B0F);
+const kDark = Color(0xFF1D1E24);
+const kMut = Color(0xFF8A90A3);
+const kBg = Color(0xFFF5F7FC);
+const kLine = Color(0x1A3C4664);
+const kFill = Color(0x24787F9E);
+const kOk = Color(0xFF12994A);
+const kErr = Color(0xFFFF4D5A);
+const double kM = 12;
+const double kR = 22;
 
-List<BoxShadow> get kShadow => const [BoxShadow(color: Color(0x0A000000), blurRadius: 2, offset: Offset(0, 1))];
+List<BoxShadow> get kShadow => [BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .2), blurRadius: 32, offset: const Offset(0, 12), spreadRadius: -14), BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .05), blurRadius: 2, offset: const Offset(0, 1))];
 
-/// Белая карточка.
+/// Мягкая стеклянная карточка.
 class AppCard extends StatelessWidget {
-  const AppCard({super.key, required this.child, this.padding = const EdgeInsets.all(14), this.onTap, this.margin = const EdgeInsets.only(bottom: 12)});
+  const AppCard({super.key, required this.child, this.padding = const EdgeInsets.all(16), this.onTap, this.margin = const EdgeInsets.only(bottom: 12), this.gradient});
   final Widget child;
   final EdgeInsets padding, margin;
   final VoidCallback? onTap;
+  final Gradient? gradient;
   @override
   Widget build(BuildContext context) => Container(
         margin: margin,
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(kR), boxShadow: kShadow),
+        decoration: BoxDecoration(color: gradient == null ? Colors.white.withValues(alpha: .9) : null, gradient: gradient, borderRadius: BorderRadius.circular(kR), border: Border.all(color: Colors.white, width: 1), boxShadow: kShadow),
         child: Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(kR),
@@ -38,81 +39,86 @@ class AppCard extends StatelessWidget {
       );
 }
 
-/// Тёмная карточка.
+/// Тёмная карточка: фото машины и круг с логотипом.
 class DarkCard extends StatelessWidget {
-  const DarkCard({super.key, required this.child, this.padding = const EdgeInsets.all(14), this.car = false, this.carTop, this.carWidthFactor = .5, this.margin = const EdgeInsets.only(bottom: 12)});
+  const DarkCard({super.key, required this.child, this.padding = const EdgeInsets.all(16), this.car, this.carWidth = .64, this.carRight = -10, this.carTop, this.carBottom, this.glow = false, this.glowTop = 16, this.glowRight = 46, this.minHeight = 0, this.margin = const EdgeInsets.only(bottom: 12)});
   final Widget child;
   final EdgeInsets padding, margin;
-  final bool car;
-  final double? carTop;
-  final double carWidthFactor;
+  final String? car;
+  final double carWidth, carRight, glowTop, glowRight, minHeight;
+  final double? carTop, carBottom;
+  final bool glow;
   @override
-  Widget build(BuildContext context) => Container(
-        margin: margin,
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(kR), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF2C2C2E), Color(0xFF101012)])),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(children: [
-          if (car)
-            Positioned(
-              right: -10,
-              top: carTop,
-              bottom: carTop == null ? -4 : null,
-              child: Opacity(opacity: .7, child: SizedBox(width: 390 * carWidthFactor, child: const AspectRatio(aspectRatio: 330 / 120, child: CustomPaint(painter: CarPainter())))),
-            ),
-          Padding(padding: padding, child: child),
-        ]),
-      );
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    return Container(
+      margin: margin,
+      constraints: BoxConstraints(minHeight: minHeight),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(kR),
+        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1D1E24), Color(0xFF050506)]),
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .4), blurRadius: 40, offset: const Offset(0, 18), spreadRadius: -18)],
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Stack(children: [
+        Positioned(right: -50, top: -50, child: Container(width: 240, height: 170, decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [const Color(0xFF5A6EB4).withValues(alpha: .35), Colors.transparent])))),
+        if (glow) Positioned(right: glowRight, top: glowTop, child: const LogoGlow()),
+        if (car != null) Positioned(right: carRight, top: carTop, bottom: carBottom, child: CarPhoto(car!, width: w * carWidth)),
+        Padding(padding: padding, child: child),
+      ]),
+    );
+  }
 }
 
-/// Иконка в цветной плашке — как в «Настройках» iOS (29–30 pt, радиус ~23%).
+/// Иконка в мягкой цветной плашке.
 class IconBox extends StatelessWidget {
-  const IconBox(this.icon, {super.key, this.bg = kMut, this.fg = Colors.white, this.size = 30});
+  const IconBox(this.icon, {super.key, this.bg = const Color(0xFFEFF1F6), this.fg = kInk, this.size = 40});
   final IconData icon;
   final Color bg, fg;
   final double size;
   @override
-  Widget build(BuildContext context) => Container(width: size, height: size, decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(size * .24)), child: Icon(icon, color: fg, size: size * .58));
+  Widget build(BuildContext context) => Container(width: size, height: size, decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(size * .32)), child: Icon(icon, color: fg, size: size * .52));
 }
 
 class Tone {
   const Tone(this.bg, this.fg);
   final Color bg, fg;
-  static const green = Tone(kGreen, Colors.white);
-  static const red = Tone(kRed, Colors.white);
-  static const blue = Tone(kBlue, Colors.white);
-  static const amber = Tone(kOrange, Colors.white);
-  static const violet = Tone(kIndigo, Colors.white);
-  static const dark = Tone(kDark, Colors.white);
-  static const gray = Tone(kMut, Colors.white);
+  static const green = Tone(Color(0xFFE2F7EA), Color(0xFF12A050));
+  static const red = Tone(Color(0xFFFFE7E8), Color(0xFFE0384A));
+  static const blue = Tone(Color(0xFFE5EDFF), kBlue);
+  static const amber = Tone(Color(0xFFFFEEC9), Color(0xFFD98300));
+  static const violet = Tone(Color(0xFFECE9FF), kIndigo);
+  static const dark = Tone(kInk, Colors.white);
+  static const gray = Tone(Color(0xFFEFF1F6), kInk);
 }
 
-Widget toneIcon(IconData i, Tone t, {double size = 30}) => IconBox(i, bg: t.bg, fg: t.fg, size: size);
+Widget toneIcon(IconData i, Tone t, {double size = 40}) => IconBox(i, bg: t.bg, fg: t.fg, size: size);
 
-/// Статус-чип (11/14).
+/// Статус-чип.
 class StatusChip extends StatelessWidget {
   const StatusChip(this.text, {super.key});
   final String text;
   @override
   Widget build(BuildContext context) {
-    Color bg = kFill, fg = const Color(0xFF3C3C43);
+    Color bg = kFill, fg = const Color(0xFF454A5C);
     if (RegExp(r'Начислено|Выполнена|Проверен|Действителен|Решено|Закрыто|выполнено').hasMatch(text)) {
-      bg = const Color(0x2934C759);
-      fg = const Color(0xFF1A8A3A);
+      bg = const Color(0x2416B05A);
+      fg = const Color(0xFF0F8A45);
     } else if (RegExp(r'проверки|обработ|Создана|Новое|В работе|Ожидает|Истекает').hasMatch(text)) {
-      bg = const Color(0x29FF9500);
-      fg = const Color(0xFFA35A00);
+      bg = const Color(0x29FF9F0A);
+      fg = const Color(0xFFA35F00);
     } else if (RegExp(r'Отклонена|Отменён').hasMatch(text)) {
-      bg = const Color(0x24FF3B30);
-      fg = const Color(0xFFC4281E);
-    } else if (RegExp(r'Накоплени|Вывод доступен|Основной|Выбрано').hasMatch(text)) {
-      bg = const Color(0x1F007AFF);
-      fg = const Color(0xFF0062D1);
+      bg = const Color(0x24FF4D5A);
+      fg = const Color(0xFFC8323E);
+    } else if (RegExp(r'Накоплени|Вывод доступен|Основной|Выбрано|кэшбэка').hasMatch(text)) {
+      bg = const Color(0x1F2F6BFF);
+      fg = const Color(0xFF1F55D8);
     }
-    return Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(99)), child: Text(text, style: TextStyle(color: fg, fontSize: 11, height: 14 / 11, fontWeight: FontWeight.w600)));
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3), decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(99)), child: Text(text, style: TextStyle(color: fg, fontSize: 12, height: 16 / 12, fontWeight: FontWeight.w600)));
   }
 }
 
-/// Основная кнопка: высота 48, радиус 12, 16 semibold.
+/// Основная кнопка: высота 50, радиус 16.
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton(this.label, {super.key, this.onPressed, this.light = false, this.outline = false});
   final String label;
@@ -120,14 +126,14 @@ class PrimaryButton extends StatelessWidget {
   final bool light, outline;
   @override
   Widget build(BuildContext context) {
-    final bg = outline ? kFill : (light ? Colors.white : kBlue);
-    final fg = outline ? kBlue : (light ? kInk : Colors.white);
+    final bg = outline ? Colors.white : (light ? Colors.white : kInk);
+    final fg = outline || light ? kInk : Colors.white;
     return SizedBox(
       width: double.infinity,
-      height: 48,
+      height: 50,
       child: FilledButton(
         onPressed: onPressed,
-        style: FilledButton.styleFrom(backgroundColor: bg, foregroundColor: fg, elevation: 0, padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+        style: FilledButton.styleFrom(backgroundColor: bg, foregroundColor: fg, elevation: 0, padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: outline ? const BorderSide(color: kInk, width: 1.5) : BorderSide.none), textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 17)),
         child: Text(label),
       ),
     );
@@ -135,7 +141,7 @@ class PrimaryButton extends StatelessWidget {
 }
 
 class LogoMark extends StatelessWidget {
-  const LogoMark({super.key, this.size = 28});
+  const LogoMark({super.key, this.size = 36});
   final double size;
   @override
   Widget build(BuildContext context) => SizedBox(width: size, height: size, child: const CustomPaint(painter: _LogoPainter()));
@@ -168,39 +174,66 @@ class LogoRow extends StatelessWidget {
         LogoMark(),
         SizedBox(width: 10),
         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('TULPAR LINE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: 1.6, fontSize: 13)),
+          Text('TULPAR LINE', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, letterSpacing: 2.1, fontSize: 13)),
           Text('ТАКСОПАРК', style: TextStyle(color: Colors.white54, fontWeight: FontWeight.w600, letterSpacing: 3, fontSize: 9)),
         ]),
       ]);
 }
 
 class Avatar extends StatelessWidget {
-  const Avatar({super.key, this.size = 40});
+  const Avatar({super.key, this.size = 62});
   final double size;
   @override
   Widget build(BuildContext context) => Container(
         width: size,
         height: size,
-        decoration: BoxDecoration(shape: BoxShape.circle, ),
+        decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFDFE3EE), boxShadow: [BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .35), blurRadius: 18, offset: const Offset(0, 6), spreadRadius: -6)]),
         clipBehavior: Clip.antiAlias,
-        child: const CustomPaint(painter: _AvatarPainter()),
+        child: Image.asset('assets/avatar.jpg', fit: BoxFit.cover),
       );
 }
 
-class _AvatarPainter extends CustomPainter {
-  const _AvatarPainter();
+/// Фото машины на тёмном фоне: чёрный фон картинки «растворяется» в карточке.
+class CarPhoto extends StatelessWidget {
+  const CarPhoto(this.asset, {super.key, required this.width});
+  final String asset;
+  final double width;
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+        child: ShaderMask(
+          blendMode: BlendMode.dstIn,
+          shaderCallback: (r) => const LinearGradient(begin: Alignment.centerRight, end: Alignment.centerLeft, stops: [.55, 1], colors: [Colors.white, Colors.transparent]).createShader(r),
+          child: Image.asset(asset, width: width, fit: BoxFit.cover),
+        ),
+      );
+}
+
+/// Белый круг с логотипом (декор тёмных карточек).
+class LogoGlow extends StatelessWidget {
+  const LogoGlow({super.key});
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 96,
+        height: 96,
+        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.white.withValues(alpha: .3), blurRadius: 50)]),
+        alignment: Alignment.center,
+        child: const SizedBox(width: 56, height: 56, child: CustomPaint(painter: _GlowLogoPainter())),
+      );
+}
+
+class _GlowLogoPainter extends CustomPainter {
+  const _GlowLogoPainter();
   @override
   void paint(Canvas c, Size s) {
-    final k = s.width / 64;
-    Paint f(int v) => Paint()..color = Color(v);
-    c.drawRect(Offset.zero & s, f(0xFFE3E8F4));
-    c.drawPath(Path()..moveTo(6 * k, 64 * k)..quadraticBezierTo(8 * k, 45 * k, 32 * k, 45 * k)..quadraticBezierTo(56 * k, 45 * k, 58 * k, 64 * k)..close(), f(0xFF16171B));
-    c.drawRRect(RRect.fromRectAndRadius(Rect.fromLTWH(27 * k, 37 * k, 10 * k, 10 * k), Radius.circular(4 * k)), f(0xFFDFB08A));
-    c.drawOval(Rect.fromCenter(center: Offset(32 * k, 27 * k), width: 24 * k, height: 28 * k), f(0xFFF2CBA8));
-    c.drawPath(Path()..moveTo(19 * k, 27 * k)..quadraticBezierTo(17 * k, 10 * k, 33 * k, 10 * k)..quadraticBezierTo(47 * k, 10 * k, 45 * k, 25 * k)..quadraticBezierTo(40 * k, 18 * k, 33 * k, 19 * k)..quadraticBezierTo(24 * k, 19 * k, 19 * k, 27 * k)..close(), f(0xFF1B1410));
-    c.drawCircle(Offset(27 * k, 29 * k), 1.5 * k, f(0xFF2A1D17));
-    c.drawCircle(Offset(37 * k, 29 * k), 1.5 * k, f(0xFF2A1D17));
-    c.drawArc(Rect.fromLTWH(28 * k, 33 * k, 8 * k, 5 * k), .3, 2.5, false, Paint()..color = const Color(0xFFA15D4A)..style = PaintingStyle.stroke..strokeWidth = 1.7 * k..strokeCap = StrokeCap.round);
+    final w = s.width / 40;
+    final p = Path()
+      ..moveTo(20 * w, 8 * w)
+      ..lineTo(31 * w, 32 * w)
+      ..lineTo(20 * w, 26 * w)
+      ..lineTo(9 * w, 32 * w)
+      ..close();
+    c.drawPath(p, Paint()..color = kInk);
+    c.drawPath(p, Paint()..color = kInk..style = PaintingStyle.stroke..strokeWidth = 2 * w..strokeJoin = StrokeJoin.round);
   }
 
   @override
@@ -259,7 +292,7 @@ class IncomeExpenseChart extends StatelessWidget {
   final List<String> labels;
   @override
   Widget build(BuildContext context) {
-    const h = 120.0;
+    const h = 128.0;
     var mx = 1;
     for (var i = 0; i < inc.length; i++) {
       if (inc[i] > mx) mx = inc[i];
@@ -280,9 +313,9 @@ class IncomeExpenseChart extends StatelessWidget {
         height: h,
         child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           SizedBox(
-            width: 30,
+            width: 36,
             child: Stack(clipBehavior: Clip.none, children: [
-              for (var j = 0; j <= n; j++) Positioned(bottom: j * h / n - 7, left: 0, right: 5, child: Text(j == 0 ? '0' : '${j * st ~/ 1000}K', textAlign: TextAlign.right, style: const TextStyle(fontSize: 10, height: 14 / 10, color: kMut))),
+              for (var j = 0; j <= n; j++) Positioned(bottom: j * h / n - 7, left: 0, right: 5, child: Text(j == 0 ? '0' : '${j * st ~/ 1000}K', textAlign: TextAlign.right, style: const TextStyle(fontSize: 12, height: 16 / 12, color: kMut))),
             ]),
           ),
           Expanded(
@@ -294,9 +327,9 @@ class IncomeExpenseChart extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 1),
                       child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                        Expanded(child: FractionallySizedBox(heightFactor: inc[i] / top, child: Container(decoration: const BoxDecoration(color: kBlue, borderRadius: BorderRadius.vertical(top: Radius.circular(2)))))),
+                        Expanded(child: FractionallySizedBox(heightFactor: inc[i] / top, child: Container(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF6B9BFF), kBlue]), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))))),
                         const SizedBox(width: 1),
-                        Expanded(child: FractionallySizedBox(heightFactor: exp[i] / top, child: Container(decoration: const BoxDecoration(color: Color(0xFFFF8A80), borderRadius: BorderRadius.vertical(top: Radius.circular(2)))))),
+                        Expanded(child: FractionallySizedBox(heightFactor: exp[i] / top, child: Container(decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFFFFB3B8), Color(0xFFFF7A85)]), borderRadius: BorderRadius.vertical(top: Radius.circular(4)))))),
                       ]),
                     ),
                   ),
@@ -307,14 +340,14 @@ class IncomeExpenseChart extends StatelessWidget {
       ),
       const SizedBox(height: 4),
       Padding(
-        padding: const EdgeInsets.only(left: 30),
-        child: Row(children: [for (final l in labels) Expanded(child: Text(l, softWrap: false, overflow: TextOverflow.visible, style: const TextStyle(fontSize: 10, color: kMut)))]),
+        padding: const EdgeInsets.only(left: 36),
+        child: Row(children: [for (final l in labels) Expanded(child: Text(l, softWrap: false, overflow: TextOverflow.visible, style: const TextStyle(fontSize: 12, color: kMut)))]),
       ),
     ]);
   }
 }
 
-/// Сегментированный переключатель (iOS segmented control, высота 24).
+/// Переключатель: тёмная активная «таблетка».
 class MiniTabs extends StatelessWidget {
   const MiniTabs({super.key, required this.items, required this.value, required this.onChanged});
   final List<(String, String)> items;
@@ -322,18 +355,18 @@ class MiniTabs extends StatelessWidget {
   final ValueChanged<String> onChanged;
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(2),
-        decoration: BoxDecoration(color: kFill, borderRadius: BorderRadius.circular(8)),
+        padding: const EdgeInsets.all(3),
+        decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(14)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           for (final (k, label) in items)
             GestureDetector(
               onTap: () => onChanged(k),
               child: Container(
-                height: 24,
+                height: 30,
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(color: value == k ? Colors.white : Colors.transparent, borderRadius: BorderRadius.circular(6), boxShadow: value == k ? const [BoxShadow(color: Color(0x24000000), blurRadius: 2, offset: Offset(0, 1))] : null),
-                child: Text(label, style: TextStyle(fontSize: 12, fontWeight: value == k ? FontWeight.w600 : FontWeight.w500)),
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(color: value == k ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(11)),
+                child: Text(label, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w500, color: value == k ? Colors.white : const Color(0xFF5A6075))),
               ),
             ),
         ]),
@@ -351,7 +384,7 @@ Future<T?> sheet<T>(BuildContext c, Widget Function(BuildContext) b) => showModa
       context: c,
       isScrollControlled: true,
       backgroundColor: kBg,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(12))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(kM, 8, kM, 24 + MediaQuery.of(ctx).viewInsets.bottom),
         child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -361,8 +394,8 @@ Future<T?> sheet<T>(BuildContext c, Widget Function(BuildContext) b) => showModa
       ),
     );
 
-Widget h2(String t) => Text(t, style: const TextStyle(fontSize: 28, height: 34 / 28, fontWeight: FontWeight.w700, letterSpacing: -.6));
-Widget h3(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: const TextStyle(fontSize: 15, height: 20 / 15, fontWeight: FontWeight.w600)));
+Widget h2(String t) => Text(t, style: const TextStyle(fontSize: 32, height: 38 / 32, fontWeight: FontWeight.w700, letterSpacing: -.9));
+Widget h3(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: const TextStyle(fontSize: 17, height: 22 / 17, fontWeight: FontWeight.w600)));
 Widget note(String t) => Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(t, style: const TextStyle(fontSize: 12, color: kMut, height: 16 / 12)));
 Widget kv(String k, String v) => Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Flexible(child: Text(k, style: const TextStyle(color: kMut, fontSize: 14))), const SizedBox(width: 12), Flexible(child: Text(v, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)))]));
 Widget banner(String t, {bool info = false}) => Container(margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), decoration: BoxDecoration(color: info ? const Color(0x1A007AFF) : const Color(0x24FF9500), borderRadius: BorderRadius.circular(12)), child: Text(t, style: TextStyle(fontSize: 13, height: 18 / 13, color: info ? const Color(0xFF0A4AA3) : const Color(0xFF6B3D00))));
@@ -378,7 +411,7 @@ class SubPage extends StatelessWidget {
         body: SafeArea(
           child: ListView(padding: const EdgeInsets.fromLTRB(kM, 0, kM, 40), children: [
             Align(alignment: Alignment.centerLeft, child: TextButton.icon(onPressed: () => Navigator.pop(context), style: TextButton.styleFrom(padding: const EdgeInsets.only(right: 8), minimumSize: const Size(44, 36)), icon: const Icon(Icons.chevron_left, color: kBlue, size: 26), label: Text(back, style: const TextStyle(fontSize: 16, color: kBlue)))),
-            Text(title, style: const TextStyle(fontSize: 24, height: 30 / 24, fontWeight: FontWeight.w700, letterSpacing: -.5)),
+            Text(title, style: const TextStyle(fontSize: 26, height: 32 / 26, fontWeight: FontWeight.w700, letterSpacing: -.5)),
             const SizedBox(height: 12),
             ...children,
           ]),

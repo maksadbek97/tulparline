@@ -70,10 +70,10 @@ class Shell extends StatefulWidget {
 class _ShellState extends State<Shell> {
   int tab = 0;
   static const _tabs = [
-    (Icons.home_outlined, Icons.home_rounded, 'Главная'),
-    (Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, 'Финансы'),
-    (Icons.grid_view_outlined, Icons.grid_view_rounded, 'Сервис'),
-    (Icons.person_outline_rounded, Icons.person_rounded, 'Профиль'),
+    (Icons.home_outlined, 'Главная'),
+    (Icons.account_balance_wallet_outlined, 'Финансы'),
+    (Icons.apps_rounded, 'Сервис'),
+    (Icons.person_outline_rounded, 'Профиль'),
   ];
 
   void goTab(int i) => setState(() => tab = i);
@@ -82,33 +82,42 @@ class _ShellState extends State<Shell> {
   Widget build(BuildContext context) {
     final pages = [HomePage(onTab: goTab), const FinancePage(), const ServicePage(), const ProfilePage()];
     final bottom = MediaQuery.of(context).padding.bottom;
+    Widget blob(Alignment a, Color c) => Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(gradient: RadialGradient(center: a, radius: .9, colors: [c, Colors.transparent]))));
     return Scaffold(
       backgroundColor: kBg,
       body: Stack(children: [
+        blob(const Alignment(1.1, -1.05), const Color(0x8CBECDFF)),
+        blob(const Alignment(-1.2, -.2), const Color(0x66D7CDFF)),
+        blob(const Alignment(.8, 1.1), const Color(0x73C8E1FF)),
         SafeArea(bottom: false, child: IndexedStack(index: tab, children: pages)),
-        // Стандартный iOS tab bar: 49 pt + safe area, полупрозрачный, hairline сверху.
+        // Плавающее стеклянное меню: 62 pt, радиус 31, активный пункт — тёмная «таблетка».
         Positioned(
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: ClipRect(
+          left: kM,
+          right: kM,
+          bottom: 14 + bottom,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(31),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
               child: Container(
-                height: 49 + bottom,
-                padding: EdgeInsets.only(bottom: bottom),
-                decoration: const BoxDecoration(color: Color(0xDBF9F9F9), border: Border(top: BorderSide(color: kLine, width: .5))),
+                height: 62,
+                padding: const EdgeInsets.symmetric(horizontal: 7),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: .82), borderRadius: BorderRadius.circular(31), border: Border.all(color: Colors.white), boxShadow: [BoxShadow(color: const Color(0xFF1E2D64).withValues(alpha: .3), blurRadius: 40, offset: const Offset(0, 18), spreadRadius: -14)]),
                 child: Row(children: [
                   for (var i = 0; i < _tabs.length; i++)
                     Expanded(
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => goTab(i),
-                        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                          Icon(tab == i ? _tabs[i].$2 : _tabs[i].$1, size: 24, color: tab == i ? kBlue : kMut),
-                          const SizedBox(height: 2),
-                          Text(_tabs[i].$3, style: TextStyle(fontSize: 10, height: 12 / 10, fontWeight: FontWeight.w500, color: tab == i ? kBlue : kMut)),
-                        ]),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height: 48,
+                          decoration: BoxDecoration(color: tab == i ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(24)),
+                          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Icon(_tabs[i].$1, size: 23, color: tab == i ? Colors.white : const Color(0xFF7E8497)),
+                            Text(_tabs[i].$2, style: TextStyle(fontSize: 11.5, height: 14 / 11.5, fontWeight: FontWeight.w500, color: tab == i ? Colors.white : const Color(0xFF7E8497))),
+                          ]),
+                        ),
                       ),
                     ),
                 ]),

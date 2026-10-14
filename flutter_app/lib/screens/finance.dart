@@ -23,11 +23,11 @@ IconData _opIcon(Op o) {
 }
 
 Tone _opTone(Op o) => switch (o.type) {
-      'Доход' || 'Пополнение' => Tone.green,
+      'Пополнение' => Tone.green,
       'Выплата' => Tone.blue,
       'Начисление' => Tone.amber,
-      'Расход' => Tone.red,
-      _ => Tone.violet,
+      'Корректировка' => Tone.violet,
+      _ => Tone.gray,
     };
 
 class OpTile extends StatelessWidget {
@@ -40,20 +40,22 @@ class OpTile extends StatelessWidget {
     return InkWell(
       onTap: () => _detail(context, o),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 52),
+        constraints: const BoxConstraints(minHeight: 56),
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(children: [
           toneIcon(_opIcon(o), _opTone(o)),
-          const SizedBox(width: 10),
+          const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(o.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, height: 20 / 15, decoration: deco)),
-            Text('${o.date} · ${o.src}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMut, fontSize: 12, height: 16 / 12)),
+            Text(o.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17, height: 22 / 17, letterSpacing: -.3, decoration: deco)),
+            Text('${o.date} · ${o.src}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMut, fontSize: 14, height: 18 / 14)),
           ])),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text('${pos ? '+' : ''}${money(o.amount)}', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: pos ? kOk : kInk, decoration: deco)),
+            Text('${pos ? '+' : ''}${money(o.amount)}', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, letterSpacing: -.3, color: pos ? kOk : kErr, decoration: deco)),
             if (o.status != 'Выполнена') StatusChip(o.status),
           ]),
+          const SizedBox(width: 4),
+          const Icon(Icons.chevron_right, size: 17, color: Color(0xFFB4B9C8)),
         ]),
       ),
     );
@@ -86,46 +88,51 @@ class FinancePage extends StatelessWidget {
     final s = AppScope.of(context);
     final tt = s.totals(), net = tt.inc - tt.exp, ser = s.series();
     final pl = s.period == Period.day ? 'за день' : periodLabel[s.period]!.toLowerCase();
-    return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 80), children: [
+    return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
       ScreenHead('Финансы', trailing: GestureDetector(
         onTap: () => _periodPick(context, s),
-        child: Container(height: 30, padding: const EdgeInsets.symmetric(horizontal: 10), decoration: BoxDecoration(color: kFill, borderRadius: BorderRadius.circular(15)), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.calendar_today_outlined, size: 14, color: kBlue), const SizedBox(width: 6), Text(periodLabel[s.period]!, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: kBlue)), const Icon(Icons.keyboard_arrow_down, size: 16, color: kBlue)])),
+        child: Container(height: 40, padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: kShadow), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.calendar_today_outlined, size: 18), const SizedBox(width: 8), Text(periodLabel[s.period]!, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)), const Icon(Icons.keyboard_arrow_down, size: 20)])),
       )),
       if (!s.synced) banner('Данные не синхронизированы с Yandex. Показаны последние известные значения (обновлено в 14:20).'),
       DarkCard(
-        car: true,
-        carTop: 36,
-        carWidthFactor: .48,
+        car: 'assets/car-rear.png',
+        carWidth: .56,
+        carRight: -24,
+        carBottom: 30,
+        glow: true,
+        glowRight: 62,
+        glowTop: 14,
+        minHeight: 208,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const LogoRow(),
-            GestureDetector(onTap: () => _info(context, s), child: Container(width: 28, height: 28, decoration: const BoxDecoration(color: Color(0x29FFFFFF), shape: BoxShape.circle), child: const Icon(Icons.more_horiz, color: Colors.white, size: 15))),
+            GestureDetector(onTap: () => _info(context, s), child: Container(width: 32, height: 32, decoration: const BoxDecoration(color: Color(0x24FFFFFF), shape: BoxShape.circle), child: const Icon(Icons.more_horiz, color: Colors.white, size: 18))),
           ]),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
           Row(children: [
-            const Text('Баланс', style: TextStyle(color: Colors.white70, fontSize: 13)),
-            const SizedBox(width: 6),
+            const Text('Баланс', style: TextStyle(color: Colors.white70, fontSize: 16)),
+            const SizedBox(width: 8),
             GestureDetector(onTap: () {
               s.hideBalance = !s.hideBalance;
               s.notify();
-            }, child: Icon(s.hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white60, size: 15)),
+            }, child: Icon(s.hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white60, size: 18)),
           ]),
-          Text(s.hideBalance ? '••••• ₸' : money(s.available), style: const TextStyle(color: Colors.white, fontSize: 32, height: 38 / 32, fontWeight: FontWeight.w700, letterSpacing: -.8)),
-          if (s.reserved > 0) Text('В резерве под заявки: ${money(s.reserved)}', style: const TextStyle(color: Colors.white60, fontSize: 12)),
-          const SizedBox(height: 12),
+          Text(s.hideBalance ? '••••• ₸' : money(s.available), style: const TextStyle(color: Colors.white, fontSize: 40, height: 46 / 40, fontWeight: FontWeight.w700, letterSpacing: -1.4)),
+          if (s.reserved > 0) Text('В резерве под заявки: ${money(s.reserved)}', style: const TextStyle(color: Colors.white60, fontSize: 13)),
+          const SizedBox(height: 14),
           Row(children: [
             Expanded(child: _BalBtn(Icons.add, 'Пополнить', true, () => _topup(context, s))),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             Expanded(child: _BalBtn(Icons.north_east, 'Вывести', false, () => _withdraw(context, s))),
           ]),
         ]),
       ),
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(child: _Stat(kGreen, Icons.trending_up, 'Доходы', pl, money(tt.inc))),
-        const SizedBox(width: 8),
-        Expanded(child: _Stat(kRed, Icons.trending_down, 'Расходы', pl, money(tt.exp))),
-        const SizedBox(width: 8),
-        Expanded(child: _Stat(kIndigo, Icons.bar_chart_rounded, 'Чистый результат', pl, money(net))),
+        Expanded(child: _Stat(const [Color(0xFFE6F9ED), Color(0xFFF6FDF9)], const Color(0xFF12A050), Icons.trending_up, 'Доходы', pl, money(tt.inc))),
+        const SizedBox(width: 10),
+        Expanded(child: _Stat(const [Color(0xFFFFECEE), Color(0xFFFFF8F8)], const Color(0xFFE0384A), Icons.trending_down, 'Расходы', pl, money(tt.exp))),
+        const SizedBox(width: 10),
+        Expanded(child: _Stat(const [Color(0xFFEEEBFF), Color(0xFFF9F8FF)], kIndigo, Icons.bar_chart_rounded, 'Чистый результат', pl, money(net))),
       ]),
       const SizedBox(height: 12),
       // «Добавить расход» — перед графиком
@@ -134,35 +141,37 @@ class FinancePage extends StatelessWidget {
         child: Container(
           height: 48,
           margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), color: kDark),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(width: 22, height: 22, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.add, size: 14, color: kInk)),
-            const SizedBox(width: 8),
-            const Text('Добавить расход', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16)),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1D1E24), Color(0xFF050506)]), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .45), blurRadius: 28, offset: const Offset(0, 16), spreadRadius: -16)]),
+          child: Stack(alignment: Alignment.center, children: [
+            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Container(width: 28, height: 28, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.add, size: 18, color: kInk)),
+              const SizedBox(width: 12),
+              const Text('Добавить расход', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 18)),
+            ]),
+            const Positioned(right: 16, child: Icon(Icons.chevron_right, color: Colors.white60, size: 20)),
           ]),
         ),
       ),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Expanded(child: Text('Доходы и расходы', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
-          MiniTabs(items: const [('day', 'День'), ('week', 'Неделя'), ('month', 'Месяц')], value: s.period.name, onChanged: (v) => s.setPeriod(Period.values.byName(v))),
-        ]),
+        const Text('График доходов и расходов', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, letterSpacing: -.3)),
+        const SizedBox(height: 8),
+        Align(alignment: Alignment.centerLeft, child: MiniTabs(items: const [('day', 'За день'), ('week', 'Неделя'), ('month', 'Месяц')], value: s.period.name, onChanged: (v) => s.setPeriod(Period.values.byName(v)))),
         const SizedBox(height: 8),
         IncomeExpenseChart(inc: ser.inc, exp: ser.exp, labels: ser.labels),
-        const SizedBox(height: 10),
+        const SizedBox(height: 12),
         Row(children: [
           _Legend(kBlue, 'Доходы', money(tt.inc)),
-          const SizedBox(width: 14),
-          _Legend(const Color(0xFFFF8A80), 'Расходы', money(tt.exp)),
+          const SizedBox(width: 18),
+          _Legend(const Color(0xFFFF7A85), 'Расходы', money(tt.exp)),
           const Spacer(),
-          GestureDetector(onTap: () => _breakdown(context, s), child: const Text('Подробнее ›', style: TextStyle(color: kBlue, fontSize: 14))),
+          GestureDetector(onTap: () => _breakdown(context, s), child: Container(height: 36, padding: const EdgeInsets.symmetric(horizontal: 14), alignment: Alignment.center, decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(16)), child: const Text('Подробнее ›', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)))),
         ]),
         if (s.period == Period.range) note('Демо: произвольный период — последние 14 дней.'),
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Expanded(child: Text('Последние операции', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15))),
-          GestureDetector(onTap: () => sheet(context, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Все операции'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)), child: Column(children: [for (final o in s.ops) OpTile(o)]))])), child: const Text('Все ›', style: TextStyle(color: kBlue, fontSize: 14))),
+          const Expanded(child: Text('Последние операции', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19, letterSpacing: -.4))),
+          GestureDetector(onTap: () => sheet(context, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Все операции'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [for (final o in s.ops) OpTile(o)]))])), child: const Text('Все ›', style: TextStyle(color: kMut, fontSize: 15, fontWeight: FontWeight.w500))),
         ]),
         const SizedBox(height: 4),
         for (final o in s.ops.take(4)) OpTile(o),
@@ -286,33 +295,33 @@ class _BalBtn extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 40,
-          decoration: BoxDecoration(color: white ? Colors.white : Colors.white.withValues(alpha: .18), borderRadius: BorderRadius.circular(12)),
+          height: 42,
+          decoration: BoxDecoration(color: white ? Colors.white : Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(21)),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Icon(icon, size: 16, color: white ? kInk : Colors.white),
-            const SizedBox(width: 6),
-            Text(label, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, color: white ? kInk : Colors.white)),
+            Container(width: 26, height: 26, decoration: BoxDecoration(color: white ? kInk : const Color(0xFF0B0B0F), shape: BoxShape.circle), child: Icon(icon, size: 15, color: Colors.white)),
+            const SizedBox(width: 10),
+            Text(label, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17, color: white ? kInk : Colors.white)),
           ]),
         ),
       );
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat(this.color, this.icon, this.title, this.sub, this.value);
+  const _Stat(this.bg, this.color, this.icon, this.title, this.sub, this.value);
+  final List<Color> bg;
   final Color color;
   final IconData icon;
   final String title, sub, value;
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14), boxShadow: kShadow),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: bg), borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white), boxShadow: kShadow),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          IconBox(icon, bg: color, size: 24),
+          IconBox(icon, bg: Colors.white, fg: color, size: 30),
           const SizedBox(height: 6),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 12, height: 15 / 12, color: Color(0xFF3C3C43))),
-          Text(sub, style: const TextStyle(color: kMut, fontSize: 11, height: 13 / 11)),
-          const SizedBox(height: 2),
-          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, height: 20 / 15, letterSpacing: -.3))),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, height: 18 / 15)),
+          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 19, height: 24 / 19, letterSpacing: -.6))),
+          Text(sub, style: const TextStyle(color: kMut, fontSize: 12.5, height: 15 / 12.5)),
         ]),
       );
 }
@@ -323,7 +332,7 @@ class _Legend extends StatelessWidget {
   final String label, value;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [Container(width: 8, height: 8, decoration: BoxDecoration(color: color, shape: BoxShape.circle)), const SizedBox(width: 4), Text(label, style: const TextStyle(color: kMut, fontSize: 12, height: 16 / 12))]),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+        Row(children: [Container(width: 11, height: 11, decoration: BoxDecoration(color: color, shape: BoxShape.circle)), const SizedBox(width: 6), Text(label, style: const TextStyle(color: kMut, fontSize: 14, height: 18 / 14))]),
+        FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17, height: 22 / 17, letterSpacing: -.4))),
       ]);
 }
