@@ -30,16 +30,16 @@ class DepositPage extends StatelessWidget {
     final pending = s.payouts.any((p) => p.fromDeposit && !{'Выполнена', 'Отклонена'}.contains(p.status));
     return SubPage(title: 'Депозит-карта Tulpar Line', children: [
       DarkCard(padding: const EdgeInsets.all(20), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('Накопленный бонусный баланс', style: TextStyle(color: Colors.white70, fontSize: 12.5)),
-        Text(money(s.depBalance), style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w800, letterSpacing: -1)),
+        const Text('Накопленный бонусный баланс', style: TextStyle(color: Colors.white70, fontSize: 12)),
+        Text(money(s.depBalance), style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.w700, letterSpacing: -1)),
         const SizedBox(height: 8),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('За этот месяц: ${money(s.depMonth)}', style: const TextStyle(color: Colors.white, fontSize: 12.5)), Text('В резерве: ${money(s.depReserved)}', style: const TextStyle(color: Colors.white, fontSize: 12.5))]),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('За этот месяц: ${money(s.depMonth)}', style: const TextStyle(color: Colors.white, fontSize: 12)), Text('В резерве: ${money(s.depReserved)}', style: const TextStyle(color: Colors.white, fontSize: 12))]),
         const SizedBox(height: 12),
         Wrap(spacing: 6, runSpacing: 6, children: [StatusChip(pending ? 'Заявка обрабатывается' : s.windowOpen ? 'Вывод доступен' : 'Вывод доступен 1-го числа'), const StatusChip('Накопление активно')]),
       ])),
       banner('Это отдельный бонусный баланс. Он не входит в основной баланс приложения и в баланс Yandex.', info: true),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [const Expanded(child: Text('Сегодняшнее условие', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16))), StatusChip(s.cashbackStatus)]),
+        Row(children: [const Expanded(child: Text('Сегодняшнее условие', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15))), StatusChip(s.cashbackStatus)]),
         const SizedBox(height: 10),
         ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: (s.orders / 25).clamp(0, 1), minHeight: 12, backgroundColor: const Color(0xFFE7EBF5), color: kBlue)),
         const SizedBox(height: 10),
@@ -55,7 +55,7 @@ class DepositPage extends StatelessWidget {
         PrimaryButton('Подать заявку на вывод', onPressed: () => _withdraw(context, s)),
         note('${s.windowOpen ? 'Окно открыто (демо-режим).' : 'Вне окна заявка недоступна: заявки принимаются только 1-го числа месяца.'} Выплаты обрабатываются вручную после проверки; срок обработки сообщит таксопарк.'),
         for (final p in s.payouts.where((p) => p.fromDeposit))
-          ListTile(contentPadding: EdgeInsets.zero, leading: toneIcon(Icons.north_east, Tone.blue), title: Text('Заявка ${p.id}', style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(p.date), trailing: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [Text(money(p.amount), style: const TextStyle(fontWeight: FontWeight.w800)), StatusChip(p.status)])),
+          ListTile(contentPadding: EdgeInsets.zero, leading: toneIcon(Icons.north_east, Tone.blue), title: Text('Заявка ${p.id}', style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(p.date), trailing: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.end, children: [Text(money(p.amount), style: const TextStyle(fontWeight: FontWeight.w700)), StatusChip(p.status)])),
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         h3('История начислений'),
@@ -71,8 +71,8 @@ class DepositPage extends StatelessWidget {
             child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Row(children: [
               toneIcon(Icons.card_giftcard, Tone.amber),
               const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(d.type, style: const TextStyle(fontWeight: FontWeight.w700)), Text('${d.period}${d.orders != null ? ' · ${d.orders} заказов' : ''}', style: const TextStyle(color: kMut, fontSize: 12.5))])),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text('+${money(d.amount)}', style: const TextStyle(fontWeight: FontWeight.w800, color: kOk)), StatusChip(d.status)]),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(d.type, style: const TextStyle(fontWeight: FontWeight.w700)), Text('${d.period}${d.orders != null ? ' · ${d.orders} заказов' : ''}', style: const TextStyle(color: kMut, fontSize: 12))])),
+              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text('+${money(d.amount)}', style: const TextStyle(fontWeight: FontWeight.w700, color: kOk)), StatusChip(d.status)]),
             ])),
           ),
       ])),

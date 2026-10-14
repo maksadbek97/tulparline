@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -35,15 +37,21 @@ class _TulparAppState extends State<TulparApp> {
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: kBlue, brightness: Brightness.light).copyWith(primary: kInk, surface: kBg),
+          colorScheme: ColorScheme.fromSeed(seedColor: kBlue, brightness: Brightness.light).copyWith(primary: kBlue, surface: kBg),
+          splashFactory: NoSplash.splashFactory,
+          highlightColor: Colors.transparent,
+          textTheme: Typography.blackCupertino.apply(bodyColor: kInk, displayColor: kInk).copyWith(bodyMedium: const TextStyle(fontSize: 15, height: 20 / 15, color: kInk), bodyLarge: const TextStyle(fontSize: 15, height: 20 / 15, color: kInk), titleMedium: const TextStyle(fontSize: 15, color: kInk), labelLarge: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
           scaffoldBackgroundColor: kBg,
           fontFamily: null,
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
             fillColor: Colors.white,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFDDE1EC), width: 1.5)),
-            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: Color(0xFFDDE1EC), width: 1.5)),
-            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: const BorderSide(color: kBlue, width: 1.5)),
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
+            labelStyle: const TextStyle(fontSize: 15, color: kMut),
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+            enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+            focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: kBlue, width: 1.5)),
           ),
         ),
         home: const Shell(),
@@ -62,10 +70,10 @@ class Shell extends StatefulWidget {
 class _ShellState extends State<Shell> {
   int tab = 0;
   static const _tabs = [
-    (Icons.home_rounded, 'Главная'),
-    (Icons.account_balance_wallet_outlined, 'Финансы'),
-    (Icons.apps_rounded, 'Сервис'),
-    (Icons.person_outline_rounded, 'Профиль'),
+    (Icons.home_outlined, Icons.home_rounded, 'Главная'),
+    (Icons.account_balance_wallet_outlined, Icons.account_balance_wallet, 'Финансы'),
+    (Icons.grid_view_outlined, Icons.grid_view_rounded, 'Сервис'),
+    (Icons.person_outline_rounded, Icons.person_rounded, 'Профиль'),
   ];
 
   void goTab(int i) => setState(() => tab = i);
@@ -73,36 +81,39 @@ class _ShellState extends State<Shell> {
   @override
   Widget build(BuildContext context) {
     final pages = [HomePage(onTab: goTab), const FinancePage(), const ServicePage(), const ProfilePage()];
+    final bottom = MediaQuery.of(context).padding.bottom;
     return Scaffold(
+      backgroundColor: kBg,
       body: Stack(children: [
-        Positioned.fill(child: DecoratedBox(decoration: BoxDecoration(gradient: RadialGradient(center: const Alignment(.9, -1.1), radius: 1.1, colors: [const Color(0xFFE1E8FB), kBg])))),
         SafeArea(bottom: false, child: IndexedStack(index: tab, children: pages)),
+        // Стандартный iOS tab bar: 49 pt + safe area, полупрозрачный, hairline сверху.
         Positioned(
-          left: 14,
-          right: 14,
-          bottom: 14 + MediaQuery.of(context).padding.bottom,
-          child: Container(
-            padding: const EdgeInsets.all(7),
-            decoration: BoxDecoration(color: Colors.white.withValues(alpha: .97), borderRadius: BorderRadius.circular(34), boxShadow: [BoxShadow(color: const Color(0xFF141E46).withValues(alpha: .28), blurRadius: 34, offset: const Offset(0, 14), spreadRadius: -12)]),
-            child: Row(children: [
-              for (var i = 0; i < _tabs.length; i++)
-                Expanded(
-                  child: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () => goTab(i),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(vertical: 9),
-                      decoration: BoxDecoration(color: tab == i ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(28)),
-                      child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        Icon(_tabs[i].$1, size: 23, color: tab == i ? Colors.white : kMut),
-                        const SizedBox(height: 3),
-                        Text(_tabs[i].$2, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: tab == i ? Colors.white : kMut)),
-                      ]),
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: ClipRect(
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                height: 49 + bottom,
+                padding: EdgeInsets.only(bottom: bottom),
+                decoration: const BoxDecoration(color: Color(0xDBF9F9F9), border: Border(top: BorderSide(color: kLine, width: .5))),
+                child: Row(children: [
+                  for (var i = 0; i < _tabs.length; i++)
+                    Expanded(
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => goTab(i),
+                        child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                          Icon(tab == i ? _tabs[i].$2 : _tabs[i].$1, size: 24, color: tab == i ? kBlue : kMut),
+                          const SizedBox(height: 2),
+                          Text(_tabs[i].$3, style: TextStyle(fontSize: 10, height: 12 / 10, fontWeight: FontWeight.w500, color: tab == i ? kBlue : kMut)),
+                        ]),
+                      ),
                     ),
-                  ),
-                ),
-            ]),
+                ]),
+              ),
+            ),
           ),
         ),
       ]),
