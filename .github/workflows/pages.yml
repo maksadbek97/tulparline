@@ -28,6 +28,22 @@ jobs:
           mkdir _site
           cp index.html styles.css script.js favicon.svg .nojekyll _site/
           cp -r app _site/app
+      - name: Set up Flutter
+        id: flutter
+        continue-on-error: true
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - name: Build Flutter web
+        if: steps.flutter.outcome == 'success'
+        continue-on-error: true
+        working-directory: flutter_app
+        run: |
+          flutter pub get
+          flutter build web --release --base-href /tulparline/flutter/
+      - name: Add Flutter build to site
+        run: |
+          if [ -d flutter_app/build/web ]; then cp -r flutter_app/build/web _site/flutter; fi
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

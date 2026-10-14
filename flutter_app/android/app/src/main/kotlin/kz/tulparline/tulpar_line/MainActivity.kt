@@ -1,0 +1,5 @@
+package kz.tulparline.tulpar_line
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity : FlutterActivity()
