@@ -11,7 +11,7 @@
     'Документы': 'Құжаттар', 'Цели': 'Мақсаттар', 'Задания': 'Тапсырмалар', 'Рейтинг': 'Рейтинг',
     'График': 'Кесте', 'Автомобиль': 'Көлік', 'Депозит-карта Tulpar Line': 'Tulpar Line депозит-картасы',
     'Пригласи друга': 'Досыңды шақыр', 'Здоровье': 'Денсаулық', 'SOS': 'SOS', 'Поддержка': 'Қолдау',
-    'Последние операции': 'Соңғы операциялар', 'Настройки': 'Баптаулар', 'Язык': 'Тіл'
+    'Последние операции': 'Соңғы операциялар', 'Добавить расход': 'Шығын қосу', 'Соревнование': 'Жарыс', 'Настройки': 'Баптаулар', 'Язык': 'Тіл'
   };
   function t(s) { return S.lang === 'kk' && KK[s] ? KK[s] : s; }
 
@@ -25,15 +25,60 @@
   function dmy(d) { return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
   var uid = 1000;
   function nid(p) { return p + '-' + (++uid); }
-  function ic(name) {
-    var p = {
-      home: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
-      wallet: '<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M16 15h2"/>',
-      grid: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
-      user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
-      bell: '<path d="M6 17V11a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21h4"/>'
-    };
-    return '<svg viewBox="0 0 24 24" aria-hidden="true">' + p[name] + '</svg>';
+  var ICONS = {
+    home: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+    wallet: '<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M16 15h2"/>',
+    grid: '<circle cx="6" cy="6" r="1.3"/><circle cx="12" cy="6" r="1.3"/><circle cx="18" cy="6" r="1.3"/><circle cx="6" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="18" cy="12" r="1.3"/><circle cx="6" cy="18" r="1.3"/><circle cx="12" cy="18" r="1.3"/><circle cx="18" cy="18" r="1.3"/>',
+    user: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/>',
+    bell: '<path d="M6 17v-6a6 6 0 0 1 12 0v6l2 2H4z"/><path d="M10 21h4"/>',
+    car: '<path d="M4 17v-5l2.2-5.2A1 1 0 0 1 7.100 6h9.800a1 1 0 0 1 .9.6L20 12v5"/><rect x="3" y="12" width="18" height="5" rx="1.500"/><circle cx="7.500" cy="14.500" r=".8"/><circle cx="16.500" cy="14.500" r=".8"/><path d="M6 17v2.500M18 17v2.500"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    card: '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10.500h18M7 15h3"/>',
+    fuel: '<rect x="5" y="3" width="9" height="18" rx="2"/><path d="M5 10h9M14 8h2.500a1.500 1.500 0 0 1 1.500 1.500V16a1.500 1.500 0 0 0 3 0V9l-3-3"/>',
+    wrench: '<path d="M15 3a5 5 0 0 0-4.500 7l-7 7a2.100 2.100 0 0 0 3 3l7-7A5 5 0 0 0 21 8.500l-3 3-3-1-1-3z"/>',
+    down: '<path d="M12 4v14M6 12l6 6 6-6"/>',
+    up: '<path d="M7 17L17 7M8 7h9v9"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    gift: '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M5 12v8h14v-8M12 8C10 4 6 4 7 7s5 1 5 1zm0 0c2-4 6-4 5-1s-5 1-5 1z"/>',
+    doc: '<path d="M7 3h7l4 4v14H7z"/><path d="M14 3v4h4M10 12h5M10 16h5"/>',
+    target: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.200"/>',
+    clip: '<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/>',
+    trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H4v1a4 4 0 0 0 4 4M16 6h4v1a4 4 0 0 1-4 4M12 13v4M8 21h8M9 17h6"/>',
+    chart: '<path d="M5 20v-8M12 20V5M19 20v-11"/>',
+    cal: '<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M4 10h16M9 3v4M15 3v4"/>',
+    heart: '<path d="M12 20S4 15 4 9a4.500 4.500 0 0 1 8-2.500A4.500 4.500 0 0 1 20 9c0 6-8 11-8 11z"/>',
+    sos: '<rect x="3" y="6" width="18" height="12" rx="3"/><text x="12" y="14.800" font-size="7" font-weight="800" text-anchor="middle" fill="currentColor" stroke="none">SOS</text>',
+    headset: '<path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="2"/><rect x="17" y="14" width="4" height="6" rx="2"/><path d="M19 20c0 1-2 2-5 2"/>',
+    userplus: '<circle cx="10" cy="8" r="4"/><path d="M3 21c1-4 4-6 7-6M18 14v6M15 17h6"/>',
+    gear: '<circle cx="12" cy="12" r="3"/><path d="M12 2.500v3M12 18.500v3M2.500 12h3M18.500 12h3M5.300 5.300l2.100 2.100M16.600 16.600l2.100 2.100M18.700 5.300l-2.100 2.100M7.400 16.600l-2.100 2.100"/>',
+    lock: '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>',
+    globe: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.500 3 3.500 15 0 18M12 3c-3.500 3-3.500 15 0 18"/>',
+    help: '<circle cx="12" cy="12" r="9"/><path d="M9.500 9.500a2.500 2.500 0 1 1 3.500 2.300c-.7.400-1 1-1 1.700M12 17h.01"/>',
+    logout: '<path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/>',
+    chev: '<path d="M9 6l6 6-6 6"/>',
+    chevd: '<path d="M6 9l6 6 6-6"/>',
+    eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
+    more: '<circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/>',
+    trend: '<path d="M7 17L17 7M8 7h9v9"/>',
+    tenge: '<path d="M6 6h12M12 6v13M8 10.500h8"/>',
+    coins: '<circle cx="12" cy="12" r="9"/><path d="M8.500 8.500h7M12 8.500v7M9.500 11.500h5"/>'
+  };
+  function ic(name, cls) { return '<svg class="i ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + ICONS[name] + '</svg>'; }
+  var I = ic;
+  function logoMark() { return '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#fff"/><path d="M20 8l11 24-11-6-11 6z" fill="#0b0b0f" stroke="#0b0b0f" stroke-linejoin="round" stroke-width="2"/></svg>'; }
+  function logo() { return '<div class="logo">' + logoMark() + '<div>TULPAR LINE<small>ТАКСОПАРК</small></div></div>'; }
+  function carArt() {
+    return '<svg class="carart" viewBox="0 0 330 120" aria-hidden="true"><defs><linearGradient id="cb" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6a707e"/><stop offset=".45" stop-color="#23262d"/><stop offset="1" stop-color="#07080a"/></linearGradient><radialGradient id="tl" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#ff3b30"/><stop offset="1" stop-color="#ff3b30" stop-opacity="0"/></radialGradient></defs>' +
+      '<ellipse cx="165" cy="112" rx="140" ry="6" fill="#000" opacity=".35"/>' +
+      '<path d="M16 88c0-8 4-13 12-15l36-10 34-27c6-4 12-6 20-6h70c10 0 18 3 26 10l26 22 36 8c10 2 14 8 14 16v4c0 4-2 6-6 6h-12a26 26 0 0 0-52 0H106a26 26 0 0 0-52 0H24c-5 0-8-3-8-7z" fill="url(#cb)" stroke="#8d97ad" stroke-opacity=".55" stroke-width="1.2"/>' +
+      '<path d="M96 60l24-20c4-3 9-5 15-5h50c8 0 14 3 20 8l18 17z" fill="#9db2d4" opacity=".28"/>' +
+      '<path d="M40 76l230 2" stroke="#fff" stroke-opacity=".18" stroke-width="1.500"/>' +
+      '<circle cx="80" cy="96" r="22" fill="#08090b"/><circle cx="80" cy="96" r="11" fill="#5b6070"/><circle cx="248" cy="96" r="22" fill="#08090b"/><circle cx="248" cy="96" r="11" fill="#5b6070"/>' +
+      '<circle cx="312" cy="76" r="34" fill="url(#tl)" opacity=".85"/><rect x="296" y="72" width="26" height="6" rx="3" fill="#ff5a4f"/></svg>';
+  }
+  function avatarSvg() {
+    return '<svg viewBox="0 0 64 64" aria-hidden="true"><rect width="64" height="64" fill="#e3e8f4"/><path d="M6 64c2-13 13-19 26-19s24 6 26 19z" fill="#16171b"/><rect x="27" y="37" width="10" height="10" rx="4" fill="#dfb08a"/><ellipse cx="32" cy="27" rx="12" ry="14" fill="#f2cba8"/><path d="M19 27c-1-12 6-17 14-17 8 0 13 5 12 15-3-4-6-6-12-6-6 0-10 3-14 8z" fill="#1b1410"/><circle cx="27" cy="29" r="1.500" fill="#2a1d17"/><circle cx="37" cy="29" r="1.500" fill="#2a1d17"/><path d="M28 36c2.500 2 5.500 2 8 0" stroke="#a15d4a" stroke-width="1.700" fill="none" stroke-linecap="round"/></svg>';
   }
 
   // ---------- state (деньги — целые тенге, без float) ----------
@@ -44,7 +89,7 @@
     driver: { first: 'Данияр', last: 'Сейтказин', status: 'Активен', car: { make: 'Toyota', model: 'Camry', year: 2021, plate: '777 TLP 02', color: 'Белый', cls: 'Комфорт' } },
     demo: { windowOpen: false, synced: true },
     privacyShowName: true,
-    goalType: 'orders',
+    goalType: 'orders', workTab: 'hours', hideBal: false,
     goalTargets: { orders: 25, minutes: 600, earn: 50000 },
     orders: 20, minutes: 400,
     inc: [2400, 3600, 4200, 2800, 1800, 0, 2600, 3100, 2400, 3500, 2900, 3800, 3200, 2100], // часы 6..19
@@ -188,23 +233,64 @@
   function nextWindow() { return S.demo.windowOpen ? 'Сегодня (демо)' : dmy(firstOfNext); }
 
   var V = {};
+  function opIcon(o) {
+    var d = o.desc || '';
+    if (o.type === 'Доход') return ['car', 'g'];
+    if (o.type === 'Пополнение') return ['down', 'g'];
+    if (o.type === 'Выплата') return ['up', 'b'];
+    if (o.type === 'Начисление') return ['gift', 'y'];
+    if (o.type === 'Расход') return /Топл/.test(d) ? ['fuel', 'r'] : /Ремонт|Масло|Шино|Мойк/.test(d) ? ['wrench', 'r'] : ['doc', 'r'];
+    return ['doc', 'v'];
+  }
+  function opRow(o) {
+    var pos = o.amount > 0, x = opIcon(o), cx = o.status === 'Отменён' ? 'strike' : '';
+    return '<button class="li" data-act="opDetail" data-v="' + o.id + '"><span class="ic ic--' + x[1] + '">' + I(x[0]) + '</span><span class="grow"><b class="' + cx + '">' + esc(o.desc) + '</b><div class="small mut">' + esc(o.date) + ' · ' + esc(o.src) + '</div></span><span style="text-align:right"><div class="amt ' + (pos ? 'pos' : 'neg') + ' ' + cx + '">' + (pos ? '+' : '') + money(o.amount) + '</div>' + (o.status === 'Выполнена' ? '' : statusChip(o.status)) + '</span>' + I('chev', 'chv') + '</button>';
+  }
+  function workChart() {
+    var hrs = [], i, vals = [], mx = 1, peak = -1;
+    for (i = 6; i <= 22; i++) hrs.push(i);
+    hrs.forEach(function (h, k) {
+      var inc = S.inc[h - 6], v = 0;
+      if (inc !== undefined) v = S.workTab === 'income' ? inc : S.workTab === 'orders' ? Math.round(inc / 1900) : (inc > 0 ? 60 : 0);
+      vals.push(v); if (v > mx) { mx = v; peak = k; }
+    });
+    var tip = S.workTab === 'income' ? 'Лучший час' : S.workTab === 'orders' ? 'Больше всего заказов' : 'Максимум';
+    var bars = hrs.map(function (h, k) {
+      var cls = h > 19 ? 'fut' : (vals[k] > 0 ? 'act' : ''), ht = vals[k] ? Math.max(12, Math.round(vals[k] * 100 / mx)) : 6;
+      return '<i class="' + cls + (k === peak && S.workTab !== 'hours' ? ' peak' : '') + '" style="height:' + ht + '%" data-tip="' + tip + '"></i>';
+    }).join('');
+    var ax = ''; for (i = 6; i <= 22; i += 2) ax += '<span>' + pad(i) + ':00</span>';
+    return '<div class="wd">' + bars + '</div><div class="wx">' + ax + '</div>';
+  }
   V.home = function () {
-    var g = goalInfo();
-    return topBar() + syncBanner() +
-      '<div class="card card--dark"><div class="row between"><b>' + t('Личная цель на сегодня') + '</b><button class="btn btn--light btn--sm" data-act="goalPick">Изменить</button></div>' +
-      '<div class="mid" style="margin:12px 0 10px">' + esc(g.main) + '</div><div class="bar"><i style="width:' + g.pct + '%"></i></div>' +
-      '<div class="small" style="margin-top:10px;opacity:.85">' + esc(g.hint) + '</div></div>' +
-      '<button class="card li" style="border:1px solid var(--line);border-radius:20px;padding:16px" data-act="go" data-v="rating"><span class="ic">🏆</span><span class="grow"><b>Соревнование</b><div class="mid">' + S.me + '-е место из 100</div><div class="small mut">Нажмите, чтобы открыть рейтинг</div></span><span class="mut">›</span></button>' +
-      '<button class="card li" style="border:1px solid var(--line);border-radius:20px;padding:16px" data-act="go" data-v="deposit"><span class="ic" style="background:var(--ink);color:var(--y)">₸</span><span class="grow"><b>Депозит-карта Tulpar Line</b><div class="mid">' + money(S.deposit.balance) + '</div><div class="small mut">За месяц: ' + money(S.deposit.month) + ' · окно вывода: ' + nextWindow() + '</div></span><span class="mut">›</span></button>' +
-      '<div class="card"><div class="row between"><b>Сегодня</b>' + statusChip(cashbackStatus()) + '</div><div class="grid3" style="margin-top:12px;text-align:center"><div><div class="mid">' + S.orders + '</div><div class="small mut">заказов</div></div><div><div class="mid">' + Math.floor(S.minutes / 60) + ' ч</div><div class="small mut">на линии</div></div><div><div class="mid">' + NF.format(incomeToday()).replace(/ /g, ' ') + '</div><div class="small mut">доход, ₸</div></div></div></div>';
+    var g = goalInfo(), hr = new Date().getHours();
+    var greet = hr < 5 ? 'Доброй ночи' : hr < 12 ? 'Доброе утро' : hr < 18 ? 'Добрый день' : 'Добрый вечер';
+    var unread = S.notifs.some(function (n) { return n.unread; });
+    var inc = incomeToday(), prev = 34300, dl = Math.round((inc - prev) * 100 / prev);
+    var goalBody = S.goalType === 'orders'
+      ? '<div class="goalnum">' + g.cur + ' / ' + g.tg + '<small>заказов</small></div><div class="segbar">' + Array.apply(null, Array(g.tg)).map(function (_, k) { return '<i class="' + (k < g.cur ? 'on' : '') + '"></i>'; }).join('') + '</div>'
+      : '<div class="mid" style="font-size:19px;line-height:1.2">' + esc(g.main) + '</div><div class="bar" style="margin:12px 0 8px"><i style="width:' + g.pct + '%"></i></div>';
+    var pos = Math.round((100 - S.me) * 100 / 99);
+    return '<div class="hello"><div class="avatar">' + avatarSvg() + '</div><div class="grow"><h2>' + greet + ',<br>' + esc(S.driver.first) + '!</h2><p>Хорошего рабочего дня!</p></div><button class="iconbtn" data-act="go" data-v="notifications" aria-label="Уведомления">' + I('bell') + (unread ? '<span class="dot"></span>' : '') + '</button></div>' + syncBanner() +
+      '<div class="card card--dark hero">' + carArt() + '<button class="link" data-act="tab" data-v="finance">Сегодня ' + I('chev') + '</button><div class="big" style="margin-top:8px">' + money(inc) + '</div><div style="opacity:.85">Доход</div>' +
+      '<div class="delta"><span class="ic">' + I('trend') + '</span><div><b>' + (dl >= 0 ? '+' : '') + dl + '%</b><div class="small" style="opacity:.7">к вчера</div></div></div>' +
+      '<div class="minis"><div class="mini">' + I('car') + '<div><b>' + S.orders + '</b><small>заказов</small></div></div><div class="mini">' + I('clock') + '<div><b>' + Math.floor(S.minutes / 60) + 'ч ' + pad(S.minutes % 60) + 'м</b><small>на линии</small></div></div><div class="mini">' + I('card') + '<div><b>' + NF.format(expToday()).replace(/ | /g, ' ') + ' ₸</b><small>расходы</small></div></div></div></div>' +
+      '<div class="card"><div class="goalhead"><span class="ic ic--d">' + I('target') + '</span><b>' + t('Личная цель на сегодня') + '</b><button class="btn btn--ghost btn--sm" data-act="goalPick">Изменить</button></div><div class="goalrow"><div class="grow">' + goalBody + '<div class="small mut">' + esc(g.hint) + '</div></div><div class="ring" style="--p:' + g.pct + '"><b>' + g.pct + '%</b></div></div></div>' +
+      '<div class="two"><button class="card" data-act="go" data-v="rating"><div class="mc"><span class="ic ic--y">' + I('trophy') + '</span><b>Соревнование</b>' + I('chev') + '</div><div class="small mut">Ваше место среди 100 водителей</div><div class="rankbig">#' + S.me + '<span class="pos-up">▲ +2</span></div><div class="track"><i style="width:' + pos + '%"></i><u style="left:' + pos + '%">' + I('car') + '</u></div><div class="row between small mut"><span>#100</span><span>#1</span></div></button>' +
+      '<button class="card" data-act="go" data-v="deposit"><div class="mc"><span class="ic ic--b">' + I('gift') + '</span><b>Депозит-карта</b>' + I('chev') + '</div><div class="small mut">Накоплено</div><div class="dsum">' + money(S.deposit.balance) + '</div><div style="margin:8px 0 6px">' + statusChip(cashbackStatus()) + '</div><div class="small mut">За месяц: ' + money(S.deposit.month) + '<br>Окно вывода: ' + nextWindow() + '</div></button></div>' +
+      '<div class="card"><div class="cardhead"><div class="row"><span class="ic ic--b" style="width:36px;height:36px;border-radius:12px">' + I('chart') + '</span><h3>Ваш рабочий день</h3></div><div class="tabsm">' + [['hours', 'Часы'], ['orders', 'Заказы'], ['income', 'Доход']].map(function (x) { return '<button class="' + (S.workTab === x[0] ? 'on' : '') + '" data-act="workTab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div></div>' + workChart() + '</div>';
   };
 
   function chartHtml() {
-    var s = series(), mx = 1;
+    var s = series(), mx = 1, d = S.period === 'day';
     s.inc.forEach(function (v, i) { mx = Math.max(mx, v, s.exp[i]); });
-    var cols = s.inc.map(function (v, i) { return '<div class="col"><i class="inc" style="height:' + Math.round(v * 100 / mx) + '%"></i><i class="exp" style="height:' + Math.round(s.exp[i] * 100 / mx) + '%"></i></div>'; }).join('');
-    var ax = s.labels.map(function (l) { return '<span>' + l + '</span>'; }).join('');
-    return '<div class="chart" role="img" aria-label="График доходов и расходов">' + cols + '</div><div class="axis">' + ax + '</div><div class="legend"><span><b style="background:#111"></b>Доходы</span><span><b style="background:#FFD400"></b>Расходы</span></div>';
+    var steps = [1000, 2000, 5000, 10000, 20000, 25000, 50000, 100000], st = 100000, k;
+    for (k = 0; k < steps.length; k++) { if (mx / steps[k] <= 3) { st = steps[k]; break; } }
+    var top = st * Math.ceil(mx / st), n = top / st, grid = '', j;
+    for (j = 0; j <= n; j++) grid += '<div class="g" style="bottom:' + (j * 100 / n) + '%"><span>' + (j * st === 0 ? '0' : (j * st >= 1000 ? (j * st / 1000) + 'K' : j * st)) + '</span></div>';
+    var cols = s.inc.map(function (v, i) { return '<div class="col"><i class="inc" style="height:' + Math.round(v * 100 / top) + '%"></i><i class="exp" style="height:' + Math.round(s.exp[i] * 100 / top) + '%"></i></div>'; }).join('');
+    var ax = s.labels.map(function (l, i) { return '<span>' + (d ? (i % 3 === 0 ? pad(+l) + ':00' : '') : l) + '</span>'; }).join('');
+    return '<div class="fc" role="img" aria-label="График доходов и расходов">' + grid + '<div class="bars">' + cols + '</div></div><div class="fx">' + ax + '</div>';
   }
   function totals() {
     if (S.period === 'day') return { i: incomeToday(), e: expToday() };
@@ -212,41 +298,42 @@
   }
   V.finance = function () {
     var tt = totals(), net = tt.i - tt.e, pl = S.period === 'day' ? 'за день' : PERIOD_LABEL[S.period].toLowerCase();
-    var allOps = S.ops.slice();
-    var ops = allOps.slice(0, 8).map(function (o) {
-      var pos = o.amount > 0;
-      return '<button class="li" data-act="opDetail" data-v="' + o.id + '"><span class="ic">' + ({ 'Доход': '🚕', 'Расход': '🧾', 'Пополнение': '⬇️', 'Выплата': '⬆️', 'Начисление': '🎁', 'Корректировка': '✏️' }[o.type] || '•') + '</span><span class="grow"><b class="' + (o.status === 'Отменён' ? 'strike' : '') + '">' + esc(o.desc) + '</b><div class="small mut">' + esc(o.date) + ' · ' + esc(o.src) + '</div></span><span style="text-align:right"><div class="amt ' + (pos ? 'pos' : '') + ' ' + (o.status === 'Отменён' ? 'strike' : '') + '">' + (pos ? '+' : '') + money(o.amount) + '</div>' + statusChip(o.status) + '</span></button>';
-    }).join('');
-    return '<h2>' + t('Финансы') + '</h2>' + syncBanner() +
-      '<div class="card card--dark" style="padding:20px"><div class="small" style="opacity:.8">Tulpar Line Таксопарк</div><div class="small" style="opacity:.8;margin-top:12px">' + t('Баланс') + '</div><div class="big">' + money(available()) + '</div>' +
-      (S.reserved ? '<div class="small" style="opacity:.8">В резерве под заявки: ' + money(S.reserved) + '</div>' : '') +
-      '<div class="grid2" style="margin-top:16px"><button class="btn" data-act="topup">' + t('Пополнить') + '</button><button class="btn btn--light" data-act="withdraw">' + t('Вывести') + '</button></div>' +
-      '<div class="small" style="opacity:.7;margin-top:12px">Баланс приложения. Баланс Yandex и депозит-карта показываются отдельно и в эту сумму не входят.</div></div>' +
-      '<div class="seg" role="tablist">' + ['day', 'week', 'month', 'range'].map(function (p) { return '<button class="' + (S.period === p ? 'on' : '') + '" data-act="period" data-v="' + p + '">' + (p === 'day' ? t('За день') : p === 'week' ? 'Неделя' : p === 'month' ? 'Месяц' : 'Период') + '</button>'; }).join('') + '</div>' +
-      '<div class="grid3" style="margin-bottom:12px">' +
-      '<div class="card" style="margin:0;padding:12px"><div class="small mut">' + (S.period === 'day' ? t('Доходы за день') : 'Доходы ' + pl) + '</div><div class="mid" style="font-size:17px">' + money(tt.i) + '</div></div>' +
-      '<div class="card" style="margin:0;padding:12px"><div class="small mut">' + (S.period === 'day' ? t('Расходы за день') : 'Расходы ' + pl) + '</div><div class="mid" style="font-size:17px">' + money(tt.e) + '</div></div>' +
-      '<div class="card" style="margin:0;padding:12px;background:var(--y)"><div class="small">' + (S.period === 'day' ? t('Чистый результат за день') : 'Чистый результат ' + pl) + '</div><div class="mid" style="font-size:17px">' + money(net) + '</div></div></div>' +
-      '<div class="small mut" style="margin:-4px 0 12px">Доходы − Расходы = Чистый результат</div>' +
-      '<button class="btn btn--dark" style="padding:18px;font-size:17px;margin-bottom:14px" data-act="addExpense">' + t('+ Добавить расход') + '</button>' +
-      '<div class="card"><h3>' + (S.period === 'day' ? 'По часам' : S.period === 'week' ? 'По дням недели' : 'По дням') + '</h3>' + chartHtml() + (S.period === 'range' ? '<div class="note">Демо: произвольный период — последние 14 дней.</div>' : '') + '</div>' +
-      '<div class="card"><h3>' + t('Последние операции') + '</h3><div class="list">' + ops + '</div></div>';
+    var amountTxt = S.hideBal ? '••••• ₸' : money(available());
+    var ops = S.ops.slice(0, 4).map(opRow).join('');
+    return '<div class="head"><div><h2>' + t('Финансы') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="pill" data-act="periodPick">' + I('cal') + '<span>' + (S.period === 'day' ? t('За день') : PERIOD_LABEL[S.period]) + '</span>' + I('chevd') + '</button></div>' + syncBanner() +
+      '<div class="card card--dark bal">' + carArt() + '<div class="row between">' + logo() + '<button class="more" data-act="balInfo" aria-label="Подробнее">' + I('more') + '</button></div>' +
+      '<div style="margin-top:18px;opacity:.9">' + t('Баланс') + '<button class="eye" data-act="hideBal" aria-label="Скрыть сумму">' + I(S.hideBal ? 'eyeoff' : 'eye') + '</button></div><div class="big">' + amountTxt + '</div>' +
+      (S.reserved ? '<div class="small" style="opacity:.75;margin:-8px 0 10px">В резерве под заявки: ' + money(S.reserved) + '</div>' : '') +
+      '<div class="btns"><button class="bbtn w" data-act="topup"><u>' + I('plus') + '</u>' + t('Пополнить') + '</button><button class="bbtn g" data-act="withdraw"><u>' + I('up') + '</u>' + t('Вывести') + '</button></div></div>' +
+      '<div class="stats"><div class="stat stat--g"><div class="row"><span class="ic ic--g">' + I('trend') + '</span></div><b class="t">Доходы</b><small>' + pl + '</small><div class="v">' + money(tt.i) + '</div></div>' +
+      '<div class="stat stat--r"><div class="row"><span class="ic ic--r"><svg class="i" viewBox="0 0 24 24"><path d="M7 7l10 10M17 8v9H8"/></svg></span></div><b class="t">Расходы</b><small>' + pl + '</small><div class="v">' + money(tt.e) + '</div></div>' +
+      '<div class="stat stat--v"><div class="row"><span class="ic ic--v">' + I('chart') + '</span></div><b class="t">Чистый результат</b><small>' + pl + '</small><div class="v">' + money(net) + '</div></div></div>' +
+      '<button class="addbtn" data-act="addExpense"><u>' + I('plus') + '</u>' + t('Добавить расход') + '</button>' +
+      '<div class="card"><div class="cardhead"><h3>Доходы и расходы</h3><div class="tabsm">' + [['day', 'День'], ['week', 'Неделя'], ['month', 'Месяц']].map(function (x) { return '<button class="' + (S.period === x[0] ? 'on' : '') + '" data-act="period" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div></div>' + chartHtml() +
+      '<div class="lg"><div><span><i class="dot2" style="background:#2f6bff"></i>Доходы</span><b>' + money(tt.i) + '</b></div><div><span><i class="dot2" style="background:#ff6b72"></i>Расходы</span><b>' + money(tt.e) + '</b></div><button class="more2" data-act="expBreak">Подробнее ' + I('chev') + '</button></div>' + (S.period === 'range' ? '<div class="note">Демо: произвольный период — последние 14 дней.</div>' : '') + '</div>' +
+      '<div class="card"><div class="cardhead"><h3>' + t('Последние операции') + '</h3><button class="lnk" data-act="allOps">Все ' + I('chev') + '</button></div><div class="list">' + ops + '</div></div>';
   };
 
   V.service = function () {
     var c = S.driver.car;
-    var items = [['documents', '📄', 'Документы'], ['goals', '🎯', 'Цели'], ['tasks', '✅', 'Задания'], ['rating', '🏆', 'Рейтинг'], ['schedule', '🗓', 'График'], ['car', '🚗', 'Автомобиль'], ['deposit', '₸', 'Депозит-карта Tulpar Line', 'dep'], ['referral', '🎁', 'Пригласи друга'], ['health', '❤️', 'Здоровье'], ['sos', '🆘', 'SOS', 'sos'], ['support', '💬', 'Поддержка']];
-    return '<h2>' + t('Сервис') + '</h2>' +
-      '<div class="card card--dark"><div class="row between"><div><div class="mid">' + esc(c.make + ' ' + c.model) + '</div><div class="small" style="opacity:.8">' + c.year + ' год · ' + esc(c.color) + ' · ' + esc(c.cls) + '</div></div><span style="font-size:38px">🚕</span></div><div style="margin-top:12px;display:inline-block;background:#fff;color:#111;border-radius:8px;padding:5px 12px;font-weight:800;letter-spacing:.08em">' + esc(c.plate) + '</div></div>' +
-      '<div class="grid3">' + items.map(function (x) { return '<button class="tile ' + (x[3] ? 'tile--' + x[3] : '') + '" data-act="go" data-v="' + x[0] + '"><span class="ic">' + x[1] + '</span>' + esc(t(x[2])) + '</button>'; }).join('') + '</div>';
+    var items = [['documents', 'doc', 'Документы', 'Все документы в одном месте', 'b'], ['goals', 'target', 'Цели', 'Цели на день, неделю, месяц', 'g'], ['tasks', 'clip', 'Задания', 'Выполняйте и получайте награды', 'v'],
+      ['rating', 'trophy', 'Рейтинг', 'Ваше место среди водителей', 'y'], ['schedule', 'cal', 'График', 'Рабочие дни и время', 'b'], ['car', 'car', 'Автомобиль', 'Информация и обслуживание', 'r'],
+      ['deposit', 'tenge', 'Депозит-карта Tulpar Line', 'Бонусный баланс', 'd'], ['referral', 'userplus', 'Пригласи друга', 'Бонусы за новых водителей', 'y'], ['health', 'heart', 'Здоровье', 'Шаги и активность', 'r'],
+      ['sos', 'sos', 'SOS', 'Экстренная помощь', 'd'], ['support', 'headset', 'Поддержка', 'Свяжитесь с нами 24/7', 'v']];
+    return '<div class="head"><div><h2>' + t('Сервис') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="iconbtn" data-act="go" data-v="notifications" aria-label="Уведомления">' + I('bell') + (S.notifs.some(function (n) { return n.unread; }) ? '<span class="dot"></span>' : '') + '</button></div>' +
+      '<div class="card card--dark carcard"><div class="glow glow--soft">' + logoMark() + '</div>' + carArt() + logo() + '<div class="carname">' + esc(c.make + ' ' + c.model) + '</div><div style="opacity:.8">' + c.year + ' • ' + esc(c.cls) + '</div><div class="plate">' + esc(c.plate) + '<small>KZ</small></div></div>' +
+      '<div class="grid3">' + items.map(function (x) { return '<button class="tile" data-act="go" data-v="' + x[0] + '"><span class="top"><span class="ic ic--' + x[4] + '">' + I(x[1]) + '</span>' + I('chev', 'chv') + '</span><b>' + esc(t(x[2])) + '</b><small>' + x[3] + '</small></button>'; }).join('') + '</div>';
   };
 
   V.profile = function () {
-    return '<h2>' + t('Профиль') + '</h2>' +
-      '<div class="card"><div class="row"><div class="avatar avatar--lg">' + S.driver.first[0] + S.driver.last[0] + '</div><div class="grow"><div class="mid">' + esc(S.driver.first + ' ' + S.driver.last) + '</div>' + chip(S.driver.status, 'ok') + '<div class="small mut" style="margin-top:6px">Бонусный баланс: ' + money(S.deposit.balance) + '</div></div></div></div>' +
-      '<div class="card"><div class="list">' +
-      [['settings', '⚙️', t('Настройки')], ['terms', '📜', 'Условия лояльности'], ['demo', '🧪', 'Демо-инструменты']].map(function (x) { return '<button class="li" data-act="go" data-v="' + x[0] + '"><span class="ic">' + x[1] + '</span><span class="grow"><b>' + x[2] + '</b></span><span class="mut">›</span></button>'; }).join('') +
-      '<button class="li" data-act="logout"><span class="ic">🚪</span><span class="grow"><b>Выйти</b></span></button></div></div>';
+    var rows = [['settings', 'user', 'Личные данные', 'ФИО, телефон, дата рождения'], ['car', 'car', 'Мой автомобиль', 'Информация о машине'], ['documents', 'doc', 'Документы', 'Права, техпаспорт, страховка'],
+      ['payMethods', 'wallet', 'Способы выплат', 'Kaspi, реквизиты'], ['settings', 'bell', 'Уведомления', 'Настройки уведомлений'], ['security', 'lock', 'Безопасность', 'Смена пароля, Face ID / Touch ID'],
+      ['langSheet', 'globe', t('Язык'), 'Қазақша / Русский'], ['terms', 'gift', 'Условия лояльности', 'Кэшбэк, вывод, правила'], ['support', 'help', 'Помощь', 'Частые вопросы'], ['demo', 'gear', 'Демо-инструменты', 'Только для показа прототипа']];
+    return '<div class="head"><div><h2>' + t('Профиль') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="iconbtn" data-act="go" data-v="settings" aria-label="Настройки">' + I('gear') + '</button></div>' +
+      '<div class="prof"><div class="avatar avatar--lg">' + avatarSvg() + '</div><div class="grow"><div class="nm">' + esc(S.driver.first) + '<br>' + esc(S.driver.last) + '</div><div class="mut">Водитель</div></div></div>' +
+      '<button class="bonus" style="width:100%;margin-bottom:14px" data-act="go" data-v="deposit"><span class="ic ic--b">' + I('tenge') + '</span><span class="grow"><small>Бонусный баланс</small><b>' + money(S.deposit.balance) + '</b></span>' + I('chev', 'chv') + '</button>' +
+      rows.map(function (r) { var act = ['payMethods', 'security', 'langSheet'].indexOf(r[0]) >= 0 ? r[0] : 'go'; return '<button class="row-card" data-act="' + act + '" data-v="' + r[0] + '"><span class="ic">' + I(r[1]) + '</span><span class="grow"><b>' + r[2] + '</b><small>' + r[3] + '</small></span>' + I('chev', 'chv') + '</button>'; }).join('') +
+      '<button class="row-card" data-act="logout"><span class="ic">' + I('logout') + '</span><span class="grow"><b>Выйти из аккаунта</b></span>' + I('chev', 'chv') + '</button>';
   };
 
   V.settings = function () {
@@ -272,8 +359,8 @@
     var left = 25 - S.orders, st = left > 0 ? cashbackStatus() : 'Условие выполнено';
     var pend = S.payouts.filter(function (p) { return p.status === 'Создана' || p.status === 'На проверке' || p.status === 'В обработке'; });
     var cond = [['Заказов за сегодня', S.orders + ' из 25', S.orders >= 25], ['Заказы подтверждены и синхронизированы', S.demo.synced ? 'да' : 'нет', S.demo.synced], ['Расчёт после окончания дня', 'в 00:10 (предварительно)', null]];
-    var hist = S.dep.map(function (d) { return '<button class="li" data-act="depDetail" data-v="' + d.id + '"><span class="ic">🎁</span><span class="grow"><b>' + esc(d.type) + '</b><div class="small mut">' + esc(d.period) + (d.orders ? ' · ' + d.orders + ' заказов' : '') + '</div></span><span style="text-align:right"><div class="amt ' + (d.amount > 0 ? 'pos' : '') + '">' + (d.amount > 0 ? '+' : '') + money(d.amount) + '</div>' + statusChip(d.status) + '</span></button>'; }).join('');
-    var pays = S.payouts.map(function (p) { return '<div class="li"><span class="ic">⬆️</span><span class="grow"><b>Заявка ' + p.id + '</b><div class="small mut">' + esc(p.date) + '</div></span><span style="text-align:right"><div class="amt">' + money(p.amount) + '</div>' + statusChip(p.status) + '</span></div>'; }).join('');
+    var hist = S.dep.map(function (d) { return '<button class="li" data-act="depDetail" data-v="' + d.id + '"><span class="ic ic--y">' + I('gift') + '</span><span class="grow"><b>' + esc(d.type) + '</b><div class="small mut">' + esc(d.period) + (d.orders ? ' · ' + d.orders + ' заказов' : '') + '</div></span><span style="text-align:right"><div class="amt ' + (d.amount > 0 ? 'pos' : '') + '">' + (d.amount > 0 ? '+' : '') + money(d.amount) + '</div>' + statusChip(d.status) + '</span></button>'; }).join('');
+    var pays = S.payouts.map(function (p) { return '<div class="li"><span class="ic ic--b">' + I('up') + '</span><span class="grow"><b>Заявка ' + p.id + '</b><div class="small mut">' + esc(p.date) + '</div></span><span style="text-align:right"><div class="amt">' + money(p.amount) + '</div>' + statusChip(p.status) + '</span></div>'; }).join('');
     return back('Назад') + '<h2>' + t('Депозит-карта Tulpar Line') + '</h2>' +
       '<div class="card card--dark" style="padding:20px"><div class="small" style="opacity:.8">Накопленный бонусный баланс</div><div class="big">' + money(S.deposit.balance) + '</div>' +
       '<div class="row between small" style="margin-top:10px;opacity:.9"><span>За этот месяц: <b>' + money(S.deposit.month) + '</b></span><span>В резерве: <b>' + money(S.deposit.reserved) + '</b></span></div>' +
@@ -337,7 +424,7 @@
   // --- Car & docs ---
   V.car = function () {
     var c = S.driver.car;
-    return back('Назад') + '<h2>' + t('Автомобиль') + '</h2><div class="card"><div style="font-size:60px;text-align:center">🚕</div><div class="list">' +
+    return back('Назад') + '<h2>' + t('Автомобиль') + '</h2><div class="card"><div class="card--dark" style="position:relative;height:130px;border-radius:22px;margin-bottom:10px;overflow:hidden">' + carArt().replace('class="carart"','class="carart" style="width:90%;right:5%"') + '</div><div class="list">' +
       [['Марка / модель', c.make + ' ' + c.model], ['Год', c.year], ['Госномер', c.plate], ['Цвет', c.color], ['Класс', c.cls], ['Статус', 'Активен']].map(function (r) { return '<div class="li row between"><span class="mut">' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('') + '</div></div>' +
       '<div class="card"><h3>Напоминания</h3>' + [['Техосмотр', 'до 10.04.2027', 'ok'], ['Страхование', 'до 04.11.2026 — 21 день', 'warn'], ['Масло и фильтры', 'через 1 200 км', 'warn'], ['Шины', 'сезонная замена в ноябре', 'info'], ['Обслуживание', 'ТО-2 через 3 800 км', 'info']].map(function (r) { return '<div class="row between" style="padding:7px 0"><span>' + r[0] + '</span>' + chip(r[1], r[2]) + '</div>'; }).join('') + '</div>';
   };
@@ -377,7 +464,7 @@
   // --- Notifications ---
   V.notifications = function () {
     S.notifs.forEach(function (n) { n.unread = false; });
-    return back('Назад') + '<h2>Уведомления</h2><div class="card"><div class="list">' + S.notifs.map(function (n) { return '<div class="li"><span class="ic">' + ({ bonus: '🎁', goal: '🎯', rating: '🏆', doc: '📄', withdraw: '⬆️' }[n.k] || '🔔') + '</span><span class="grow"><b>' + esc(n.t) + '</b><div class="small mut">' + esc(n.d) + '</div></span></div>'; }).join('') + '</div></div>';
+    return back('Назад') + '<h2>Уведомления</h2><div class="card"><div class="list">' + S.notifs.map(function (n) { return '<div class="li"><span class="ic ic--b">' + I({ bonus: 'gift', goal: 'target', rating: 'trophy', doc: 'doc', withdraw: 'up' }[n.k] || 'bell') + '</span><span class="grow"><b>' + esc(n.t) + '</b><div class="small mut">' + esc(n.d) + '</div></span></div>'; }).join('') + '</div></div>';
   };
 
   // --- Demo tools ---
@@ -392,12 +479,27 @@
   // ---------- actions ----------
   function addOp(o) { S.ops.unshift(o); }
   var ACT = {
+    workTab: function (v) { S.workTab = v; render(); },
+    hideBal: function () { S.hideBal = !S.hideBal; render(); },
+    periodPick: function () {
+      openSheet('<h3>Период</h3><div class="list">' + [['day', 'За день'], ['week', 'За неделю'], ['month', 'За месяц'], ['range', 'Произвольный период']].map(function (x) { return '<button class="li" data-act="periodSet" data-v="' + x[0] + '"><span class="grow"><b>' + x[1] + '</b></span>' + (S.period === x[0] ? chip('Выбрано', 'ok') : '') + '</button>'; }).join('') + '</div>');
+    },
+    periodSet: function (v) { S.period = v; closeSheet(); render(); },
+    balInfo: function () { openSheet('<h3>О балансе</h3><p>Здесь показан баланс приложения Tulpar Line. Баланс Yandex и бонусный баланс депозит-карты — отдельные суммы, они не складываются.</p><div class="list"><div class="li row between"><span class="mut">Баланс приложения</span><b>' + money(available()) + '</b></div><div class="li row between"><span class="mut">Баланс Yandex</span><b>не синхронизирован (демо)</b></div><div class="li row between"><span class="mut">Депозит-карта</span><b>' + money(S.deposit.balance) + '</b></div></div>'); },
+    allOps: function () { openSheet('<h3>Все операции</h3><div class="list">' + S.ops.map(opRow).join('') + '</div>'); },
+    expBreak: function () {
+      var by = {}, tot = 0; S.expenses.forEach(function (e) { if (e.status === 'ok') { by[e.cat] = (by[e.cat] || 0) + e.amount; tot += e.amount; } });
+      openSheet('<h3>Расходы за день по категориям</h3><div class="list">' + (Object.keys(by).map(function (k) { return '<div class="li row between"><span>' + esc(k) + '</span><b>' + money(by[k]) + '</b></div>'; }).join('') || '<div class="small mut">Расходов нет.</div>') + '<div class="li row between"><b>Итого</b><b>' + money(tot) + '</b></div></div>');
+    },
+    payMethods: function () { openSheet('<h3>Способы выплат</h3><div class="list"><div class="li"><span class="ic ic--b">' + I('wallet') + '</span><span class="grow"><b>Kaspi •• 4821</b><div class="small mut">Реквизиты маскированы</div></span>' + chip('Основной', 'ok') + '</div></div><div class="note">Добавление реквизитов и подтверждение — после согласования платёжного провайдера.</div>'); },
+    security: function () { openSheet('<h3>Безопасность</h3><div class="row between" style="padding:10px 0"><span>Вход по Face ID / Touch ID</span>' + sw('faceid', true) + '</div><div class="row between" style="padding:10px 0"><span>Код-пароль</span>' + chip('Включён', 'ok') + '</div><button class="btn btn--ghost" style="margin-top:10px" data-act="closeSheet">Сменить пароль</button>'); },
+    langSheet: function () { openSheet('<h3>' + t('Язык') + '</h3><div class="seg"><button class="' + (S.lang === 'kk' ? 'on' : '') + '" data-act="lang" data-v="kk">Қазақша</button><button class="' + (S.lang === 'ru' ? 'on' : '') + '" data-act="lang" data-v="ru">Русский</button></div><div class="note">В прототипе на казахский переведены навигация и основные заголовки.</div>'); },
     tab: function (v) { S.hist = []; go(v, true); },
     go: function (v) { go(v); },
     back: goBack,
     closeSheet: closeSheet,
     period: function (v) { S.period = v; render(); },
-    lang: function (v) { S.lang = v; render(); },
+    lang: function (v) { S.lang = v; closeSheet(); render(); },
     goalPick: function () {
       openSheet('<h3>Основная цель на сегодня</h3><div class="list">' + [['orders', 'Завершённые заказы', 25], ['minutes', 'Часы работы', 600], ['earn', 'Сумма заработка', 50000]].map(function (g) { return '<button class="li" data-act="goalSet" data-v="' + g[0] + '"><span class="grow"><b>' + g[1] + '</b></span>' + (S.goalType === g[0] ? chip('Выбрано', 'ok') : '') + '</button>'; }).join('') + '</div>');
     },
