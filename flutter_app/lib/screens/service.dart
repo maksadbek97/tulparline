@@ -46,7 +46,7 @@ class ServicePage extends StatelessWidget {
       ('Поддержка', Icons.headset_mic_outlined, Tone.violet, '24/7', (_) => const SupportPage()),
     ];
     return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
-      ScreenHead('Сервис', trailing: BellButton(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage())))),
+      ScreenHead('Сервис', trailing: BellButton(dot: s.notices.any((n) => n.unread), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage())))),
       DarkCard(
         car: 'assets/car-front.png',
         carWidth: .42,

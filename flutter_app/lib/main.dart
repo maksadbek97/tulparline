@@ -1,4 +1,4 @@
-import 'dart:ui' show ImageFilter;
+import 'dart:ui' show ImageFilter, PointerDeviceKind;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +35,7 @@ class _TulparAppState extends State<TulparApp> {
       child: MaterialApp(
         title: 'Tulpar Line',
         debugShowCheckedModeBanner: false,
+        scrollBehavior: const MaterialScrollBehavior().copyWith(dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
         theme: ThemeData(
           useMaterial3: true,
           colorScheme: ColorScheme.fromSeed(seedColor: kBlue, brightness: Brightness.light).copyWith(primary: kBlue, surface: kBg),

@@ -401,7 +401,33 @@ Widget note(String t) => Padding(padding: const EdgeInsets.symmetric(vertical: 6
 Widget kv(String k, String v) => Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Flexible(child: Text(k, style: const TextStyle(color: kMut, fontSize: 13))), const SizedBox(width: 12), Flexible(child: Text(v, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)))]));
 Widget banner(String t, {bool info = false}) => Container(margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), decoration: BoxDecoration(color: info ? const Color(0x1A007AFF) : const Color(0x24FF9500), borderRadius: BorderRadius.circular(12)), child: Text(t, style: TextStyle(fontSize: 12, height: 18 / 13, color: info ? const Color(0xFF0A4AA3) : const Color(0xFF6B3D00))));
 
-/// Каркас подэкрана: «‹ Назад», заголовок 24/30.
+/// Круглая кнопка «назад» для шапок подэкранов.
+class BackCircle extends StatelessWidget {
+  const BackCircle({super.key});
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: () => Navigator.pop(context),
+        child: Container(width: 36, height: 36, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: kShadow), child: const Icon(Icons.chevron_left_rounded, size: 26, color: kInk)),
+      );
+}
+
+/// Шапка подэкрана: круглая «назад» слева, заголовок по центру.
+class NavBar extends StatelessWidget {
+  const NavBar({super.key, this.title, this.center});
+  final String? title;
+  final Widget? center;
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(0, 6, 0, 8),
+        child: Row(children: [
+          const BackCircle(),
+          Expanded(child: Center(child: center ?? Text(title ?? '', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, letterSpacing: -.2)))),
+          const SizedBox(width: 36),
+        ]),
+      );
+}
+
+/// Каркас подэкрана.
 class SubPage extends StatelessWidget {
   const SubPage({super.key, required this.title, required this.children, this.back = 'Назад'});
   final String title, back;
@@ -411,9 +437,8 @@ class SubPage extends StatelessWidget {
         backgroundColor: kBg,
         body: SafeArea(
           child: ListView(padding: const EdgeInsets.fromLTRB(kM, 0, kM, 40), children: [
-            Align(alignment: Alignment.centerLeft, child: TextButton.icon(onPressed: () => Navigator.pop(context), style: TextButton.styleFrom(padding: const EdgeInsets.only(right: 8), minimumSize: const Size(44, 36)), icon: const Icon(Icons.chevron_left, color: kBlue, size: 26), label: Text(back, style: const TextStyle(fontSize: 14, color: kBlue)))),
-            Text(title, style: const TextStyle(fontSize: 22, height: 32 / 26, fontWeight: FontWeight.w700, letterSpacing: -.5)),
-            const SizedBox(height: 12),
+            NavBar(title: title),
+            const SizedBox(height: 4),
             ...children,
           ]),
         ),

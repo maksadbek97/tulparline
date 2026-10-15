@@ -81,6 +81,8 @@ class DepositPage extends StatelessWidget {
     ]);
   }
 
+  static void withdraw(BuildContext c, AppState s) => const DepositPage()._withdraw(c, s);
+
   void _withdraw(BuildContext c, AppState s) {
     if (!s.windowOpen) {
       sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [

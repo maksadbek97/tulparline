@@ -4,23 +4,110 @@ import '../main.dart';
 import '../state.dart';
 import '../ui.dart';
 import 'deposit.dart';
+import 'rating.dart';
 
-class NotificationsPage extends StatelessWidget {
+class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
   @override
+  State<NotificationsPage> createState() => _NotificationsPageState();
+}
+
+class _NotificationsPageState extends State<NotificationsPage> {
+  final scroll = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scroll.hasClients) scroll.jumpTo(scroll.position.maxScrollExtent);
+    });
+  }
+
+  @override
+  void dispose() {
+    scroll.dispose();
+    super.dispose();
+  }
+
+  static String _day(DateTime d) {
+    final n = DateTime.now();
+    final diff = DateTime(n.year, n.month, n.day).difference(DateTime(d.year, d.month, d.day)).inDays;
+    return diff == 0 ? 'Сегодня' : diff == 1 ? 'Вчера' : '${d.day}.${pad2(d.month)}';
+  }
+
+  void _open(BuildContext c, String go) {
+    final w = switch (go) {
+      'deposit' => const DepositPage(),
+      'car' => const CarPage(),
+      'rating' => const RatingPage(),
+      'goals' => const GoalsPage(),
+      _ => null,
+    };
+    if (w != null) Navigator.push(c, MaterialPageRoute(builder: (_) => w));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    const items = [
-      (Icons.card_giftcard, 'Начислен кэшбэк 480 ₸', 'Вчера, 23:59'),
-      (Icons.track_changes, 'До цели осталось 5 заказов', 'Сегодня, 17:30'),
-      (Icons.emoji_events_outlined, 'Вы поднялись на 2 места в рейтинге', 'Сегодня, 15:10'),
-      (Icons.description_outlined, 'Срок страховки истекает через 21 день', '12 окт'),
-      (Icons.north_east, 'Окно вывода откроется 1-го числа', '10 окт'),
-    ];
-    return SubPage(title: 'Уведомления', children: [
-      AppCard(child: Column(children: [
-        for (final n in items) ListTile(contentPadding: EdgeInsets.zero, leading: toneIcon(n.$1, Tone.blue), title: Text(n.$2, style: const TextStyle(fontWeight: FontWeight.w700)), subtitle: Text(n.$3)),
-      ])),
-    ]);
+    final s = AppScope.of(context);
+    final list = [...s.notices]..sort((a, b) => a.ts.compareTo(b.ts));
+    for (final n in list) {
+      n.unread = false;
+    }
+    final items = <Widget>[];
+    String? last;
+    for (final n in list) {
+      final g = _day(n.ts);
+      if (g != last) {
+        items.add(Center(child: Container(margin: const EdgeInsets.only(top: 8, bottom: 2), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3), decoration: BoxDecoration(color: const Color(0x29787F9E), borderRadius: BorderRadius.circular(12)), child: Text(g, style: const TextStyle(fontSize: 12, color: Color(0xFF5D6377), fontWeight: FontWeight.w500)))));
+        last = g;
+      }
+      items.add(Padding(
+        padding: const EdgeInsets.only(top: 8, right: 36),
+        child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          Container(width: 30, height: 30, decoration: const BoxDecoration(color: kInk, shape: BoxShape.circle), alignment: Alignment.center, child: const LogoMark(size: 19)),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+              decoration: BoxDecoration(color: Colors.white, borderRadius: const BorderRadius.only(topLeft: Radius.circular(18), topRight: Radius.circular(18), bottomRight: Radius.circular(18), bottomLeft: Radius.circular(6)), boxShadow: kShadow),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(n.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5, height: 19 / 14.5)),
+                const SizedBox(height: 3),
+                Text(n.text, style: const TextStyle(fontSize: 14, height: 19 / 14, color: Color(0xFF3A3F52))),
+                if (n.go != 'finance') ...[
+                  const SizedBox(height: 6),
+                  GestureDetector(onTap: () => _open(context, n.go), child: Container(height: 28, padding: const EdgeInsets.symmetric(horizontal: 10), alignment: Alignment.center, decoration: BoxDecoration(color: const Color(0x1A2F6BFF), borderRadius: BorderRadius.circular(14)), child: const Row(mainAxisSize: MainAxisSize.min, children: [Text('Открыть', style: TextStyle(color: kBlue, fontSize: 12.5, fontWeight: FontWeight.w600)), Icon(Icons.chevron_right, size: 14, color: kBlue)]))),
+                ],
+                Align(alignment: Alignment.centerRight, child: Padding(padding: const EdgeInsets.only(top: 3), child: Text('${pad2(n.ts.hour)}:${pad2(n.ts.minute)}', style: const TextStyle(fontSize: 11, color: kMut)))),
+              ]),
+            ),
+          ),
+        ]),
+      ));
+    }
+    return Scaffold(
+      backgroundColor: kBg,
+      body: SafeArea(
+        child: Column(children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: kM),
+            child: NavBar(center: Row(mainAxisSize: MainAxisSize.min, children: [
+              Container(width: 32, height: 32, decoration: const BoxDecoration(color: kInk, shape: BoxShape.circle), alignment: Alignment.center, child: const LogoMark(size: 20)),
+              const SizedBox(width: 8),
+              const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Таксопарк Tulpar Line', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 17 / 14)), Text('уведомления', style: TextStyle(fontSize: 11.5, color: kMut, height: 14 / 11.5))]),
+            ])),
+          ),
+          Expanded(child: ListView(controller: scroll, padding: const EdgeInsets.fromLTRB(kM, 4, kM, 12), children: items)),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(kM, 4, kM, 12),
+            child: GestureDetector(
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportPage())),
+              child: Container(height: 42, padding: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(21), boxShadow: kShadow), child: const Row(children: [Icon(Icons.headset_mic_outlined, size: 18, color: kMut), SizedBox(width: 8), Text('Написать в поддержку…', style: TextStyle(color: kMut, fontSize: 14))])),
+            ),
+          ),
+        ]),
+      ),
+    );
   }
 }
 

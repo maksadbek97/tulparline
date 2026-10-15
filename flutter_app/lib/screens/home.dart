@@ -29,7 +29,7 @@ class HomePage extends StatelessWidget {
             Text('$greet,\n${s.first}!', style: const TextStyle(fontSize: 18, height: 26 / 21, fontWeight: FontWeight.w700, letterSpacing: -.5)),
             const Text('Хорошего рабочего дня!', style: TextStyle(color: kMut, fontSize: 13, height: 18 / 14)),
           ])),
-          BellButton(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage()))),
+          BellButton(dot: s.notices.any((n) => n.unread), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage()))),
         ]),
       ),
       if (!s.synced) banner('Данные не синхронизированы с Yandex. Показаны последние известные значения (обновлено в 14:20).'),
