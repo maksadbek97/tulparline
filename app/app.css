@@ -414,3 +414,72 @@ h2{font-size:28px;line-height:34px}
 .hfilter button.on{background:var(--ink);color:#fff}
 .dayh{font-size:13px;font-weight:600;color:var(--mut);padding:10px 0 2px}
 .hist .li{min-height:52px}
+
+/* ===== верхняя навигация подэкранов ===== */
+.nav{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:6px;position:sticky;top:-2px;z-index:6;margin:0 -12px 10px;padding:6px 12px 8px;background:rgba(245,247,252,.82);backdrop-filter:blur(18px) saturate(160%);-webkit-backdrop-filter:blur(18px) saturate(160%)}
+.navback{width:36px;height:36px;border-radius:50%;border:0;background:#fff;color:var(--ink);display:grid;place-items:center;box-shadow:var(--sh);padding:0}
+.navback .i{width:20px;height:20px;stroke-width:2.2}
+.navt{text-align:center;font-size:16px;line-height:20px;font-weight:600;letter-spacing:-.015em}
+.navt--chat{display:flex;align-items:center;justify-content:center;gap:8px;text-align:left}
+.navav{width:32px;height:32px;border-radius:50%;background:#0b0b0f;display:grid;place-items:center;flex:none}
+.navav svg{width:20px;height:20px}
+.navtx b{display:block;font-size:14px;line-height:17px;font-weight:600}
+.navtx small{display:block;font-size:11.5px;line-height:14px;color:var(--mut);font-weight:400}
+.back+h2{margin-top:0}
+
+/* ===== карточки счетов (карусель) ===== */
+.pager{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;margin:0 -12px;padding:2px 12px 4px;scrollbar-width:none}
+.pager::-webkit-scrollbar{display:none}
+.cardx{flex:0 0 93%;scroll-snap-align:center;border-radius:24px;padding:14px;color:#fff;position:relative;overflow:hidden;box-shadow:0 18px 36px -18px rgba(20,50,150,.6)}
+.cardx::before{content:"";position:absolute;right:-60px;top:-70px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.22),transparent 65%)}
+.cardx>*{position:relative}
+.cardx--ya{background:linear-gradient(155deg,#0f2f86 0%,#1b4fd6 62%,#3d7bff 100%)}
+.cardx--dep{background:linear-gradient(155deg,#241a63 0%,#4a35c7 60%,#7a5cf5 100%);box-shadow:0 18px 36px -18px rgba(70,45,180,.6)}
+.cx-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cx-name{font-size:15px;font-weight:600;letter-spacing:-.015em}
+.cx-i{width:24px;height:24px;border-radius:50%;border:1px solid rgba(255,255,255,.4);background:none;color:#fff;font-size:13px;font-style:italic;font-weight:600;line-height:1}
+.cardx .chip{background:rgba(255,255,255,.18);color:#fff}
+.cx-panel{border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.08);border-radius:18px;padding:11px 14px}
+.cx-panel small{display:block;font-size:12px;line-height:16px;opacity:.65}
+.cx-amt{display:block;font-size:30px;line-height:36px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.cx-res{margin-top:2px}
+.cx-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.cx-btns--2{grid-template-columns:1fr 1fr}
+.cx-btn{display:flex;align-items:center;justify-content:center;gap:6px;height:32px;border-radius:16px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:#fff;font-size:12.5px;font-weight:500;white-space:nowrap}
+.cx-btn .i{width:15px;height:15px}
+.cardx .eye{margin:0;opacity:.7}
+.dots{display:flex;justify-content:center;gap:6px;margin:8px 0 10px}
+.dots i{width:6px;height:6px;border-radius:50%;background:rgba(120,130,160,.35);transition:.2s}
+.dots i.on{width:18px;border-radius:3px;background:var(--ink)}
+.hhead{display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px}
+.hhead b{font-size:15px}
+.hhead .lnk{background:none;border:0;color:var(--blue);font-size:13px;padding:0}
+
+/* ===== ввод суммы с цифровой клавиатурой ===== */
+.kptitle{text-align:center;font-size:17px;font-weight:700;margin:0 0 2px}
+.kpamt{text-align:center;margin:10px 0 2px;padding:14px;border-radius:18px;background:#fff}
+.kpamt small{display:block;font-size:12px;color:var(--mut)}
+.kpamt b{display:block;font-size:34px;line-height:42px;font-weight:700;letter-spacing:-.03em}
+.kchips{display:flex;gap:6px;justify-content:center;margin:6px 0 10px;flex-wrap:wrap}
+.kchip{border:0;height:30px;padding:0 14px;border-radius:15px;background:#fff;font-size:13px;font-weight:600;box-shadow:var(--sh)}
+.ksel select{margin-top:4px}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.key{height:46px;border:0;border-radius:12px;background:#fff;font-size:20px;font-weight:500;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.key:active{background:#e8ebf4}
+
+/* ===== уведомления как мессенджер ===== */
+.chat{display:flex;flex-direction:column;gap:8px;padding-bottom:70px}
+.daysep{text-align:center;margin:8px 0 2px}
+.daysep span{display:inline-block;font-size:12px;color:#5d6377;background:rgba(120,130,160,.16);padding:3px 12px;border-radius:12px;font-weight:500}
+.msgrow{display:flex;align-items:flex-end;gap:8px;max-width:92%}
+.msgav{width:30px;height:30px;border-radius:50%;background:#0b0b0f;display:grid;place-items:center;flex:none}
+.msgav svg{width:19px;height:19px}
+.msg{background:#fff;border-radius:18px 18px 18px 6px;padding:10px 12px 8px;box-shadow:var(--sh)}
+.msg b{display:block;font-size:14.5px;line-height:19px;font-weight:600}
+.msg p{margin:3px 0 0;font-size:14px;line-height:19px;color:#3a3f52}
+.msg time{display:block;text-align:right;font-size:11px;color:var(--mut);margin-top:3px}
+.msgact{display:inline-flex;align-items:center;margin-top:6px;border:0;background:rgba(47,107,255,.1);color:var(--blue);height:28px;padding:0 10px;border-radius:14px;font-size:12.5px;font-weight:600}
+.msgact .i{width:13px;height:13px}
+.composer{position:sticky;bottom:80px;margin-top:8px}
+.composer button{width:100%;display:flex;align-items:center;gap:8px;height:42px;border:0;border-radius:21px;background:#fff;box-shadow:var(--sh);padding:0 16px;color:var(--mut);font-size:14px}
+.composer .i{width:18px;height:18px}
