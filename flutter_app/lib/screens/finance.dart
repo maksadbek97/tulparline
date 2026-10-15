@@ -49,7 +49,7 @@ class OpTile extends StatelessWidget {
     return InkWell(
       onTap: () => sheet(context, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         h3(o.desc),
-        Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [kv('ID', o.id), kv('Тип', o.type), kv('Дата', o.date), kv('Сумма', money(o.amount)), kv('Источник', o.src)])),
+        Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)), child: Column(children: [kv('ID', o.id), kv('Тип', o.type), kv('Дата', o.date), kv('Сумма', money(o.amount)), kv('Источник', o.src)])),
         const SizedBox(height: 10),
         StatusChip(o.status),
       ])),
@@ -61,12 +61,12 @@ class OpTile extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(o.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, height: 20 / 15, letterSpacing: -.3, decoration: deco)),
-            Text(o.date, style: const TextStyle(color: kMut, fontSize: 12, height: 16 / 12)),
+            Text(o.date, style: TextStyle(color: kMut, fontSize: 12, height: 16 / 12)),
           ])),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
             Text('${pos ? '+' : ''}${money(o.amount)}', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, letterSpacing: -.3, color: pos ? kOk : kInk, decoration: deco)),
-            if (!done) StatusChip(o.status) else if (o.id.startsWith('#')) Text(o.id, style: const TextStyle(color: kMut, fontSize: 12)),
+            if (!done) StatusChip(o.status) else if (o.id.startsWith('#')) Text(o.id, style: TextStyle(color: kMut, fontSize: 12)),
           ]),
         ]),
       ),
@@ -97,7 +97,7 @@ class _FinancePageState extends State<FinancePage> {
     return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
       ScreenHead('Финансы', trailing: GestureDetector(
         onTap: () => _periodPick(context, s),
-        child: Container(height: 34, padding: const EdgeInsets.symmetric(horizontal: 12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(17), boxShadow: kShadow), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.calendar_today_outlined, size: 16), const SizedBox(width: 8), Text(periodLabel[s.period]!, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)), const Icon(Icons.keyboard_arrow_down, size: 18)])),
+        child: Container(height: 34, padding: const EdgeInsets.symmetric(horizontal: 12), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(17), boxShadow: kShadow), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.calendar_today_outlined, size: 16), const SizedBox(width: 8), Text(periodLabel[s.period]!, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)), const Icon(Icons.keyboard_arrow_down, size: 18)])),
       )),
       if (!s.synced) banner('Данные не синхронизированы с Yandex. Показаны последние известные значения (обновлено в 14:20).'),
       // два отдельных счёта: Яндекс баланс и депозит-карта таксопарка
@@ -108,8 +108,8 @@ class _FinancePageState extends State<FinancePage> {
           padEnds: false,
           onPageChanged: (i) => s.setAcct(i == 0 ? 'ya' : 'dep'),
           children: [
-            _CardShell(const [Color(0xFF0F2F86), Color(0xFF1B4FD6), Color(0xFF3D7BFF)], _yandex(context, s)),
-            _CardShell(const [Color(0xFF241A63), Color(0xFF4A35C7), Color(0xFF7A5CF5)], _deposit(context, s)),
+            _CardShell(const [Color(0xFF0C0C0C), Color(0xFF1B1B1B), Color(0xFF2A2A2A)], kYandex, _yandex(context, s)),
+            _CardShell(kDark ? const [Color(0xFF2B2C33), Color(0xFF191A20), Color(0xFF101116)] : const [Color(0xFFFFFFFF), Color(0xFFF0F1F5), Color(0xFFE6E8EE)], kDark ? Colors.white : kBlack, _deposit(context, s), border: kDark ? const Color(0x2EFFFFFF) : const Color(0x0F000000)),
           ],
         ),
       ),
@@ -120,11 +120,11 @@ class _FinancePageState extends State<FinancePage> {
         ]),
       ),
       Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(child: _Stat(const [Color(0xFFE6F9ED), Color(0xFFF6FDF9)], const Color(0xFF12A050), Icons.trending_up, 'Доходы', pl, money(tt.inc))),
+        Expanded(child: _Stat(kDark ? const [Color(0x3316B05A), Color(0xEB1E1F26)] : const [Color(0xFFE6F9ED), Color(0xFFF6FDF9)], const Color(0xFF12A050), Icons.trending_up, 'Доходы', pl, money(tt.inc))),
         const SizedBox(width: 10),
-        Expanded(child: _Stat(const [Color(0xFFFFECEE), Color(0xFFFFF8F8)], const Color(0xFFE0384A), Icons.trending_down, 'Расходы', pl, money(tt.exp))),
+        Expanded(child: _Stat(kDark ? const [Color(0x33FF4D5A), Color(0xEB1E1F26)] : const [Color(0xFFFFECEE), Color(0xFFFFF8F8)], const Color(0xFFE0384A), Icons.trending_down, 'Расходы', pl, money(tt.exp))),
         const SizedBox(width: 10),
-        Expanded(child: _Stat(const [Color(0xFFEEEBFF), Color(0xFFF9F8FF)], kIndigo, Icons.bar_chart_rounded, 'Чистый результат', pl, money(net))),
+        Expanded(child: _Stat(kDark ? const [Color(0x406A5CF0), Color(0xEB1E1F26)] : const [Color(0xFFEEEBFF), Color(0xFFF9F8FF)], kIndigo, Icons.bar_chart_rounded, 'Чистый результат', pl, money(net))),
       ]),
       const SizedBox(height: 12),
       GestureDetector(
@@ -135,7 +135,7 @@ class _FinancePageState extends State<FinancePage> {
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1D1E24), Color(0xFF050506)]), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .45), blurRadius: 28, offset: const Offset(0, 16), spreadRadius: -16)]),
           child: Stack(alignment: Alignment.center, children: [
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.add, size: 16, color: kInk)),
+              Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.add, size: 16, color: kBlack)),
               const SizedBox(width: 12),
               const Text('Добавить расход', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15)),
             ]),
@@ -150,45 +150,61 @@ class _FinancePageState extends State<FinancePage> {
   // ---------- карточки счетов ----------
   Widget _yandex(BuildContext c, AppState s) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          const Text('Яндекс баланс', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -.2)),
-          GestureDetector(onTap: () => _info(c, s), child: Container(width: 24, height: 24, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white54)), alignment: Alignment.center, child: const Text('i', style: TextStyle(color: Colors.white, fontSize: 13, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600)))),
+          Row(children: [
+            Container(width: 10, height: 10, decoration: BoxDecoration(color: kYandex, shape: BoxShape.circle, boxShadow: [BoxShadow(color: kYandex.withValues(alpha: .8), blurRadius: 12)])),
+            const SizedBox(width: 8),
+            const Text('Яндекс Про', style: TextStyle(color: kYandex, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -.2)),
+          ]),
+          GestureDetector(onTap: () => _info(c, s), child: Container(width: 24, height: 24, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: kYandex.withValues(alpha: .5))), alignment: Alignment.center, child: const Text('i', style: TextStyle(color: kYandex, fontSize: 13, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600)))),
         ]),
         const SizedBox(height: 10),
         _Panel(
+          border: kYandex.withValues(alpha: .35),
+          fill: kYandex.withValues(alpha: .06),
           top: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const Text('Доступный баланс', style: TextStyle(color: Colors.white60, fontSize: 12)),
             GestureDetector(onTap: () {
               s.hideBalance = !s.hideBalance;
               s.notify();
-            }, child: Icon(s.hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white70, size: 16)),
+            }, child: Icon(s.hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: kYandex, size: 16)),
           ]),
           amount: s.hideBalance ? '••••• ₸' : money(s.available),
+          amountColor: Colors.white,
           note: s.reserved > 0 ? 'В резерве под заявки: ${money(s.reserved)}' : null,
+          noteColor: Colors.white60,
         ),
         const SizedBox(height: 10),
         Row(children: [
-          _Pill(Icons.add, 'Пополнить', () => _topup(c, s)),
+          _Pill(Icons.add, 'Пополнить', () => _topup(c, s), fill: kYandex, fg: kBlack, line: kYandex),
           const SizedBox(width: 8),
-          _Pill(Icons.north_east, 'Вывести', () => _withdraw(c, s)),
+          _Pill(Icons.north_east, 'Вывести', () => _withdraw(c, s), fg: kYandex, line: kYandex.withValues(alpha: .5)),
           const SizedBox(width: 8),
-          _Pill(Icons.qr_code_2, 'Kaspi QR', () => _qrMenu(c, s)),
+          _Pill(Icons.qr_code_2, 'Kaspi QR', () => _qrMenu(c, s), fg: kYandex, line: kYandex.withValues(alpha: .5)),
         ]),
       ]);
 
-  Widget _deposit(BuildContext c, AppState s) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          const Flexible(child: Text('Депозит-карта Tulpar Line', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w600, letterSpacing: -.2))),
-          Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .18), borderRadius: BorderRadius.circular(99)), child: const Text('От таксопарка', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w600))),
-        ]),
-        const SizedBox(height: 10),
-        _Panel(top: const Text('Бонусный баланс', style: TextStyle(color: Colors.white60, fontSize: 12)), amount: money(s.depBalance), note: 'За месяц: +${money(s.depMonth)} · окно вывода: ${s.nextWindowText}'),
-        const SizedBox(height: 10),
+  Widget _deposit(BuildContext c, AppState s) {
+    final fg = kDark ? Colors.white : kBlack;
+    final soft = kDark ? Colors.white60 : const Color(0x990B0B0F);
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Row(children: [
-          Expanded(child: _Pill(Icons.north_east, 'Вывести', () => DepositPage.withdraw(c, s), expand: true)),
+          Container(width: 24, height: 24, decoration: BoxDecoration(color: fg, shape: BoxShape.circle), alignment: Alignment.center, child: Icon(Icons.navigation, size: 13, color: kDark ? kBlack : Colors.white)),
           const SizedBox(width: 8),
-          Expanded(child: _Pill(Icons.card_giftcard, 'Подробнее', () => Navigator.push(c, MaterialPageRoute(builder: (_) => const DepositPage())), expand: true)),
+          Text('Tulpar Line', style: TextStyle(color: fg, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -.2)),
         ]),
-      ]);
+        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: fg, borderRadius: BorderRadius.circular(99)), child: Text('Депозит-карта', style: TextStyle(color: kDark ? kBlack : Colors.white, fontSize: 11, fontWeight: FontWeight.w600))),
+      ]),
+      const SizedBox(height: 10),
+      _Panel(border: fg.withValues(alpha: .2), fill: fg.withValues(alpha: .05), top: Text('Бонусный баланс от таксопарка', style: TextStyle(color: soft, fontSize: 12)), amount: money(s.depBalance), amountColor: fg, note: 'За месяц: +${money(s.depMonth)} · окно вывода: ${s.nextWindowText}', noteColor: soft),
+      const SizedBox(height: 10),
+      Row(children: [
+        Expanded(child: _Pill(Icons.north_east, 'Вывести', () => DepositPage.withdraw(c, s), expand: true, fill: fg, fg: kDark ? kBlack : Colors.white, line: fg)),
+        const SizedBox(width: 8),
+        Expanded(child: _Pill(Icons.card_giftcard, 'Подробнее', () => Navigator.push(c, MaterialPageRoute(builder: (_) => const DepositPage())), expand: true, fg: fg, line: fg.withValues(alpha: .45))),
+      ]),
+    ]);
+  }
 
   // ---------- шторки ----------
   void _periodPick(BuildContext c, AppState s) {
@@ -235,13 +251,13 @@ class _FinancePageState extends State<FinancePage> {
     sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3('Kaspi QR'),
       Container(
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+        decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)),
         child: Column(children: [
           ListTile(leading: toneIcon(Icons.qr_code_2, Tone.red), title: const Text('Принять оплату на сумму', style: TextStyle(fontWeight: FontWeight.w500)), subtitle: const Text('QR на конкретную сумму', style: TextStyle(fontSize: 12)), trailing: const Icon(Icons.chevron_right, size: 18), onTap: () {
             Navigator.pop(ctx);
             _qrPay(c, s);
           }),
-          const Divider(height: 1, indent: 16, color: kLine),
+          Divider(height: 1, indent: 16, color: kLine),
           ListTile(leading: toneIcon(Icons.qr_code_2, Tone.blue), title: const Text('Постоянный QR', style: TextStyle(fontWeight: FontWeight.w500)), subtitle: const Text('Пассажир вводит сумму сам', style: TextStyle(fontSize: 12)), trailing: const Icon(Icons.chevron_right, size: 18), onTap: () {
             Navigator.pop(ctx);
             _qrStatic(c);
@@ -288,7 +304,7 @@ class _FinancePageState extends State<FinancePage> {
       h3('Постоянный QR'),
       const Center(child: _QrBox('TULPAR-DEMO|DRIVER|TLP7K2')),
       const SizedBox(height: 8),
-      const Center(child: Text('Пассажир сканирует код и вводит сумму сам', style: TextStyle(color: kMut, fontSize: 13))),
+      Center(child: Text('Пассажир сканирует код и вводит сумму сам', style: TextStyle(color: kMut, fontSize: 13))),
       const SizedBox(height: 12),
       Row(children: [
         Expanded(child: PrimaryButton('Сохранить', outline: true, onPressed: () => toast(c, 'QR сохранён в Фото (демо)'))),
@@ -313,7 +329,7 @@ class _FinancePageState extends State<FinancePage> {
       h3('Мои карты'),
       Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+        decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)),
         child: Column(children: [
           for (final x in s.cards)
             InkWell(
@@ -321,7 +337,7 @@ class _FinancePageState extends State<FinancePage> {
               child: Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [
                 toneIcon(Icons.credit_card, Tone.blue),
                 const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(x.mask, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)), const Text('Для вывода средств', style: TextStyle(color: kMut, fontSize: 12))])),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(x.mask, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)), Text('Для вывода средств', style: TextStyle(color: kMut, fontSize: 12))])),
                 if (x.main) const StatusChip('Основная'),
                 const Icon(Icons.chevron_right, size: 16, color: Color(0xFFB4B9C8)),
               ])),
@@ -363,7 +379,7 @@ class _FinancePageState extends State<FinancePage> {
       DropdownButtonFormField<String>(initialValue: bank, decoration: const InputDecoration(labelText: 'Банк'), items: const [DropdownMenuItem(value: 'Kaspi', child: Text('Kaspi')), DropdownMenuItem(value: 'Halyk', child: Text('Halyk')), DropdownMenuItem(value: 'Другой банк', child: Text('Другой банк'))], onChanged: (v) => bank = v ?? bank),
       const SizedBox(height: 10),
       TextField(controller: ctl, keyboardType: TextInputType.number, maxLength: 4, decoration: const InputDecoration(labelText: 'Последние 4 цифры карты', hintText: '0000')),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
       const SizedBox(height: 10),
       PrimaryButton('Добавить', onPressed: () {
         final e = s.addCard(bank, ctl.text);
@@ -382,7 +398,7 @@ class _FinancePageState extends State<FinancePage> {
       TextField(controller: amount, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Сумма, ₸', hintText: '0')),
       const SizedBox(height: 10),
       TextField(controller: desc, maxLength: 80, decoration: const InputDecoration(labelText: 'На что потратили', hintText: 'Например: заправка, мойка, обед')),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
       const SizedBox(height: 10),
       PrimaryButton('Сохранить', onPressed: () {
         final e = s.addExpense(amount.text, desc.text);
@@ -395,18 +411,20 @@ class _FinancePageState extends State<FinancePage> {
 }
 
 class _CardShell extends StatelessWidget {
-  const _CardShell(this.colors, this.child);
+  const _CardShell(this.colors, this.glow, this.child, {this.border});
   final List<Color> colors;
+  final Color glow;
   final Widget child;
+  final Color? border;
   @override
   Widget build(BuildContext context) => Padding(
         padding: const EdgeInsets.only(right: 10),
         child: Container(
           padding: const EdgeInsets.all(14),
           clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: colors), boxShadow: [BoxShadow(color: colors[1].withValues(alpha: .5), blurRadius: 36, offset: const Offset(0, 18), spreadRadius: -18)]),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), border: border == null ? null : Border.all(color: border!), gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: colors), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: kDark ? .5 : .35), blurRadius: 36, offset: const Offset(0, 18), spreadRadius: -18)]),
           child: Stack(children: [
-            Positioned(right: -70, top: -80, child: Container(width: 220, height: 220, decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [Colors.white.withValues(alpha: .22), Colors.transparent])))),
+            Positioned(right: -70, top: -80, child: Container(width: 220, height: 220, decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [glow.withValues(alpha: .2), Colors.transparent])))),
             child,
           ]),
         ),
@@ -414,37 +432,40 @@ class _CardShell extends StatelessWidget {
 }
 
 class _Panel extends StatelessWidget {
-  const _Panel({required this.top, required this.amount, this.note});
+  const _Panel({required this.top, required this.amount, required this.amountColor, required this.border, required this.fill, required this.noteColor, this.note});
   final Widget top;
   final String amount;
+  final Color amountColor, border, fill, noteColor;
   final String? note;
   @override
   Widget build(BuildContext context) => Container(
         width: double.infinity,
         padding: const EdgeInsets.fromLTRB(14, 11, 14, 11),
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: .08), borderRadius: BorderRadius.circular(18), border: Border.all(color: Colors.white.withValues(alpha: .22))),
+        decoration: BoxDecoration(color: fill, borderRadius: BorderRadius.circular(18), border: Border.all(color: border)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           top,
-          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(amount, style: const TextStyle(color: Colors.white, fontSize: 30, height: 36 / 30, fontWeight: FontWeight.w700, letterSpacing: -1))),
-          if (note != null) Text(note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white60, fontSize: 12)),
+          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(amount, style: TextStyle(color: amountColor, fontSize: 30, height: 36 / 30, fontWeight: FontWeight.w700, letterSpacing: -1))),
+          if (note != null) Text(note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: noteColor, fontSize: 12)),
         ]),
       );
 }
 
 class _Pill extends StatelessWidget {
-  const _Pill(this.icon, this.label, this.onTap, {this.expand = false});
+  const _Pill(this.icon, this.label, this.onTap, {this.expand = false, this.fill, required this.fg, required this.line});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
   final bool expand;
+  final Color? fill;
+  final Color fg, line;
   @override
   Widget build(BuildContext context) {
     final w = GestureDetector(
       onTap: onTap,
       child: Container(
         height: 32,
-        decoration: BoxDecoration(color: Colors.white.withValues(alpha: .12), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.white.withValues(alpha: .28))),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 15, color: Colors.white), const SizedBox(width: 6), Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontSize: 12.5, fontWeight: FontWeight.w500)))]),
+        decoration: BoxDecoration(color: fill ?? Colors.transparent, borderRadius: BorderRadius.circular(16), border: Border.all(color: line)),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 15, color: fg), const SizedBox(width: 6), Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w500)))]),
       ),
     );
     return expand ? w : Expanded(child: w);
@@ -460,13 +481,13 @@ class _Stat extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: bg), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white), boxShadow: kShadow),
+        decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: bg), borderRadius: BorderRadius.circular(20), border: Border.all(color: kBorder), boxShadow: kShadow),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          IconBox(icon, bg: Colors.white, fg: color, size: 26),
+          IconBox(icon, bg: kDark ? const Color(0x1FFFFFFF) : Colors.white, fg: color, size: 26),
           const SizedBox(height: 6),
           Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, height: 16 / 13)),
           FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, height: 21 / 16, letterSpacing: -.5))),
-          Text(sub, style: const TextStyle(color: kMut, fontSize: 11, height: 13 / 11)),
+          Text(sub, style: TextStyle(color: kMut, fontSize: 11, height: 13 / 11)),
         ]),
       );
 }
@@ -524,14 +545,14 @@ class _KeypadState extends State<_Keypad> {
     final amount = val.isEmpty ? 0 : int.parse(val);
     return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
       Center(child: Text(widget.title, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700))),
-      if (widget.sub != null) Center(child: Text(widget.sub!, style: const TextStyle(color: kMut, fontSize: 12))),
+      if (widget.sub != null) Center(child: Text(widget.sub!, style: TextStyle(color: kMut, fontSize: 12))),
       Container(
         margin: const EdgeInsets.only(top: 10, bottom: 2),
         padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
-        child: Column(children: [const Text('Введите сумму', style: TextStyle(color: kMut, fontSize: 12)), Text(money(amount), style: const TextStyle(fontSize: 34, height: 42 / 34, fontWeight: FontWeight.w700, letterSpacing: -1))]),
+        decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)),
+        child: Column(children: [Text('Введите сумму', style: TextStyle(color: kMut, fontSize: 12)), Text(money(amount), style: const TextStyle(fontSize: 34, height: 42 / 34, fontWeight: FontWeight.w700, letterSpacing: -1))]),
       ),
-      SizedBox(height: 22, child: Center(child: Text(err ?? '', style: const TextStyle(color: kErr, fontSize: 13, fontWeight: FontWeight.w600)))),
+      SizedBox(height: 22, child: Center(child: Text(err ?? '', style: TextStyle(color: kErr, fontSize: 13, fontWeight: FontWeight.w600)))),
       Wrap(alignment: WrapAlignment.center, spacing: 6, runSpacing: 6, children: [
         for (final c in widget.chips)
           GestureDetector(
@@ -539,7 +560,7 @@ class _KeypadState extends State<_Keypad> {
               err = null;
               val = (c == -1 ? widget.all!() : c).toString();
             }),
-            child: Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15), boxShadow: kShadow), child: Text(c == -1 ? 'Всё' : money(c).replaceAll(' ₸', ''), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
+            child: Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(15), boxShadow: kShadow), child: Text(c == -1 ? 'Всё' : money(c).replaceAll(' ₸', ''), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600))),
           ),
       ]),
       if (widget.options != null) ...[
@@ -564,7 +585,7 @@ class _KeypadState extends State<_Keypad> {
           for (final k in const ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'back'])
             GestureDetector(
               onTap: () => key(k),
-              child: Container(decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12), boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 2, offset: Offset(0, 1))]), alignment: Alignment.center, child: k == 'back' ? const Icon(Icons.backspace_outlined, size: 20) : Text(k, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500))),
+              child: Container(decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(12), boxShadow: const [BoxShadow(color: Color(0x0F000000), blurRadius: 2, offset: Offset(0, 1))]), alignment: Alignment.center, child: k == 'back' ? const Icon(Icons.backspace_outlined, size: 20) : Text(k, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w500))),
             ),
         ],
       ),
@@ -581,12 +602,12 @@ class _History extends StatelessWidget {
   Widget _seg(List<(String, String)> items, String cur, void Function(String) on) => Container(
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(12)),
+        decoration: BoxDecoration(color: kFill, borderRadius: BorderRadius.circular(12)),
         child: Row(children: [
           for (final (k, label) in items)
             Expanded(child: GestureDetector(
               onTap: () => on(k),
-              child: Container(height: 30, alignment: Alignment.center, decoration: BoxDecoration(color: cur == k ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(10)), child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: cur == k ? Colors.white : const Color(0xFF5A6075)))),
+              child: Container(height: 30, alignment: Alignment.center, decoration: BoxDecoration(color: cur == k ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(10)), child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: cur == k ? kOn : kMut))),
             )),
         ]),
       );
@@ -598,12 +619,12 @@ class _History extends StatelessWidget {
       final list = s.expenses.reversed.toList();
       return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         mode,
-        if (list.isEmpty) const Padding(padding: EdgeInsets.symmetric(vertical: 14), child: Text('Расходов пока нет.', style: TextStyle(color: kMut))) else const Padding(padding: EdgeInsets.only(top: 2, bottom: 2), child: Text('Сегодня', style: TextStyle(color: kMut, fontSize: 13, fontWeight: FontWeight.w600))),
+        if (list.isEmpty) Padding(padding: EdgeInsets.symmetric(vertical: 14), child: Text('Расходов пока нет.', style: TextStyle(color: kMut))) else Padding(padding: EdgeInsets.only(top: 2, bottom: 2), child: Text('Сегодня', style: TextStyle(color: kMut, fontSize: 13, fontWeight: FontWeight.w600))),
         for (final e in list)
           InkWell(
             onTap: () => sheet(context, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               h3(e.desc),
-              Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [kv('Сумма', money(e.amount)), kv('Время', 'Сегодня, ${e.time}')])),
+              Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)), child: Column(children: [kv('Сумма', money(e.amount)), kv('Время', 'Сегодня, ${e.time}')])),
               const SizedBox(height: 10),
               StatusChip(e.cancelled ? 'Отменён' : 'Выполнена'),
               if (!e.cancelled) ...[
@@ -622,7 +643,7 @@ class _History extends StatelessWidget {
               child: Row(children: [
                 toneIcon(_opIcon('Расход', e.desc), Tone.gray),
                 const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(e.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, decoration: e.cancelled ? TextDecoration.lineThrough : null)), Text('Сегодня, ${e.time}', style: const TextStyle(color: kMut, fontSize: 12))])),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(e.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, decoration: e.cancelled ? TextDecoration.lineThrough : null)), Text('Сегодня, ${e.time}', style: TextStyle(color: kMut, fontSize: 12))])),
                 Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text('−${money(e.amount)}', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, decoration: e.cancelled ? TextDecoration.lineThrough : null)), if (e.cancelled) const StatusChip('Отменён')]),
               ]),
             ),
@@ -637,7 +658,7 @@ class _History extends StatelessWidget {
     for (final o in list) {
       final g = _day(s, o.ts);
       if (g != last) {
-        rows.add(Padding(padding: const EdgeInsets.only(top: 10, bottom: 2), child: Text(g, style: const TextStyle(color: kMut, fontSize: 13, fontWeight: FontWeight.w600))));
+        rows.add(Padding(padding: const EdgeInsets.only(top: 10, bottom: 2), child: Text(g, style: TextStyle(color: kMut, fontSize: 13, fontWeight: FontWeight.w600))));
         last = g;
       }
       rows.add(OpTile(o));
@@ -653,10 +674,10 @@ class _History extends StatelessWidget {
         for (final (k, label) in labels)
           GestureDetector(
             onTap: () => s.setHistTab(k),
-            child: Container(margin: const EdgeInsets.only(right: 6), height: 30, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.center, decoration: BoxDecoration(color: s.histTab == k ? kInk : const Color(0x21787F9E), borderRadius: BorderRadius.circular(15)), child: Text(label, style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: s.histTab == k ? Colors.white : const Color(0xFF4A5066)))),
+            child: Container(margin: const EdgeInsets.only(right: 6), height: 30, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.center, decoration: BoxDecoration(color: s.histTab == k ? kInk : kFill, borderRadius: BorderRadius.circular(15)), child: Text(label, style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: s.histTab == k ? kOn : kMut))),
           ),
       ]),
-      if (rows.isEmpty) const Padding(padding: EdgeInsets.symmetric(vertical: 14), child: Text('Транзакций нет.', style: TextStyle(color: kMut))),
+      if (rows.isEmpty) Padding(padding: EdgeInsets.symmetric(vertical: 14), child: Text('Транзакций нет.', style: TextStyle(color: kMut))),
       ...rows,
     ]);
   }

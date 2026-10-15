@@ -18,7 +18,7 @@ class ScreenHead extends StatelessWidget {
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             h2(title),
-            const Text.rich(TextSpan(children: [TextSpan(text: 'TULPAR LINE  ', style: TextStyle(color: kInk, fontWeight: FontWeight.w700)), TextSpan(text: 'Таксопарк')]), style: TextStyle(color: kMut, fontSize: 14, height: 20 / 16)),
+            Text.rich(TextSpan(children: [TextSpan(text: 'TULPAR LINE  ', style: TextStyle(color: kInk, fontWeight: FontWeight.w700)), TextSpan(text: 'Таксопарк')]), style: TextStyle(color: kMut, fontSize: 14, height: 20 / 16)),
           ])),
           ?trailing,
         ]),
@@ -95,7 +95,7 @@ class ServicePage extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(it.$1, maxLines: 3, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14, height: 19 / 16, letterSpacing: -.3)),
                 const SizedBox(height: 3),
-                Expanded(child: Text(it.$4, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMut, fontSize: 11.5, height: 16 / 12.5))),
+                Expanded(child: Text(it.$4, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: kMut, fontSize: 11.5, height: 16 / 12.5))),
               ]),
             ),
         ],

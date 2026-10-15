@@ -64,21 +64,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
       items.add(Padding(
         padding: const EdgeInsets.only(top: 8, right: 36),
         child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Container(width: 30, height: 30, decoration: const BoxDecoration(color: kInk, shape: BoxShape.circle), alignment: Alignment.center, child: const LogoMark(size: 19)),
+          Container(width: 30, height: 30, decoration: const BoxDecoration(color: kBlack, shape: BoxShape.circle), alignment: Alignment.center, child: const LogoMark(size: 19)),
           const SizedBox(width: 8),
           Flexible(
             child: Container(
               padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
-              decoration: BoxDecoration(color: Colors.white, borderRadius: const BorderRadius.only(topLeft: Radius.circular(18), topRight: Radius.circular(18), bottomRight: Radius.circular(18), bottomLeft: Radius.circular(6)), boxShadow: kShadow),
+              decoration: BoxDecoration(color: kSolid, borderRadius: const BorderRadius.only(topLeft: Radius.circular(18), topRight: Radius.circular(18), bottomRight: Radius.circular(18), bottomLeft: Radius.circular(6)), boxShadow: kShadow),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(n.title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14.5, height: 19 / 14.5)),
                 const SizedBox(height: 3),
-                Text(n.text, style: const TextStyle(fontSize: 14, height: 19 / 14, color: Color(0xFF3A3F52))),
+                Text(n.text, style: TextStyle(fontSize: 14, height: 19 / 14, color: kDark ? Color(0xFFC7CBD8) : Color(0xFF3A3F52))),
                 if (n.go != 'finance') ...[
                   const SizedBox(height: 6),
                   GestureDetector(onTap: () => _open(context, n.go), child: Container(height: 28, padding: const EdgeInsets.symmetric(horizontal: 10), alignment: Alignment.center, decoration: BoxDecoration(color: const Color(0x1A2F6BFF), borderRadius: BorderRadius.circular(14)), child: const Row(mainAxisSize: MainAxisSize.min, children: [Text('Открыть', style: TextStyle(color: kBlue, fontSize: 12.5, fontWeight: FontWeight.w600)), Icon(Icons.chevron_right, size: 14, color: kBlue)]))),
                 ],
-                Align(alignment: Alignment.centerRight, child: Padding(padding: const EdgeInsets.only(top: 3), child: Text('${pad2(n.ts.hour)}:${pad2(n.ts.minute)}', style: const TextStyle(fontSize: 11, color: kMut)))),
+                Align(alignment: Alignment.centerRight, child: Padding(padding: const EdgeInsets.only(top: 3), child: Text('${pad2(n.ts.hour)}:${pad2(n.ts.minute)}', style: TextStyle(fontSize: 11, color: kMut)))),
               ]),
             ),
           ),
@@ -92,9 +92,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: kM),
             child: NavBar(center: Row(mainAxisSize: MainAxisSize.min, children: [
-              Container(width: 32, height: 32, decoration: const BoxDecoration(color: kInk, shape: BoxShape.circle), alignment: Alignment.center, child: const LogoMark(size: 20)),
+              Container(width: 32, height: 32, decoration: const BoxDecoration(color: kBlack, shape: BoxShape.circle), alignment: Alignment.center, child: const LogoMark(size: 20)),
               const SizedBox(width: 8),
-              const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Таксопарк Tulpar Line', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 17 / 14)), Text('уведомления', style: TextStyle(fontSize: 11.5, color: kMut, height: 14 / 11.5))]),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Таксопарк Tulpar Line', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, height: 17 / 14)), Text('уведомления', style: TextStyle(fontSize: 11.5, color: kMut, height: 14 / 11.5))]),
             ])),
           ),
           Expanded(child: ListView(controller: scroll, padding: const EdgeInsets.fromLTRB(kM, 4, kM, 12), children: items)),
@@ -102,7 +102,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
             padding: const EdgeInsets.fromLTRB(kM, 4, kM, 12),
             child: GestureDetector(
               onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SupportPage())),
-              child: Container(height: 42, padding: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(21), boxShadow: kShadow), child: const Row(children: [Icon(Icons.headset_mic_outlined, size: 18, color: kMut), SizedBox(width: 8), Text('Написать в поддержку…', style: TextStyle(color: kMut, fontSize: 14))])),
+              child: Container(height: 42, padding: const EdgeInsets.symmetric(horizontal: 16), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(21), boxShadow: kShadow), child: Row(children: [Icon(Icons.headset_mic_outlined, size: 18, color: kMut), SizedBox(width: 8), Text('Написать в поддержку…', style: TextStyle(color: kMut, fontSize: 14))])),
             ),
           ),
         ]),
@@ -127,7 +127,7 @@ class DocumentsPage extends StatelessWidget {
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Expanded(child: Text(d.$1, style: const TextStyle(fontWeight: FontWeight.w700))), StatusChip(d.$4 == 'На проверке' ? 'Ожидает проверки' : d.$4)]),
           const SizedBox(height: 6),
-          Text('Выдан: ${d.$2} · Действует до: ${d.$3}', style: const TextStyle(color: kMut, fontSize: 11.5)),
+          Text('Выдан: ${d.$2} · Действует до: ${d.$3}', style: TextStyle(color: kMut, fontSize: 11.5)),
           const SizedBox(height: 6),
           StatusChip(d.$5),
           if (d.$6.isNotEmpty) note(d.$6),
@@ -151,19 +151,19 @@ class GoalsPage extends StatelessWidget {
           final tgt = g.type == GoalType.minutes ? '${g.target ~/ 60} ч' : g.type == GoalType.earn ? money(g.target) : '${g.target}';
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${names[g.type]} — ${g.period.toLowerCase()}', style: const TextStyle(fontWeight: FontWeight.w700)), Text('Цель: $tgt', style: const TextStyle(color: kMut, fontSize: 11.5))])),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${names[g.type]} — ${g.period.toLowerCase()}', style: const TextStyle(fontWeight: FontWeight.w700)), Text('Цель: $tgt', style: TextStyle(color: kMut, fontSize: 11.5))])),
               Switch(value: g.on, activeTrackColor: kBlue, onChanged: (v) {
                 g.on = v;
                 s.notify();
               }),
             ]),
             const SizedBox(height: 8),
-            ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: pct / 100, minHeight: 12, backgroundColor: const Color(0xFFE7EBF5), color: kBlue)),
+            ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: pct / 100, minHeight: 12, backgroundColor: kFill, color: kBlue)),
             const SizedBox(height: 6),
-            Text('$pct% выполнено${g.on ? '' : ' · отключена'}', style: const TextStyle(color: kMut, fontSize: 11.5)),
+            Text('$pct% выполнено${g.on ? '' : ' · отключена'}', style: TextStyle(color: kMut, fontSize: 11.5)),
           ]);
         })),
-      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('История'), const Text('Вчера: 27 из 25 заказов — выполнено ✓\n10 окт: 22 из 25 заказов — не выполнено', style: TextStyle(color: kMut, height: 1.5))])),
+      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('История'), Text('Вчера: 27 из 25 заказов — выполнено ✓\n10 окт: 22 из 25 заказов — не выполнено', style: TextStyle(color: kMut, height: 1.5))])),
     ]);
   }
 }
@@ -182,8 +182,8 @@ class TasksPage extends StatelessWidget {
       for (final t in tasks)
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Expanded(child: Text(t.$1, style: const TextStyle(fontWeight: FontWeight.w700))), StatusChip(t.$7)]),
-          Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(t.$2, style: const TextStyle(color: kMut, fontSize: 11.5))),
-          ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: (t.$3 / t.$4).clamp(0, 1), minHeight: 12, backgroundColor: const Color(0xFFE7EBF5), color: kBlue)),
+          Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(t.$2, style: TextStyle(color: kMut, fontSize: 11.5))),
+          ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: (t.$3 / t.$4).clamp(0, 1), minHeight: 12, backgroundColor: kFill, color: kBlue)),
           const SizedBox(height: 8),
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(t.$5, style: const TextStyle(fontSize: 11.5)), Text('Награда: ${money(t.$6)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5))]),
         ])),
@@ -212,8 +212,8 @@ class _SchedulePageState extends State<SchedulePage> {
             Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Row(children: [
               SizedBox(width: 34, child: Text(days[i][0] as String, style: const TextStyle(fontWeight: FontWeight.w700))),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                days[i][1] as bool ? Text('${days[i][2]} – ${days[i][3]}') : const Text('Выходной', style: TextStyle(color: kMut)),
-                if (i == 2 && days[i][1] as bool) const Text('Факт сегодня: на линии с 08:12 (6 ч 40 мин)', style: TextStyle(color: kMut, fontSize: 11.5)),
+                days[i][1] as bool ? Text('${days[i][2]} – ${days[i][3]}') : Text('Выходной', style: TextStyle(color: kMut)),
+                if (i == 2 && days[i][1] as bool) Text('Факт сегодня: на линии с 08:12 (6 ч 40 мин)', style: TextStyle(color: kMut, fontSize: 11.5)),
               ])),
               if (days[i][1] as bool) TextButton(onPressed: () => _edit(i), child: const Text('Изм.')),
               Switch(value: days[i][1] as bool, activeTrackColor: kBlue, onChanged: (v) => setState(() {
@@ -270,7 +270,7 @@ class CarPage extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('${s.carMake} ${s.carModel}', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -.3)),
-            Text('${s.carYear} · Белый · ${s.carClass}', style: const TextStyle(color: kMut, fontSize: 12)),
+            Text('${s.carYear} · Белый · ${s.carClass}', style: TextStyle(color: kMut, fontSize: 12)),
             const SizedBox(height: 6),
             Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1), decoration: BoxDecoration(border: Border.all(color: const Color(0x803C4664), width: 1.5), borderRadius: BorderRadius.circular(7)), child: Text(s.carPlate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: .6))),
           ])),
@@ -282,14 +282,14 @@ class CarPage extends StatelessWidget {
         child: Row(children: [
           toneIcon(Icons.speed, Tone.violet),
           const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Пробег сейчас', style: TextStyle(color: kMut, fontSize: 12)), Text(km(s.odometer), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -.3))])),
-          const Text('Изменить', style: TextStyle(color: kMut, fontSize: 12)),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Пробег сейчас', style: TextStyle(color: kMut, fontSize: 12)), Text(km(s.odometer), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -.3))])),
+          Text('Изменить', style: TextStyle(color: kMut, fontSize: 12)),
         ]),
       ),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         h3('Документы'),
         _DocRow(Icons.description_outlined, Tone.green, 'Техосмотр', 'до ${fmt(s.techUntil)}', _due(s.techUntil), () => _pickDate(context, s.techUntil, s.setTechUntil)),
-        const Divider(height: 1, color: kLine),
+        Divider(height: 1, color: kLine),
         _DocRow(Icons.shield_outlined, Tone.amber, 'Страховка', 'до ${fmt(s.insUntil)}', _due(s.insUntil), () => _pickDate(context, s.insUntil, s.setInsUntil)),
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -298,7 +298,7 @@ class CarPage extends StatelessWidget {
           GestureDetector(onTap: () => _addService(context, s), child: const Text('+ Добавить', style: TextStyle(color: kBlue, fontSize: 13))),
         ]),
         const SizedBox(height: 4),
-        if (s.services.isEmpty) const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Записей пока нет. Добавьте, когда меняли масло, колодки или шины.', style: TextStyle(color: kMut, fontSize: 13))),
+        if (s.services.isEmpty) Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Записей пока нет. Добавьте, когда меняли масло, колодки или шины.', style: TextStyle(color: kMut, fontSize: 13))),
         for (final x in s.services)
           InkWell(
             onTap: () => _open(context, s, x),
@@ -309,7 +309,7 @@ class CarPage extends StatelessWidget {
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                   Text(x.what, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
-                  Text('${fmt(x.date)} · ${km(x.km)}${x.next != null ? ' · следующий раз на ${km(x.next!)}' : ''}', style: const TextStyle(color: kMut, fontSize: 12)),
+                  Text('${fmt(x.date)} · ${km(x.km)}${x.next != null ? ' · следующий раз на ${km(x.next!)}' : ''}', style: TextStyle(color: kMut, fontSize: 12)),
                   if (x.next != null) Padding(padding: const EdgeInsets.only(top: 4), child: _svcChip(x.next! - s.odometer)),
                 ])),
                 const Icon(Icons.chevron_right, size: 16, color: Color(0xFFB4B9C8)),
@@ -334,7 +334,7 @@ class CarPage extends StatelessWidget {
     sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3('Пробег сейчас'),
       TextField(controller: ctl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Километров')),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(err!, style: const TextStyle(color: kErr, fontSize: 13))),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(err!, style: TextStyle(color: kErr, fontSize: 13))),
       const SizedBox(height: 10),
       PrimaryButton('Сохранить', onPressed: () {
         final e = s.setOdometer(ctl.text);
@@ -358,13 +358,13 @@ class CarPage extends StatelessWidget {
           final d = await showDatePicker(context: ctx, initialDate: date, firstDate: DateTime(2020), lastDate: DateTime.now());
           if (d != null) set(() => date = d);
         },
-        child: Container(height: 46, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.centerLeft, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)), child: Row(children: [const Icon(Icons.calendar_today_outlined, size: 16, color: kMut), const SizedBox(width: 8), Text('Дата: ${fmt(date)}')])),
+        child: Container(height: 46, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.centerLeft, decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(10)), child: Row(children: [Icon(Icons.calendar_today_outlined, size: 16, color: kMut), const SizedBox(width: 8), Text('Дата: ${fmt(date)}')])),
       ),
       const SizedBox(height: 10),
       TextField(controller: kmC, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Пробег при замене, км')),
       const SizedBox(height: 10),
       TextField(controller: next, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Следующая замена на, км', hintText: 'Например: ${s.odometer + 10000}')),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(err!, style: const TextStyle(color: kErr, fontSize: 13))),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(err!, style: TextStyle(color: kErr, fontSize: 13))),
       const SizedBox(height: 10),
       PrimaryButton('Сохранить', onPressed: () {
         final e = s.addService(what.text, date, kmC.text, next.text);
@@ -378,7 +378,7 @@ class CarPage extends StatelessWidget {
   void _open(BuildContext c, AppState s, ServiceRecord x) {
     sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3(x.what),
-      Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [kv('Дата', fmt(x.date)), kv('Пробег при замене', km(x.km)), kv('Следующий раз на', x.next == null ? '—' : km(x.next!))])),
+      Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)), child: Column(children: [kv('Дата', fmt(x.date)), kv('Пробег при замене', km(x.km)), kv('Следующий раз на', x.next == null ? '—' : km(x.next!))])),
       const SizedBox(height: 12),
       PrimaryButton('Удалить запись', outline: true, onPressed: () {
         s.removeService(x.id);
@@ -404,7 +404,7 @@ class _DocRow extends StatelessWidget {
           child: Row(children: [
             toneIcon(icon, tone),
             const SizedBox(width: 12),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)), Text(sub, style: const TextStyle(color: kMut, fontSize: 12))])),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)), Text(sub, style: TextStyle(color: kMut, fontSize: 12))])),
             chip,
           ]),
         ),
@@ -430,9 +430,9 @@ class ReferralPage extends StatelessWidget {
         ])),
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           h3('Приглашённые'),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Ержан А.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выполнил 12 из 25 заказов', style: TextStyle(color: kMut, fontSize: 11.5))]), const StatusChip('В процессе')]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Ержан А.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выполнил 12 из 25 заказов', style: TextStyle(color: kMut, fontSize: 11.5))]), const StatusChip('В процессе')]),
           const Divider(height: 24),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Мадина К.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Условие выполнено', style: TextStyle(color: kMut, fontSize: 11.5))]), const StatusChip('Ожидает утверждения суммы')]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Мадина К.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Условие выполнено', style: TextStyle(color: kMut, fontSize: 11.5))]), const StatusChip('Ожидает утверждения суммы')]),
         ])),
         note('Бонус начисляется на депозит-карту только после выполнения условий активации и проверки (защита от самоприглашений и дублей).'),
       ]);
@@ -445,7 +445,7 @@ class HealthPage extends StatelessWidget {
     final s = AppScope.of(context);
     return SubPage(title: 'Здоровье', children: [
       AppCard(child: Row(children: [
-        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Доступ к данным здоровья', style: TextStyle(fontWeight: FontWeight.w700)), Text('Apple HealthKit / Google Health Connect. Только с вашего согласия, отзывается в любой момент.', style: TextStyle(color: kMut, fontSize: 11.5))])),
+        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Доступ к данным здоровья', style: TextStyle(fontWeight: FontWeight.w700)), Text('Apple HealthKit / Google Health Connect. Только с вашего согласия, отзывается в любой момент.', style: TextStyle(color: kMut, fontSize: 11.5))])),
         Switch(value: s.healthConsent, activeTrackColor: kBlue, onChanged: (v) {
           s.healthConsent = v;
           s.notify();
@@ -453,7 +453,7 @@ class HealthPage extends StatelessWidget {
       ])),
       if (s.healthConsent) ...[
         Row(children: [
-          for (final x in const [('6 840', 'шагов'), ('4,9', 'км'), ('38', 'мин актив.')]) Expanded(child: AppCard(margin: const EdgeInsets.only(right: 8, bottom: 8), padding: const EdgeInsets.all(12), child: Column(children: [Text(x.$1, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)), Text(x.$2, style: const TextStyle(color: kMut, fontSize: 11.5))]))),
+          for (final x in const [('6 840', 'шагов'), ('4,9', 'км'), ('38', 'мин актив.')]) Expanded(child: AppCard(margin: const EdgeInsets.only(right: 8, bottom: 8), padding: const EdgeInsets.all(12), child: Column(children: [Text(x.$1, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)), Text(x.$2, style: TextStyle(color: kMut, fontSize: 11.5))]))),
         ]),
         note('Демо-значения. Приложение не даёт медицинских заключений.'),
       ] else
@@ -473,18 +473,18 @@ class _SosPageState extends State<SosPage> {
   @override
   Widget build(BuildContext context) => SubPage(title: 'SOS', children: [
         AppCard(child: Column(children: [
-          const Text('В экстренной ситуации нажмите и подтвердите', style: TextStyle(color: kMut)),
+          Text('В экстренной ситуации нажмите и подтвердите', style: TextStyle(color: kMut)),
           const SizedBox(height: 16),
           GestureDetector(
             onTap: _press,
             child: Container(width: 150, height: 150, decoration: BoxDecoration(color: const Color(0xFFE53935), shape: BoxShape.circle, border: Border.all(color: const Color(0xFFFBC4C3), width: 8)), alignment: Alignment.center, child: const Text('SOS', style: TextStyle(color: Colors.white, fontSize: 24, fontWeight: FontWeight.w700))),
           ),
           const SizedBox(height: 16),
-          const Text('Контакт: Айгерим (жена) +7 700 000-00-00', style: TextStyle(color: kMut)),
+          Text('Контакт: Айгерим (жена) +7 700 000-00-00', style: TextStyle(color: kMut)),
         ])),
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           h3('Журнал событий'),
-          if (log.isEmpty) const Text('Событий пока нет.', style: TextStyle(color: kMut)),
+          if (log.isEmpty) Text('Событий пока нет.', style: TextStyle(color: kMut)),
           for (final l in log) Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(l), const StatusChip('Запрос отправлен, доставка не подтверждена')])),
         ])),
         note('Приложение не утверждает, что сообщение доставлено, пока доставка не подтверждена. При угрозе жизни звоните 112.'),
@@ -529,7 +529,7 @@ class SupportPage extends StatelessWidget {
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           h3('FAQ'),
           for (final q in const [('Когда начисляется кэшбэк?', 'После окончания дня и проверки данных, если выполнен порог заказов.'), ('Когда можно вывести бонусы?', 'Заявку можно подать 1-го числа месяца. Срок выплаты сообщит таксопарк.'), ('Чем депозит-карта отличается от баланса?', 'Это отдельный бонусный баланс таксопарка, а не банковская карта и не баланс Yandex.')])
-            ExpansionTile(tilePadding: EdgeInsets.zero, title: Text(q.$1, style: const TextStyle(fontWeight: FontWeight.w600)), shape: const Border(), collapsedShape: const Border(), childrenPadding: const EdgeInsets.only(bottom: 10), expandedCrossAxisAlignment: CrossAxisAlignment.start, children: [Text(q.$2, style: const TextStyle(color: kMut))]),
+            ExpansionTile(tilePadding: EdgeInsets.zero, title: Text(q.$1, style: const TextStyle(fontWeight: FontWeight.w600)), shape: const Border(), collapsedShape: const Border(), childrenPadding: const EdgeInsets.only(bottom: 10), expandedCrossAxisAlignment: CrossAxisAlignment.start, children: [Text(q.$2, style: TextStyle(color: kMut))]),
         ])),
       ]);
 }
@@ -547,6 +547,10 @@ class _SettingsPageState extends State<SettingsPage> {
     final s = AppScope.of(context);
     return SubPage(title: 'Настройки', back: 'Профиль', children: [
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        h3('Тема приложения'),
+        SegmentedButton<bool>(segments: const [ButtonSegment(value: false, label: Text('Светлая'), icon: Icon(Icons.light_mode_outlined)), ButtonSegment(value: true, label: Text('Тёмная'), icon: Icon(Icons.dark_mode_outlined))], selected: {s.dark}, onSelectionChanged: (v) => s.setTheme(v.first)),
+      ])),
+      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         h3('Язык'),
         SegmentedButton<String>(segments: const [ButtonSegment(value: 'kk', label: Text('Қазақша')), ButtonSegment(value: 'ru', label: Text('Русский'))], selected: {s.lang}, onSelectionChanged: (v) {
           s.lang = v.first;
@@ -554,7 +558,7 @@ class _SettingsPageState extends State<SettingsPage> {
         }),
         note('В прототипе полный перевод на казахский не подключён: он добавляется через файлы локализации.'),
       ])),
-      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Личные данные'), Text('Имя: ${s.first} ${s.last}\nТелефон: +7 700 ••• •• 21\nИИН: •••• •••• 1234', style: const TextStyle(color: kMut, height: 1.5))])),
+      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Личные данные'), Text('Имя: ${s.first} ${s.last}\nТелефон: +7 700 ••• •• 21\nИИН: •••• •••• 1234', style: TextStyle(color: kMut, height: 1.5))])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         h3('Приватность'),
         Row(children: [const Expanded(child: Text('Показывать моё имя в рейтинге')), Switch(value: s.showName, activeTrackColor: kBlue, onChanged: (v) {
@@ -585,17 +589,17 @@ class DemoPage extends StatelessWidget {
     final s = AppScope.of(context);
     return SubPage(title: 'Демо-инструменты', back: 'Профиль', children: [
       banner('Только для демонстрации прототипа. В реальном приложении этих экранов нет.', info: true),
-      AppCard(child: Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Имитировать 1-е число', style: TextStyle(fontWeight: FontWeight.w700)), Text('Открывает окно вывода с депозит-карты', style: TextStyle(color: kMut, fontSize: 11.5))])), Switch(value: s.windowOpen, activeTrackColor: kBlue, onChanged: (v) {
+      AppCard(child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Имитировать 1-е число', style: TextStyle(fontWeight: FontWeight.w700)), Text('Открывает окно вывода с депозит-карты', style: TextStyle(color: kMut, fontSize: 11.5))])), Switch(value: s.windowOpen, activeTrackColor: kBlue, onChanged: (v) {
         s.windowOpen = v;
         s.notify();
       })])),
-      AppCard(child: Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Данные Yandex синхронизированы', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выключите, чтобы увидеть предупреждение', style: TextStyle(color: kMut, fontSize: 11.5))])), Switch(value: s.synced, activeTrackColor: kBlue, onChanged: (v) {
+      AppCard(child: Row(children: [Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Данные Yandex синхронизированы', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выключите, чтобы увидеть предупреждение', style: TextStyle(color: kMut, fontSize: 11.5))])), Switch(value: s.synced, activeTrackColor: kBlue, onChanged: (v) {
         s.synced = v;
         s.notify();
       })])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Заказы', style: TextStyle(fontWeight: FontWeight.w700)),
-        Text('Сейчас завершено: ${s.orders}. Заказ обновляет цель, рейтинг, статус кэшбэка и график.', style: const TextStyle(color: kMut, fontSize: 11.5)),
+        Text('Сейчас завершено: ${s.orders}. Заказ обновляет цель, рейтинг, статус кэшбэка и график.', style: TextStyle(color: kMut, fontSize: 11.5)),
         const SizedBox(height: 10),
         Row(children: [
           Expanded(child: PrimaryButton('+1 заказ', onPressed: () => _sim(context, s, 1))),
@@ -605,7 +609,7 @@ class DemoPage extends StatelessWidget {
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Заявки на вывод', style: TextStyle(fontWeight: FontWeight.w700)),
-        Text('Последняя заявка: ${s.payouts.isEmpty ? 'нет' : '${s.payouts.first.id} — ${s.payouts.first.status}'}', style: const TextStyle(color: kMut, fontSize: 11.5)),
+        Text('Последняя заявка: ${s.payouts.isEmpty ? 'нет' : '${s.payouts.first.id} — ${s.payouts.first.status}'}', style: TextStyle(color: kMut, fontSize: 11.5)),
         const SizedBox(height: 10),
         Row(children: [
           Expanded(child: PrimaryButton('Выполнить', onPressed: s.payoutDone)),

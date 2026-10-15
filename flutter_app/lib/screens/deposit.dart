@@ -41,7 +41,7 @@ class DepositPage extends StatelessWidget {
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [const Expanded(child: Text('Сегодняшнее условие', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14))), StatusChip(s.cashbackStatus)]),
         const SizedBox(height: 10),
-        ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: (s.orders / 25).clamp(0, 1), minHeight: 12, backgroundColor: const Color(0xFFE7EBF5), color: kBlue)),
+        ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: (s.orders / 25).clamp(0, 1), minHeight: 12, backgroundColor: kFill, color: kBlue)),
         const SizedBox(height: 10),
         kv('Заказов за сегодня', '${s.orders} из 25'),
         kv('Заказы подтверждены и синхронизированы', s.synced ? '✓ да' : '✗ нет'),
@@ -50,7 +50,7 @@ class DepositPage extends StatelessWidget {
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         h3('Вывод бонусного баланса'),
-        Text('Следующее окно: ${s.nextWindowText}. Доступно к заявке: ${money(s.depAvailable)}.', style: const TextStyle(color: kMut)),
+        Text('Следующее окно: ${s.nextWindowText}. Доступно к заявке: ${money(s.depAvailable)}.', style: TextStyle(color: kMut)),
         const SizedBox(height: 12),
         PrimaryButton('Подать заявку на вывод', onPressed: () => _withdraw(context, s)),
         note('${s.windowOpen ? 'Окно открыто (демо-режим).' : 'Вне окна заявка недоступна: заявки принимаются только 1-го числа месяца.'} Выплаты обрабатываются вручную после проверки; срок обработки сообщит таксопарк.'),
@@ -71,8 +71,8 @@ class DepositPage extends StatelessWidget {
             child: Padding(padding: const EdgeInsets.symmetric(vertical: 10), child: Row(children: [
               toneIcon(Icons.card_giftcard, Tone.amber),
               const SizedBox(width: 12),
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(d.type, style: const TextStyle(fontWeight: FontWeight.w700)), Text('${d.period}${d.orders != null ? ' · ${d.orders} заказов' : ''}', style: const TextStyle(color: kMut, fontSize: 11.5))])),
-              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text('+${money(d.amount)}', style: const TextStyle(fontWeight: FontWeight.w700, color: kOk)), StatusChip(d.status)]),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(d.type, style: const TextStyle(fontWeight: FontWeight.w700)), Text('${d.period}${d.orders != null ? ' · ${d.orders} заказов' : ''}', style: TextStyle(color: kMut, fontSize: 11.5))])),
+              Column(crossAxisAlignment: CrossAxisAlignment.end, children: [Text('+${money(d.amount)}', style: TextStyle(fontWeight: FontWeight.w700, color: kOk)), StatusChip(d.status)]),
             ])),
           ),
       ])),
@@ -97,10 +97,10 @@ class DepositPage extends StatelessWidget {
     String? err;
     sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3('Заявка на вывод с депозит-карты'),
-      Text('Доступно: ${money(s.depAvailable)}', style: const TextStyle(color: kMut)),
+      Text('Доступно: ${money(s.depAvailable)}', style: TextStyle(color: kMut)),
       const SizedBox(height: 10),
       TextField(controller: ctl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Сумма, ₸')),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600))),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: TextStyle(color: kErr, fontWeight: FontWeight.w600))),
       const SizedBox(height: 12),
       PrimaryButton('Отправить заявку', onPressed: () {
         final e = s.depWithdraw(ctl.text);

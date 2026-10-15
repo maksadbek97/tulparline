@@ -19,13 +19,13 @@ class RatingPage extends StatelessWidget {
         for (final r in s.rating)
           Container(
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
-            decoration: BoxDecoration(color: r.me ? const Color(0xFFE4ECFF) : null, borderRadius: BorderRadius.circular(14), border: r.me ? null : const Border(top: BorderSide(color: kLine))),
+            decoration: BoxDecoration(color: r.me ? const Color(0xFFE4ECFF) : null, borderRadius: BorderRadius.circular(14), border: r.me ? null : Border(top: BorderSide(color: kLine))),
             child: Row(children: [
               SizedBox(width: 30, child: Text('${r.place}', style: TextStyle(fontWeight: r.me ? FontWeight.w700 : FontWeight.w500))),
               Expanded(child: Text(r.me ? '${r.name} (вы)' : r.name, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: r.me ? FontWeight.w700 : FontWeight.w500))),
               SizedBox(width: 52, child: Text('${r.orders}')),
               SizedBox(width: 52, child: Text('${r.score}')),
-              SizedBox(width: 40, child: r.change > 0 ? Text('▲${r.change}', style: const TextStyle(color: kOk)) : r.change < 0 ? Text('▼${-r.change}', style: const TextStyle(color: kErr)) : const Text('—', style: TextStyle(color: kMut))),
+              SizedBox(width: 40, child: r.change > 0 ? Text('▲${r.change}', style: TextStyle(color: kOk)) : r.change < 0 ? Text('▼${-r.change}', style: TextStyle(color: kErr)) : Text('—', style: TextStyle(color: kMut))),
             ]),
           ),
         note('Баллы рейтинга — не деньги и не Coins. Период и критерии настраиваются в админ-панели; по окончании периода результаты уходят в архив. Имена сокращены согласно настройкам приватности.'),
@@ -38,5 +38,5 @@ class _H extends StatelessWidget {
   const _H(this.t);
   final String t;
   @override
-  Widget build(BuildContext context) => Text(t, style: const TextStyle(fontSize: 10, color: kMut, fontWeight: FontWeight.w700));
+  Widget build(BuildContext context) => Text(t, style: TextStyle(fontSize: 10, color: kMut, fontWeight: FontWeight.w700));
 }

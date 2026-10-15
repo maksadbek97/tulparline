@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 
 /// Токены: мягкий стиль Apple по референсу. Поля 12, радиус карточек 22, SF Pro.
+/// Тёмная тема переключается из профиля; значения читаются при каждой сборке.
+bool kDark = false;
+
 const kBlue = Color(0xFF2F6BFF);
 const kBlue2 = Color(0xFF5F94FF);
 const kGreen = Color(0xFF16B05A);
 const kRed = Color(0xFFFF4D5A);
 const kOrange = Color(0xFFFF9F0A);
 const kIndigo = Color(0xFF6A5CF0);
-const kInk = Color(0xFF0B0B0F);
-const kDark = Color(0xFF1D1E24);
-const kMut = Color(0xFF8A90A3);
-const kBg = Color(0xFFF5F7FC);
-const kLine = Color(0x1A3C4664);
-const kFill = Color(0x24787F9E);
-const kOk = Color(0xFF12994A);
-const kErr = Color(0xFFFF4D5A);
+const kBlack = Color(0xFF0B0B0F); // всегда тёмный
+const kDarkCard = Color(0xFF1D1E24);
+const kYandex = Color(0xFFFFCC00);
+Color get kInk => kDark ? const Color(0xFFF3F4F8) : const Color(0xFF0B0B0F); // основной текст и «сильные» заливки
+Color get kOn => kDark ? const Color(0xFF0B0B0F) : Colors.white; // текст на kInk
+Color get kMut => kDark ? const Color(0xFF9AA0B4) : const Color(0xFF8A90A3);
+Color get kBg => kDark ? const Color(0xFF0A0B0F) : const Color(0xFFF5F7FC);
+Color get kLine => kDark ? const Color(0x17FFFFFF) : const Color(0x1A3C4664);
+Color get kFill => kDark ? const Color(0x1AFFFFFF) : const Color(0x24787F9E);
+Color get kSolid => kDark ? const Color(0xFF1F2026) : Colors.white; // плотная поверхность
+Color get kCardBg => kDark ? const Color(0xEB1E1F26) : const Color(0xE6FFFFFF);
+Color get kBorder => kDark ? const Color(0x0FFFFFFF) : Colors.white;
+Color get kOk => kDark ? const Color(0xFF4ADE80) : const Color(0xFF12994A);
+Color get kErr => kRed;
+
 const double kM = 12;
 const double kR = 20;
 
-List<BoxShadow> get kShadow => [BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .2), blurRadius: 32, offset: const Offset(0, 12), spreadRadius: -14), BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .05), blurRadius: 2, offset: const Offset(0, 1))];
+List<BoxShadow> get kShadow => kDark ? [BoxShadow(color: Colors.black.withValues(alpha: .5), blurRadius: 24, offset: const Offset(0, 10), spreadRadius: -12)] : [BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .2), blurRadius: 32, offset: const Offset(0, 12), spreadRadius: -14), BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .05), blurRadius: 2, offset: const Offset(0, 1))];
 
 /// Мягкая стеклянная карточка.
 class AppCard extends StatelessWidget {
@@ -30,7 +40,7 @@ class AppCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         margin: margin,
-        decoration: BoxDecoration(color: gradient == null ? Colors.white.withValues(alpha: .9) : null, gradient: gradient, borderRadius: BorderRadius.circular(kR), border: Border.all(color: Colors.white, width: 1), boxShadow: kShadow),
+        decoration: BoxDecoration(color: gradient == null ? kCardBg : null, gradient: gradient, borderRadius: BorderRadius.circular(kR), border: Border.all(color: kBorder, width: 1), boxShadow: kShadow),
         child: Material(
           color: Colors.transparent,
           borderRadius: BorderRadius.circular(kR),
@@ -72,7 +82,7 @@ class DarkCard extends StatelessWidget {
 
 /// Иконка в мягкой цветной плашке.
 class IconBox extends StatelessWidget {
-  const IconBox(this.icon, {super.key, this.bg = const Color(0xFFEFF1F6), this.fg = kInk, this.size = 30});
+  IconBox(this.icon, {super.key, Color? bg, Color? fg, this.size = 30}) : bg = bg ?? (kDark ? const Color(0x1AFFFFFF) : const Color(0xFFEFF1F6)), fg = fg ?? kInk;
   final IconData icon;
   final Color bg, fg;
   final double size;
@@ -83,13 +93,13 @@ class IconBox extends StatelessWidget {
 class Tone {
   const Tone(this.bg, this.fg);
   final Color bg, fg;
-  static const green = Tone(Color(0xFFE2F7EA), Color(0xFF12A050));
-  static const red = Tone(Color(0xFFFFE7E8), Color(0xFFE0384A));
-  static const blue = Tone(Color(0xFFE5EDFF), kBlue);
-  static const amber = Tone(Color(0xFFFFEEC9), Color(0xFFD98300));
-  static const violet = Tone(Color(0xFFECE9FF), kIndigo);
-  static const dark = Tone(kInk, Colors.white);
-  static const gray = Tone(Color(0xFFEFF1F6), kInk);
+  static Tone get green => kDark ? const Tone(Color(0x3316B05A), Color(0xFF4ADE80)) : const Tone(Color(0xFFE2F7EA), Color(0xFF12A050));
+  static Tone get red => kDark ? const Tone(Color(0x33FF4D5A), Color(0xFFFF8B94)) : const Tone(Color(0xFFFFE7E8), Color(0xFFE0384A));
+  static Tone get blue => kDark ? const Tone(Color(0x382F6BFF), Color(0xFF7DA6FF)) : const Tone(Color(0xFFE5EDFF), kBlue);
+  static Tone get amber => kDark ? const Tone(Color(0x33FF9F0A), Color(0xFFFFB84D)) : const Tone(Color(0xFFFFEEC9), Color(0xFFD98300));
+  static Tone get violet => kDark ? const Tone(Color(0x406A5CF0), Color(0xFFA79BFF)) : const Tone(Color(0xFFECE9FF), kIndigo);
+  static Tone get dark => Tone(kInk, kOn);
+  static Tone get gray => kDark ? const Tone(Color(0x1AFFFFFF), Color(0xFFF3F4F8)) : const Tone(Color(0xFFEFF1F6), Color(0xFF0B0B0F));
 }
 
 Widget toneIcon(IconData i, Tone t, {double size = 36}) => IconBox(i, bg: t.bg, fg: t.fg, size: size);
@@ -100,19 +110,19 @@ class StatusChip extends StatelessWidget {
   final String text;
   @override
   Widget build(BuildContext context) {
-    Color bg = kFill, fg = const Color(0xFF454A5C);
+    Color bg = kFill, fg = kDark ? const Color(0xFFC7CBD8) : const Color(0xFF454A5C);
     if (RegExp(r'Начислено|Выполнена|Проверен|Действителен|Решено|Закрыто|выполнено').hasMatch(text)) {
       bg = const Color(0x2416B05A);
-      fg = const Color(0xFF0F8A45);
+      fg = kDark ? const Color(0xFF4ADE80) : const Color(0xFF0F8A45);
     } else if (RegExp(r'проверки|обработ|Создана|Новое|В работе|Ожидает|Истекает').hasMatch(text)) {
       bg = const Color(0x29FF9F0A);
-      fg = const Color(0xFFA35F00);
+      fg = kDark ? const Color(0xFFFFB84D) : const Color(0xFFA35F00);
     } else if (RegExp(r'Отклонена|Отменён').hasMatch(text)) {
       bg = const Color(0x24FF4D5A);
-      fg = const Color(0xFFC8323E);
+      fg = kDark ? const Color(0xFFFF8B94) : const Color(0xFFC8323E);
     } else if (RegExp(r'Накоплени|Вывод доступен|Основной|Выбрано|кэшбэка').hasMatch(text)) {
       bg = const Color(0x1F2F6BFF);
-      fg = const Color(0xFF1F55D8);
+      fg = kDark ? const Color(0xFF8FB2FF) : const Color(0xFF1F55D8);
     }
     return Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3), decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(99)), child: Text(text, style: TextStyle(color: fg, fontSize: 11.5, height: 16 / 12, fontWeight: FontWeight.w600)));
   }
@@ -126,14 +136,14 @@ class PrimaryButton extends StatelessWidget {
   final bool light, outline;
   @override
   Widget build(BuildContext context) {
-    final bg = outline ? Colors.white : (light ? Colors.white : kInk);
-    final fg = outline || light ? kInk : Colors.white;
+    final bg = outline ? kSolid : (light ? Colors.white : kInk);
+    final fg = outline ? kInk : (light ? kBlack : kOn);
     return SizedBox(
       width: double.infinity,
       height: 46,
       child: FilledButton(
         onPressed: onPressed,
-        style: FilledButton.styleFrom(backgroundColor: bg, foregroundColor: fg, elevation: 0, padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: outline ? const BorderSide(color: kInk, width: 1.5) : BorderSide.none), textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        style: FilledButton.styleFrom(backgroundColor: bg, foregroundColor: fg, elevation: 0, padding: EdgeInsets.zero, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: outline ? BorderSide(color: kInk, width: 1.5) : BorderSide.none), textStyle: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
         child: Text(label),
       ),
     );
@@ -159,8 +169,8 @@ class _LogoPainter extends CustomPainter {
       ..lineTo(20 * w, 26 * w)
       ..lineTo(9 * w, 32 * w)
       ..close();
-    c.drawPath(p, Paint()..color = kInk);
-    c.drawPath(p, Paint()..color = kInk..style = PaintingStyle.stroke..strokeWidth = 2 * w..strokeJoin = StrokeJoin.round);
+    c.drawPath(p, Paint()..color = kBlack);
+    c.drawPath(p, Paint()..color = kBlack..style = PaintingStyle.stroke..strokeWidth = 2 * w..strokeJoin = StrokeJoin.round);
   }
 
   @override
@@ -216,7 +226,7 @@ class LogoGlow extends StatelessWidget {
   Widget build(BuildContext context) => Container(
         width: 84,
         height: 84,
-        decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.white.withValues(alpha: .3), blurRadius: 50)]),
+        decoration: BoxDecoration(color: kSolid, shape: BoxShape.circle, boxShadow: [BoxShadow(color: Colors.white.withValues(alpha: .3), blurRadius: 50)]),
         alignment: Alignment.center,
         child: const SizedBox(width: 48, height: 48, child: CustomPaint(painter: _GlowLogoPainter())),
       );
@@ -233,8 +243,8 @@ class _GlowLogoPainter extends CustomPainter {
       ..lineTo(20 * w, 26 * w)
       ..lineTo(9 * w, 32 * w)
       ..close();
-    c.drawPath(p, Paint()..color = kInk);
-    c.drawPath(p, Paint()..color = kInk..style = PaintingStyle.stroke..strokeWidth = 2 * w..strokeJoin = StrokeJoin.round);
+    c.drawPath(p, Paint()..color = kBlack);
+    c.drawPath(p, Paint()..color = kBlack..style = PaintingStyle.stroke..strokeWidth = 2 * w..strokeJoin = StrokeJoin.round);
   }
 
   @override
@@ -316,7 +326,7 @@ class IncomeExpenseChart extends StatelessWidget {
           SizedBox(
             width: 36,
             child: Stack(clipBehavior: Clip.none, children: [
-              for (var j = 0; j <= n; j++) Positioned(bottom: j * h / n - 7, left: 0, right: 5, child: Text(j == 0 ? '0' : '${j * st ~/ 1000}K', textAlign: TextAlign.right, style: const TextStyle(fontSize: 11.5, height: 16 / 12, color: kMut))),
+              for (var j = 0; j <= n; j++) Positioned(bottom: j * h / n - 7, left: 0, right: 5, child: Text(j == 0 ? '0' : '${j * st ~/ 1000}K', textAlign: TextAlign.right, style: TextStyle(fontSize: 11.5, height: 16 / 12, color: kMut))),
             ]),
           ),
           Expanded(
@@ -342,7 +352,7 @@ class IncomeExpenseChart extends StatelessWidget {
       const SizedBox(height: 4),
       Padding(
         padding: const EdgeInsets.only(left: 36),
-        child: Row(children: [for (final l in labels) Expanded(child: Text(l, softWrap: false, overflow: TextOverflow.visible, style: const TextStyle(fontSize: 11.5, color: kMut)))]),
+        child: Row(children: [for (final l in labels) Expanded(child: Text(l, softWrap: false, overflow: TextOverflow.visible, style: TextStyle(fontSize: 11.5, color: kMut)))]),
       ),
     ]);
   }
@@ -357,7 +367,7 @@ class MiniTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Container(
         padding: const EdgeInsets.all(3),
-        decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(14)),
+        decoration: BoxDecoration(color: kFill, borderRadius: BorderRadius.circular(14)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           for (final (k, label) in items)
             GestureDetector(
@@ -367,7 +377,7 @@ class MiniTabs extends StatelessWidget {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(color: value == k ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(11)),
-                child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: value == k ? Colors.white : const Color(0xFF5A6075))),
+                child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: value == k ? kOn : kMut)),
               ),
             ),
         ]),
@@ -389,7 +399,7 @@ Future<T?> sheet<T>(BuildContext c, Widget Function(BuildContext) b) => showModa
       builder: (ctx) => Padding(
         padding: EdgeInsets.fromLTRB(kM, 8, kM, 24 + MediaQuery.of(ctx).viewInsets.bottom),
         child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Center(child: Container(width: 36, height: 5, margin: const EdgeInsets.only(bottom: 10), decoration: BoxDecoration(color: const Color(0x4D3C3C43), borderRadius: BorderRadius.circular(3)))),
+          Center(child: Container(width: 36, height: 5, margin: const EdgeInsets.only(bottom: 10), decoration: BoxDecoration(color: kDark ? const Color(0x4DFFFFFF) : const Color(0x4D3C3C43), borderRadius: BorderRadius.circular(3)))),
           b(ctx),
         ])),
       ),
@@ -397,9 +407,9 @@ Future<T?> sheet<T>(BuildContext c, Widget Function(BuildContext) b) => showModa
 
 Widget h2(String t) => Text(t, style: const TextStyle(fontSize: 28, height: 38 / 32, fontWeight: FontWeight.w700, letterSpacing: -.9));
 Widget h3(String t) => Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(t, style: const TextStyle(fontSize: 15, height: 22 / 17, fontWeight: FontWeight.w600)));
-Widget note(String t) => Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(t, style: const TextStyle(fontSize: 11.5, color: kMut, height: 16 / 12)));
-Widget kv(String k, String v) => Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Flexible(child: Text(k, style: const TextStyle(color: kMut, fontSize: 13))), const SizedBox(width: 12), Flexible(child: Text(v, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)))]));
-Widget banner(String t, {bool info = false}) => Container(margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), decoration: BoxDecoration(color: info ? const Color(0x1A007AFF) : const Color(0x24FF9500), borderRadius: BorderRadius.circular(12)), child: Text(t, style: TextStyle(fontSize: 12, height: 18 / 13, color: info ? const Color(0xFF0A4AA3) : const Color(0xFF6B3D00))));
+Widget note(String t) => Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(t, style: TextStyle(fontSize: 11.5, color: kMut, height: 16 / 12)));
+Widget kv(String k, String v) => Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Flexible(child: Text(k, style: TextStyle(color: kMut, fontSize: 13))), const SizedBox(width: 12), Flexible(child: Text(v, textAlign: TextAlign.right, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 13)))]));
+Widget banner(String t, {bool info = false}) => Container(margin: const EdgeInsets.only(bottom: 12), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), decoration: BoxDecoration(color: info ? const Color(0x1A2F6BFF) : const Color(0x24FF9F0A), borderRadius: BorderRadius.circular(12)), child: Text(t, style: TextStyle(fontSize: 12, height: 18 / 13, color: kDark ? (info ? const Color(0xFFA9C3FF) : const Color(0xFFFFCF8A)) : (info ? const Color(0xFF0A4AA3) : const Color(0xFF6B3D00)))));
 
 /// Круглая кнопка «назад» для шапок подэкранов.
 class BackCircle extends StatelessWidget {
@@ -407,7 +417,7 @@ class BackCircle extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTap: () => Navigator.pop(context),
-        child: Container(width: 36, height: 36, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: kShadow), child: const Icon(Icons.chevron_left_rounded, size: 26, color: kInk)),
+        child: Container(width: 36, height: 36, decoration: BoxDecoration(color: kSolid, shape: BoxShape.circle, boxShadow: kShadow), child: Icon(Icons.chevron_left_rounded, size: 26, color: kInk)),
       );
 }
 

@@ -28,8 +28,15 @@ class _TulparAppState extends State<TulparApp> {
   final state = AppState();
 
   @override
+  void initState() {
+    super.initState();
+    state.addListener(() => setState(() {}));
+  }
+
+  @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(statusBarColor: Colors.transparent, statusBarIconBrightness: Brightness.dark));
+    kDark = state.dark;
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(statusBarColor: Colors.transparent, statusBarIconBrightness: kDark ? Brightness.light : Brightness.dark));
     return AppScope(
       state: state,
       child: MaterialApp(
@@ -38,18 +45,19 @@ class _TulparAppState extends State<TulparApp> {
         scrollBehavior: const MaterialScrollBehavior().copyWith(dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse, PointerDeviceKind.trackpad}),
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: kBlue, brightness: Brightness.light).copyWith(primary: kBlue, surface: kBg),
+          brightness: kDark ? Brightness.dark : Brightness.light,
+          colorScheme: ColorScheme.fromSeed(seedColor: kBlue, brightness: kDark ? Brightness.dark : Brightness.light).copyWith(primary: kBlue, surface: kBg),
           splashFactory: NoSplash.splashFactory,
           highlightColor: Colors.transparent,
-          textTheme: Typography.blackCupertino.apply(bodyColor: kInk, displayColor: kInk).copyWith(bodyMedium: const TextStyle(fontSize: 14, height: 20 / 15, color: kInk), bodyLarge: const TextStyle(fontSize: 14, height: 20 / 15, color: kInk), titleMedium: const TextStyle(fontSize: 14, color: kInk), labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
+          textTheme: (kDark ? Typography.whiteCupertino : Typography.blackCupertino).apply(bodyColor: kInk, displayColor: kInk).copyWith(bodyMedium: TextStyle(fontSize: 14, height: 20 / 15, color: kInk), bodyLarge: TextStyle(fontSize: 14, height: 20 / 15, color: kInk), titleMedium: TextStyle(fontSize: 14, color: kInk), labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
           scaffoldBackgroundColor: kBg,
           fontFamily: null,
           inputDecorationTheme: InputDecorationTheme(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: kSolid,
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-            labelStyle: const TextStyle(fontSize: 14, color: kMut),
+            labelStyle: TextStyle(fontSize: 14, color: kMut),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: kBlue, width: 1.5)),
@@ -87,9 +95,9 @@ class _ShellState extends State<Shell> {
     return Scaffold(
       backgroundColor: kBg,
       body: Stack(children: [
-        blob(const Alignment(1.1, -1.05), const Color(0x8CBECDFF)),
-        blob(const Alignment(-1.2, -.2), const Color(0x66D7CDFF)),
-        blob(const Alignment(.8, 1.1), const Color(0x73C8E1FF)),
+        blob(const Alignment(1.1, -1.05), kDark ? const Color(0x4D3C55BE) : const Color(0x8CBECDFF)),
+        blob(const Alignment(-1.2, -.2), kDark ? const Color(0x33503CB4) : const Color(0x66D7CDFF)),
+        blob(const Alignment(.8, 1.1), kDark ? const Color(0x26325AB4) : const Color(0x73C8E1FF)),
         SafeArea(bottom: false, child: IndexedStack(index: tab, children: pages)),
         // Плавающее стеклянное меню: 62 pt, радиус 31, активный пункт — тёмная «таблетка».
         Positioned(
@@ -103,7 +111,7 @@ class _ShellState extends State<Shell> {
               child: Container(
                 height: 56,
                 padding: const EdgeInsets.symmetric(horizontal: 6),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: .82), borderRadius: BorderRadius.circular(28), border: Border.all(color: Colors.white), boxShadow: [BoxShadow(color: const Color(0xFF1E2D64).withValues(alpha: .3), blurRadius: 40, offset: const Offset(0, 18), spreadRadius: -14)]),
+                decoration: BoxDecoration(color: kDark ? const Color(0xD1181A1F) : Colors.white.withValues(alpha: .82), borderRadius: BorderRadius.circular(28), border: Border.all(color: kBorder), boxShadow: [BoxShadow(color: const Color(0xFF1E2D64).withValues(alpha: .3), blurRadius: 40, offset: const Offset(0, 18), spreadRadius: -14)]),
                 child: Row(children: [
                   for (var i = 0; i < _tabs.length; i++)
                     Expanded(
@@ -115,8 +123,8 @@ class _ShellState extends State<Shell> {
                           height: 44,
                           decoration: BoxDecoration(color: tab == i ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(22)),
                           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Icon(_tabs[i].$1, size: 22, color: tab == i ? Colors.white : const Color(0xFF7E8497)),
-                            Text(_tabs[i].$2, style: TextStyle(fontSize: 11, height: 14 / 11.5, fontWeight: FontWeight.w500, color: tab == i ? Colors.white : const Color(0xFF7E8497))),
+                            Icon(_tabs[i].$1, size: 22, color: tab == i ? kOn : const Color(0xFF7E8497)),
+                            Text(_tabs[i].$2, style: TextStyle(fontSize: 11, height: 14 / 11.5, fontWeight: FontWeight.w500, color: tab == i ? kOn : const Color(0xFF7E8497))),
                           ]),
                         ),
                       ),

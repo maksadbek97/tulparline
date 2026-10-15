@@ -109,6 +109,8 @@ class AppState extends ChangeNotifier {
   bool hideBalance = false;
   bool healthConsent = false;
   String lang = 'ru';
+  bool dark = false; // тёмная тема приложения
+
   int avatar = 1; // 1..10, 3D-аватарки
 
   // автомобиль: пробег, документы, обслуживание
@@ -425,6 +427,16 @@ class AppState extends ChangeNotifier {
   void qrPaid(int amount) {
     balance += amount;
     ops.insert(0, Op(nidn(), 'Пополнение', 'Пополнение через Kaspi QR', DateTime.now(), amount, 'Выполнена', 'Kaspi QR'));
+    notifyListeners();
+  }
+
+  void toggleTheme() {
+    dark = !dark;
+    notifyListeners();
+  }
+
+  void setTheme(bool d) {
+    dark = d;
     notifyListeners();
   }
 

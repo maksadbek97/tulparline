@@ -46,7 +46,7 @@ class ProfilePage extends StatelessWidget {
       (Icons.person_outline, 'Личные данные', 'ФИО, телефон, дата рождения', () => push(const SettingsPage())),
       (Icons.directions_car_outlined, 'Мой автомобиль', 'Информация о машине', () => push(const CarPage())),
       (Icons.description_outlined, 'Документы', 'Водительские права, техпаспорт, страховка', () => push(const DocumentsPage())),
-      (Icons.account_balance_wallet_outlined, 'Способы выплат', 'Kaspi, реквизиты', () => sheet(context, (_) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Способы выплат'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: kv('Kaspi •• 4821', 'Основной')), note('Реквизиты маскированы. Добавление — после согласования платёжного провайдера.')]))),
+      (Icons.account_balance_wallet_outlined, 'Способы выплат', 'Kaspi, реквизиты', () => sheet(context, (_) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Способы выплат'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)), child: kv('Kaspi •• 4821', 'Основной')), note('Реквизиты маскированы. Добавление — после согласования платёжного провайдера.')]))),
       (Icons.notifications_none, 'Уведомления', 'Настройки уведомлений', () => push(const SettingsPage())),
       (Icons.lock_outline, 'Безопасность', 'Смена пароля, Face ID / Touch ID', () => toast(context, 'Face ID / Touch ID подключаются в полной версии')),
       (Icons.language, 'Язык', 'Қазақша / Русский', () => push(const SettingsPage())),
@@ -56,7 +56,10 @@ class ProfilePage extends StatelessWidget {
       (Icons.logout, 'Выйти из аккаунта', '', () => toast(context, 'Выход (демо)')),
     ];
     return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
-      ScreenHead('Профиль', trailing: GestureDetector(onTap: () => push(const SettingsPage()), child: Container(width: 38, height: 38, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: kShadow), child: const Icon(Icons.settings_outlined, size: 20)))),
+      ScreenHead('Профиль', trailing: GestureDetector(onTap: () {
+        s.toggleTheme();
+        toast(context, s.dark ? 'Тёмная тема' : 'Светлая тема');
+      }, child: Container(width: 38, height: 38, decoration: BoxDecoration(color: kSolid, shape: BoxShape.circle, boxShadow: kShadow), child: Icon(s.dark ? Icons.dark_mode_outlined : Icons.light_mode_outlined, size: 20)))),
       Padding(
         padding: const EdgeInsets.fromLTRB(2, 0, 2, 12),
         child: Row(children: [
@@ -64,11 +67,11 @@ class ProfilePage extends StatelessWidget {
             onTap: () => _pickAvatar(context, s),
             child: Stack(clipBehavior: Clip.none, children: [
               Avatar(size: 64, index: s.avatar),
-              Positioned(right: -2, bottom: -2, child: Container(width: 22, height: 22, decoration: BoxDecoration(color: kInk, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)), child: const Icon(Icons.edit, color: Colors.white, size: 11))),
+              Positioned(right: -2, bottom: -2, child: Container(width: 22, height: 22, decoration: BoxDecoration(color: kInk, shape: BoxShape.circle, border: Border.all(color: kSolid, width: 2)), child: Icon(Icons.edit, color: kOn, size: 11))),
             ]),
           ),
           const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${s.first}\n${s.last}', style: const TextStyle(fontSize: 17, height: 24 / 20, fontWeight: FontWeight.w700, letterSpacing: -.5)), const Text('Водитель', style: TextStyle(color: kMut, fontSize: 14))])),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${s.first}\n${s.last}', style: const TextStyle(fontSize: 17, height: 24 / 20, fontWeight: FontWeight.w700, letterSpacing: -.5)), Text('Водитель', style: TextStyle(color: kMut, fontSize: 14))])),
           GestureDetector(
             onTap: () => push(const DepositPage()),
             child: Container(
@@ -77,7 +80,7 @@ class ProfilePage extends StatelessWidget {
               child: Row(mainAxisSize: MainAxisSize.min, children: [
                 IconBox(Icons.currency_exchange, bg: Tone.blue.bg, fg: kBlue, size: 28),
                 const SizedBox(width: 6),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Бонусы', style: TextStyle(color: kMut, fontSize: 11.5, height: 15 / 12.5)), Text(money(s.depBalance), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, height: 22 / 18, letterSpacing: -.5))]),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Бонусы', style: TextStyle(color: kMut, fontSize: 11.5, height: 15 / 12.5)), Text(money(s.depBalance), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, height: 22 / 18, letterSpacing: -.5))]),
               ]),
             ),
           ),
@@ -91,7 +94,7 @@ class ProfilePage extends StatelessWidget {
           child: Row(children: [
             toneIcon(r.$1, Tone.gray),
             const SizedBox(width: 14),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(r.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, height: 21 / 17, letterSpacing: -.3)), if (r.$3.isNotEmpty) Text(r.$3, style: const TextStyle(color: kMut, fontSize: 12, height: 17 / 13))])),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(r.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, height: 21 / 17, letterSpacing: -.3)), if (r.$3.isNotEmpty) Text(r.$3, style: TextStyle(color: kMut, fontSize: 12, height: 17 / 13))])),
             const Icon(Icons.chevron_right, size: 17, color: Color(0xFFB4B9C8)),
           ]),
         ),

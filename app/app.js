@@ -73,6 +73,8 @@
     more: '<circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/>',
     trend: '<path d="M7 17L17 7M8 7h9v9"/>',
     tenge: '<path d="M6 6h12M12 6v13M8 10.500h8"/>',
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.500v2.500M12 19v2.500M2.500 12H5M19 12h2.500M5.200 5.200l1.800 1.800M17 17l1.800 1.800M18.800 5.200L17 7M7 17l-1.800 1.800"/>',
+    moon: '<path d="M20 14.500A8 8 0 0 1 9.500 4a8 8 0 1 0 10.500 10.500z"/>',
     qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h3v3M20 14v.01M14 20h.01M17 20h3v-3"/>',
     edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     coins: '<circle cx="12" cy="12" r="9"/><path d="M8.500 8.500h7M12 8.500v7M9.500 11.500h5"/>'
@@ -175,6 +177,7 @@
       ]
     }
   };
+  S.theme = load('tl_theme', 'light'); document.documentElement.setAttribute('data-theme', S.theme);
   S.avatar = load('tl_avatar', 1); S.car = load('tl_car', S.car);
   var rivals = ['Руслан Т.', 'Нурлан Б.', 'Айдос М.', 'Серик О.', 'Данияр С.', 'Талгат Е.', 'Бауыржан К.', 'Алмас Ж.', 'Ерлан Н.', 'Тимур Д.', 'Асхат Р.', 'Марат В.'];
 
@@ -290,19 +293,19 @@
     var list = S.ops.filter(function (o) { return o.acct === S.acct && (S.histTab === 'all' || (S.histTab === 'in' ? o.amount > 0 : o.amount < 0)); }).sort(function (a, b) { return b.ts - a.ts; });
     var out = '', last = '';
     list.forEach(function (o) { var g = dayLabel(o.ts); if (g !== last) { out += '<div class="dayh">' + g + '</div>'; last = g; } out += opRow(o); });
-    return mode + '<div class="hhead"><b>' + (isYa ? 'Яндекс баланс' : 'Депозит-карта Tulpar Line') + '</b>' + (isYa ? '<button class="lnk" data-act="cardsOpen">Мои карты ›</button>' : '') + '</div>' +
+    return mode + '<div class="hhead"><b>' + (isYa ? 'Яндекс Про' : 'Депозит-карта Tulpar Line') + '</b>' + (isYa ? '<button class="lnk" data-act="cardsOpen">Мои карты ›</button>' : '') + '</div>' +
       '<div class="hfilter">' + labels.map(function (x) { return '<button class="' + (S.histTab === x[0] ? 'on' : '') + '" data-act="histTab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' +
       (out ? '<div class="list">' + out + '</div>' : '<div class="small mut" style="padding:14px 0">Транзакций нет.</div>');
   }
   function cardYa() {
     var amountTxt = S.hideBal ? '••••• ₸' : money(available());
-    return '<div class="cardx cardx--ya"><div class="cx-top"><span class="cx-name">Яндекс баланс</span><button class="cx-i" data-act="balInfo" aria-label="О балансе">i</button></div>' +
+    return '<div class="cardx cardx--ya"><div class="cx-top"><span class="cx-name cx-name--ya"><i class="yadot"></i>Яндекс Про</span><button class="cx-i" data-act="balInfo" aria-label="О балансе">i</button></div>' +
       '<div class="cx-panel"><div class="row between"><small>Доступный баланс</small><button class="eye" data-act="hideBal" aria-label="Скрыть сумму">' + I(S.hideBal ? 'eyeoff' : 'eye') + '</button></div><b class="cx-amt">' + amountTxt + '</b>' + (S.reserved ? '<small class="cx-res">В резерве под заявки: ' + money(S.reserved) + '</small>' : '') + '</div>' +
       '<div class="cx-btns"><button class="cx-btn" data-act="topup">' + I('plus') + 'Пополнить</button><button class="cx-btn" data-act="withdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="qrMenu">' + I('qr') + 'Kaspi QR</button></div></div>';
   }
   function cardDep() {
-    return '<div class="cardx cardx--dep"><div class="cx-top"><span class="cx-name">Депозит-карта Tulpar Line</span>' + chip('От таксопарка', 'info') + '</div>' +
-      '<div class="cx-panel"><small>Бонусный баланс</small><b class="cx-amt">' + money(S.deposit.balance) + '</b><small class="cx-res">За месяц: +' + money(S.deposit.month) + ' · окно вывода: ' + nextWindow() + '</small></div>' +
+    return '<div class="cardx cardx--dep"><div class="cx-top"><span class="cx-name">' + logoMark() + 'Tulpar Line</span>' + chip('Депозит-карта', 'info') + '</div>' +
+      '<div class="cx-panel"><small>Бонусный баланс от таксопарка</small><b class="cx-amt">' + money(S.deposit.balance) + '</b><small class="cx-res">За месяц: +' + money(S.deposit.month) + ' · окно вывода: ' + nextWindow() + '</small></div>' +
       '<div class="cx-btns cx-btns--2"><button class="cx-btn" data-act="depWithdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="go" data-v="deposit">' + I('gift') + 'Подробнее</button></div></div>';
   }
   function kpOpen(cfg) {
@@ -399,7 +402,7 @@
     var rows = [['settings', 'user', 'Личные данные', 'ФИО, телефон, дата рождения'], ['car', 'car', 'Мой автомобиль', 'Информация о машине'], ['documents', 'doc', 'Документы', 'Водительские права, техпаспорт, страховка'],
       ['payMethods', 'wallet', 'Способы выплат', 'Kaspi, реквизиты'], ['settings', 'bell', 'Уведомления', 'Настройки уведомлений'], ['security', 'lock', 'Безопасность', 'Смена пароля, Face ID / Touch ID'],
       ['langSheet', 'globe', t('Язык'), 'Қазақша / Русский'], ['terms', 'gift', 'Условия лояльности', 'Кэшбэк, вывод, правила'], ['support', 'help', 'Помощь', 'Частые вопросы'], ['demo', 'gear', 'Демо-инструменты', 'Только для показа прототипа']];
-    return '<div class="head"><div><h2>' + t('Профиль') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="iconbtn" data-act="go" data-v="settings" aria-label="Настройки">' + I('gear') + '</button></div>' +
+    return '<div class="head"><div><h2>' + t('Профиль') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="iconbtn themebtn" data-act="themeToggle" aria-label="Сменить тему">' + I(S.theme === 'dark' ? 'moon' : 'sun') + '</button></div>' +
       '<div class="prof"><button class="avatar avatar--lg avbtn" data-act="avatarPick" aria-label="Сменить аватар">' + avatarSvg() + '<span class="avedit">' + I('edit') + '</span></button><div class="grow"><div class="nm">' + esc(S.driver.first) + '<br>' + esc(S.driver.last) + '</div><div class="mut">Водитель</div></div>' +
       '<button class="bonus" data-act="go" data-v="deposit"><span class="ic ic--b">' + I('tenge') + '</span><span><small>Бонусы</small><b>' + NF.format(S.deposit.balance).replace(/ | /g, ' ') + ' ₸</b></span>' + I('chev', 'chv') + '</button></div>' +
       rows.map(function (r) { var act = ['payMethods', 'security', 'langSheet'].indexOf(r[0]) >= 0 ? r[0] : 'go'; return '<button class="row-card" data-act="' + act + '" data-v="' + r[0] + '"><span class="ic">' + I(r[1]) + '</span><span class="grow"><b>' + r[2] + '</b><small>' + r[3] + '</small></span>' + I('chev', 'chv') + '</button>'; }).join('') +
@@ -410,6 +413,7 @@
     var ns = S.notifSettings;
     var rows = [['shift', 'Начало смены'], ['goal', 'Прогресс цели и заданий'], ['rating', 'Изменение места в рейтинге'], ['bonus', 'Начисления кэшбэка и бонусов'], ['withdraw', 'Окно и статус вывода'], ['doc', 'Истечение документов'], ['club', 'Сообщения таксопарка']];
     return nav(t('Настройки')) +
+      '<div class="card"><h3>Тема приложения</h3><div class="seg"><button class="' + (S.theme === 'light' ? 'on' : '') + '" data-act="themeSet" data-v="light">Светлая</button><button class="' + (S.theme === 'dark' ? 'on' : '') + '" data-act="themeSet" data-v="dark">Тёмная</button></div></div>' +
       '<div class="card"><h3>' + t('Язык') + '</h3><div class="seg"><button class="' + (S.lang === 'kk' ? 'on' : '') + '" data-act="lang" data-v="kk">Қазақша</button><button class="' + (S.lang === 'ru' ? 'on' : '') + '" data-act="lang" data-v="ru">Русский</button></div><div class="note">В прототипе на казахский переведены навигация и основные заголовки.</div></div>' +
       '<div class="card"><h3>Личные данные</h3><div class="small mut">Имя: ' + esc(S.driver.first + ' ' + S.driver.last) + '<br>Телефон: +7 700 ••• •• 21<br>ИИН: •••• •••• 1234</div></div>' +
       '<div class="card"><h3>Приватность</h3><div class="row between"><span>Показывать моё имя в рейтинге</span>' + sw('privacy', S.privacyShowName) + '</div><div class="note">Если выключено, в таблице вы отображаетесь как «Водитель №…».</div></div>' +
@@ -636,13 +640,18 @@
     },
     qrSave: function () { toast('QR сохранён в Фото (демо)'); },
     qrShare: function () { toast('Откроется системное меню «Поделиться»'); },
+    themeToggle: function () {
+      S.theme = S.theme === 'dark' ? 'light' : 'dark'; document.documentElement.setAttribute('data-theme', S.theme); save('tl_theme', S.theme); render();
+      toast(S.theme === 'dark' ? 'Тёмная тема' : 'Светлая тема');
+    },
+    themeSet: function (v) { S.theme = v; document.documentElement.setAttribute('data-theme', v); save('tl_theme', v); render(); },
     workTab: function (v) { S.workTab = v; render(); },
     hideBal: function () { S.hideBal = !S.hideBal; render(); },
     periodPick: function () {
       openSheet('<h3>Период</h3><div class="list">' + [['day', 'За день'], ['week', 'За неделю'], ['month', 'За месяц'], ['range', 'Произвольный период']].map(function (x) { return '<button class="li" data-act="periodSet" data-v="' + x[0] + '"><span class="grow"><b>' + x[1] + '</b></span>' + (S.period === x[0] ? chip('Выбрано', 'ok') : '') + '</button>'; }).join('') + '</div>');
     },
     periodSet: function (v) { S.period = v; closeSheet(); render(); },
-    balInfo: function () { openSheet('<h3>О балансе</h3><p>Здесь показан баланс приложения Tulpar Line. Баланс Yandex и бонусный баланс депозит-карты — отдельные суммы, они не складываются.</p><div class="list"><div class="li row between"><span class="mut">Баланс приложения</span><b>' + money(available()) + '</b></div><div class="li row between"><span class="mut">Баланс Yandex</span><b>не синхронизирован (демо)</b></div><div class="li row between"><span class="mut">Депозит-карта</span><b>' + money(S.deposit.balance) + '</b></div></div>'); },
+    balInfo: function () { openSheet('<h3>О балансе</h3><p>Здесь показан баланс приложения Tulpar Line. Яндекс Про и бонусный баланс депозит-карты — отдельные суммы, они не складываются.</p><div class="list"><div class="li row between"><span class="mut">Баланс приложения</span><b>' + money(available()) + '</b></div><div class="li row between"><span class="mut">Баланс Yandex</span><b>не синхронизирован (демо)</b></div><div class="li row between"><span class="mut">Депозит-карта</span><b>' + money(S.deposit.balance) + '</b></div></div>'); },
     allOps: function () { openSheet('<h3>Все операции</h3><div class="list">' + S.ops.map(opRow).join('') + '</div>'); },
     expBreak: function () {
       var tot = 0, rows = S.expenses.filter(function (e) { return e.status === 'ok'; }).map(function (e) { tot += e.amount; return '<div class="li row between"><span>' + esc(e.cat) + '<div class="small mut">' + e.when + '</div></span><b>' + money(e.amount) + '</b></div>'; }).join('');
@@ -662,7 +671,7 @@
     },
     goalSet: function (v) { S.goalType = v; closeSheet(); render(); },
     topup: function () {
-      kpOpen({ title: 'Пополнить Яндекс баланс', sub: 'Текущий баланс: ' + money(available()), chips: [5000, 10000, 20000, 50000], select: { label: 'Способ', options: ['Kaspi', 'Банковская карта'] }, cta: 'Продолжить',
+      kpOpen({ title: 'Пополнить Яндекс Про', sub: 'Текущий баланс: ' + money(available()), chips: [5000, 10000, 20000, 50000], select: { label: 'Способ', options: ['Kaspi', 'Банковская карта'] }, cta: 'Продолжить',
         go: function (a, m) {
           if (a < 500 || a > 1000000) return 'Сумма должна быть от 500 до 1 000 000 ₸.';
           var k = m.indexOf('Kaspi') === 0;
@@ -671,7 +680,7 @@
         } });
     },
     withdraw: function () {
-      kpOpen({ title: 'Вывести с Яндекс баланса', sub: 'Доступно: ' + money(available()), chips: [5000, 10000, -1], all: function () { return available(); }, select: { label: 'Карта для вывода', options: S.cards.map(function (c) { return c.bank + ' ****' + c.last4; }).concat(S.cards.length ? [] : ['Добавьте карту в «Мои карты»']) }, cta: 'Вывести',
+      kpOpen({ title: 'Вывести с Яндекс Про', sub: 'Доступно: ' + money(available()), chips: [5000, 10000, -1], all: function () { return available(); }, select: { label: 'Карта для вывода', options: S.cards.map(function (c) { return c.bank + ' ****' + c.last4; }).concat(S.cards.length ? [] : ['Добавьте карту в «Мои карты»']) }, cta: 'Вывести',
         all: function () { return available(); },
         go: function (a, c) {
           if (!S.cards.length) return 'Сначала добавьте карту в «Мои карты».';

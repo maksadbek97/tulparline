@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('$greet,\n${s.first}!', style: const TextStyle(fontSize: 18, height: 26 / 21, fontWeight: FontWeight.w700, letterSpacing: -.5)),
-            const Text('Хорошего рабочего дня!', style: TextStyle(color: kMut, fontSize: 13, height: 18 / 14)),
+            Text('Хорошего рабочего дня!', style: TextStyle(color: kMut, fontSize: 13, height: 18 / 14)),
           ])),
           BellButton(dot: s.notices.any((n) => n.unread), onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const NotificationsPage()))),
         ]),
@@ -80,7 +80,7 @@ class BellButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
-        child: Container(width: 38, height: 38, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: kShadow), child: Stack(alignment: Alignment.center, children: [
+        child: Container(width: 38, height: 38, decoration: BoxDecoration(color: kSolid, shape: BoxShape.circle, boxShadow: kShadow), child: Stack(alignment: Alignment.center, children: [
           const Icon(Icons.notifications_none_rounded, size: 20),
           if (dot) Positioned(top: 8, right: 9, child: Container(width: 9, height: 9, decoration: BoxDecoration(color: const Color(0xFFFF453A), shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)))),
         ])),
@@ -134,7 +134,7 @@ class _GoalCard extends StatelessWidget {
           toneIcon(Icons.track_changes, Tone.dark),
           const SizedBox(width: 10),
           const Expanded(child: Text('Личная цель на сегодня', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: -.3))),
-          GestureDetector(onTap: () => _pick(context, s), behavior: HitTestBehavior.opaque, child: const Padding(padding: EdgeInsets.all(6), child: Icon(Icons.chevron_right, color: kMut))),
+          GestureDetector(onTap: () => _pick(context, s), behavior: HitTestBehavior.opaque, child: Padding(padding: EdgeInsets.all(6), child: Icon(Icons.chevron_right, color: kMut))),
         ]),
         const SizedBox(height: 10),
         Row(children: [
@@ -149,7 +149,7 @@ class _GoalCard extends StatelessWidget {
               ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: pct / 100, minHeight: 8, backgroundColor: kFill, color: kBlue)),
             ],
             const SizedBox(height: 8),
-            Text(hint, style: const TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
+            Text(hint, style: TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
           ])),
           const SizedBox(width: 12),
           SizedBox(width: 68, height: 68, child: Stack(alignment: Alignment.center, children: [
@@ -165,10 +165,10 @@ class _GoalCard extends StatelessWidget {
     sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3('Основная цель на сегодня'),
       Container(
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+        decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)),
         child: Column(children: [
           for (final (i, (g, label)) in [(GoalType.orders, 'Завершённые заказы'), (GoalType.minutes, 'Часы работы'), (GoalType.earn, 'Сумма заработка')].indexed) ...[
-            if (i > 0) const Divider(height: 1, indent: 16, color: kLine),
+            if (i > 0) Divider(height: 1, indent: 16, color: kLine),
             ListTile(title: Text(label, style: const TextStyle(fontSize: 15)), trailing: s.goalType == g ? const Icon(Icons.check, color: kBlue) : null, onTap: () {
               s.goalType = g;
               s.notify();
@@ -194,7 +194,7 @@ class _CompetitionCard extends StatelessWidget {
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [toneIcon(Icons.emoji_events_outlined, Tone.amber, size: 26), const SizedBox(width: 8), const Expanded(child: Text('Соревнование', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: -.3)))]),
         const SizedBox(height: 8),
-        const Text('Ваше место среди 100 водителей', style: TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
+        Text('Ваше место среди 100 водителей', style: TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
         Row(children: [
           Text('#${s.place}', style: const TextStyle(fontSize: 28, height: 42 / 38, fontWeight: FontWeight.w700, letterSpacing: -1.5)),
           const SizedBox(width: 6),
@@ -204,10 +204,10 @@ class _CompetitionCard extends StatelessWidget {
         LayoutBuilder(builder: (c, box) => SizedBox(height: 26, child: Stack(clipBehavior: Clip.none, children: [
           Positioned(left: 0, right: 0, top: 10, child: Container(height: 6, decoration: BoxDecoration(color: kFill, borderRadius: BorderRadius.circular(9)))),
           Positioned(left: 0, top: 10, child: Container(width: box.maxWidth * pos, height: 6, decoration: BoxDecoration(color: kInk, borderRadius: BorderRadius.circular(9)))),
-          Positioned(left: (box.maxWidth - 26) * pos, top: 0, child: Container(width: 26, height: 26, decoration: BoxDecoration(color: kInk, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 3), boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 8, offset: Offset(0, 3))]), child: const Icon(Icons.directions_car, color: Colors.white, size: 12))),
+          Positioned(left: (box.maxWidth - 26) * pos, top: 0, child: Container(width: 26, height: 26, decoration: BoxDecoration(color: kInk, shape: BoxShape.circle, border: Border.all(color: kSolid, width: 3), boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 8, offset: Offset(0, 3))]), child: Icon(Icons.directions_car, color: kOn, size: 12))),
         ]))),
         const SizedBox(height: 2),
-        const Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('#100', style: TextStyle(color: kMut, fontSize: 12)), Text('#1', style: TextStyle(color: kMut, fontSize: 12))]),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text('#100', style: TextStyle(color: kMut, fontSize: 12)), Text('#1', style: TextStyle(color: kMut, fontSize: 12))]),
       ]),
     );
   }
@@ -220,17 +220,17 @@ class _DepositCard extends StatelessWidget {
   Widget build(BuildContext context) => AppCard(
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.all(14),
-        gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xF2E1EBFF), Color(0xE6ECE6FF)]),
+        gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: kDark ? const [Color(0x553C55B4), Color(0x553A2D82)] : const [Color(0xF2E1EBFF), Color(0xE6ECE6FF)]),
         onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const DepositPage())),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [toneIcon(Icons.card_giftcard, Tone.blue, size: 26), const SizedBox(width: 8), const Expanded(child: Text('Депозит-карта', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 14, letterSpacing: -.3)))]),
           const SizedBox(height: 8),
-          const Text('Накоплено', style: TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
+          Text('Накоплено', style: TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
           FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(money(s.depBalance), style: const TextStyle(fontSize: 22, height: 30 / 26, fontWeight: FontWeight.w700, letterSpacing: -1))),
           const SizedBox(height: 8),
           StatusChip(s.cashbackStatus),
           const SizedBox(height: 6),
-          Text('Окно вывода: ${s.nextWindowText}', style: const TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
+          Text('Окно вывода: ${s.nextWindowText}', style: TextStyle(color: kMut, fontSize: 12, height: 18 / 13)),
         ]),
       );
 }
@@ -268,7 +268,7 @@ class _WorkDayCard extends StatelessWidget {
         final isPeak = n == peak && k == 1 && tip.isNotEmpty;
         bars.add(Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 1), child: Stack(clipBehavior: Clip.none, alignment: Alignment.bottomCenter, children: [
           FractionallySizedBox(heightFactor: f, child: Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), gradient: active ? const LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0xFF6B9BFF), kBlue]) : null, color: active ? null : const Color(0x33787F9E).withValues(alpha: n + 6 > 19 ? .12 : .2)))),
-          if (isPeak) Positioned(bottom: 78 * f + 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4), decoration: BoxDecoration(color: kInk, borderRadius: BorderRadius.circular(9)), child: Text(tip, softWrap: false, style: const TextStyle(color: Colors.white, fontSize: 11.5, fontWeight: FontWeight.w500)))),
+          if (isPeak) Positioned(bottom: 78 * f + 8, child: Container(padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4), decoration: BoxDecoration(color: kInk, borderRadius: BorderRadius.circular(9)), child: Text(tip, softWrap: false, style: TextStyle(color: kOn, fontSize: 11.5, fontWeight: FontWeight.w500)))),
         ]))));
       }
     }
@@ -285,12 +285,12 @@ class _WorkDayCard extends StatelessWidget {
         const SizedBox(height: 22),
         SizedBox(height: 78, child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: bars)),
         const SizedBox(height: 6),
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [for (var h = 6; h <= 22; h += 2) Text('${pad2(h)}:00', style: const TextStyle(fontSize: 11.5, color: kMut))]),
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [for (var h = 6; h <= 22; h += 2) Text('${pad2(h)}:00', style: TextStyle(fontSize: 11.5, color: kMut))]),
         const SizedBox(height: 12),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
           decoration: BoxDecoration(color: const Color(0x172F6BFF), borderRadius: BorderRadius.circular(16)),
-          child: const Row(children: [
+          child: Row(children: [
             Icon(Icons.schedule, color: kBlue, size: 26),
             SizedBox(width: 12),
             Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Сейчас хороший момент работать', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)), Text('Демо-подсказка: ожидается высокий спрос до 19:00', style: TextStyle(fontSize: 12, color: kMut, height: 17 / 13))])),
