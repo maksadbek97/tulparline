@@ -101,18 +101,18 @@ class _FinancePageState extends State<FinancePage> {
       )),
       if (!s.synced) banner('Данные не синхронизированы с Yandex. Показаны последние известные значения (обновлено в 14:20).'),
       // два отдельных счёта: Яндекс баланс и депозит-карта таксопарка
-      SizedBox(
-        height: 200,
-        child: PageView(
-          controller: pc,
-          padEnds: false,
-          onPageChanged: (i) => s.setAcct(i == 0 ? 'ya' : 'dep'),
-          children: [
-            _CardShell(const [Color(0xFF0C0C0C), Color(0xFF1B1B1B), Color(0xFF2A2A2A)], kYandex, _yandex(context, s)),
-            _CardShell(kDark ? const [Color(0xFF2B2C33), Color(0xFF191A20), Color(0xFF101116)] : const [Color(0xFFFFFFFF), Color(0xFFF0F1F5), Color(0xFFE6E8EE)], kDark ? Colors.white : kBlack, _deposit(context, s), border: kDark ? const Color(0x2EFFFFFF) : const Color(0x0F000000)),
-          ],
-        ),
-      ),
+      LayoutBuilder(builder: (_, cs) {
+        final cw = cs.maxWidth * .93 - 10;
+        return SizedBox(
+          height: cw / 1.62 + 52,
+          child: PageView(
+            controller: pc,
+            padEnds: false,
+            onPageChanged: (i) => s.setAcct(i == 0 ? 'ya' : 'dep'),
+            children: [_yandex(context, s), _deposit(context, s)],
+          ),
+        );
+      }),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -148,63 +148,31 @@ class _FinancePageState extends State<FinancePage> {
   }
 
   // ---------- карточки счетов ----------
-  Widget _yandex(BuildContext c, AppState s) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Row(children: [
-            Container(width: 10, height: 10, decoration: BoxDecoration(color: kYandex, shape: BoxShape.circle, boxShadow: [BoxShadow(color: kYandex.withValues(alpha: .8), blurRadius: 12)])),
-            const SizedBox(width: 8),
-            const Text('Яндекс Про', style: TextStyle(color: kYandex, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -.2)),
-          ]),
-          GestureDetector(onTap: () => _info(c, s), child: Container(width: 24, height: 24, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: kYandex.withValues(alpha: .5))), alignment: Alignment.center, child: const Text('i', style: TextStyle(color: kYandex, fontSize: 13, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600)))),
-        ]),
-        const SizedBox(height: 10),
-        _Panel(
-          border: kYandex.withValues(alpha: .35),
-          fill: kYandex.withValues(alpha: .06),
-          top: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('Доступный баланс', style: TextStyle(color: Colors.white60, fontSize: 12)),
-            GestureDetector(onTap: () {
-              s.hideBalance = !s.hideBalance;
-              s.notify();
-            }, child: Icon(s.hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: kYandex, size: 16)),
-          ]),
+  Widget _yandex(BuildContext c, AppState s) => _Slide(
+        card: _YandexCard(
           amount: s.hideBalance ? '••••• ₸' : money(s.available),
-          amountColor: Colors.white,
-          note: s.reserved > 0 ? 'В резерве под заявки: ${money(s.reserved)}' : null,
-          noteColor: Colors.white60,
+          note: s.reserved > 0 ? 'В резерве: ${money(s.reserved)}' : null,
+          hidden: s.hideBalance,
+          onEye: () {
+            s.hideBalance = !s.hideBalance;
+            s.notify();
+          },
+          onInfo: () => _info(c, s),
         ),
-        const SizedBox(height: 10),
-        Row(children: [
+        pills: [
           _Pill(Icons.add, 'Пополнить', () => _topup(c, s), fill: kYandex, fg: kBlack, line: kYandex),
-          const SizedBox(width: 8),
-          _Pill(Icons.north_east, 'Вывести', () => _withdraw(c, s), fg: kYandex, line: kYandex.withValues(alpha: .5)),
-          const SizedBox(width: 8),
-          _Pill(Icons.qr_code_2, 'Kaspi QR', () => _qrMenu(c, s), fg: kYandex, line: kYandex.withValues(alpha: .5)),
-        ]),
-      ]);
+          _Pill(Icons.north_east, 'Вывести', () => _withdraw(c, s), fill: kSolid, fg: kInk, line: kBorder),
+          _Pill(Icons.qr_code_2, 'Kaspi QR', () => _qrMenu(c, s), fill: kSolid, fg: kInk, line: kBorder),
+        ],
+      );
 
-  Widget _deposit(BuildContext c, AppState s) {
-    final fg = kDark ? Colors.white : kBlack;
-    final soft = kDark ? Colors.white60 : const Color(0x990B0B0F);
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Row(children: [
-          Container(width: 24, height: 24, decoration: BoxDecoration(color: fg, shape: BoxShape.circle), alignment: Alignment.center, child: Icon(Icons.navigation, size: 13, color: kDark ? kBlack : Colors.white)),
-          const SizedBox(width: 8),
-          Text('Tulpar Line', style: TextStyle(color: fg, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: -.2)),
-        ]),
-        Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: fg, borderRadius: BorderRadius.circular(99)), child: Text('Депозит-карта', style: TextStyle(color: kDark ? kBlack : Colors.white, fontSize: 11, fontWeight: FontWeight.w600))),
-      ]),
-      const SizedBox(height: 10),
-      _Panel(border: fg.withValues(alpha: .2), fill: fg.withValues(alpha: .05), top: Text('Бонусный баланс от таксопарка', style: TextStyle(color: soft, fontSize: 12)), amount: money(s.depBalance), amountColor: fg, note: 'За месяц: +${money(s.depMonth)} · окно вывода: ${s.nextWindowText}', noteColor: soft),
-      const SizedBox(height: 10),
-      Row(children: [
-        Expanded(child: _Pill(Icons.north_east, 'Вывести', () => DepositPage.withdraw(c, s), expand: true, fill: fg, fg: kDark ? kBlack : Colors.white, line: fg)),
-        const SizedBox(width: 8),
-        Expanded(child: _Pill(Icons.card_giftcard, 'Подробнее', () => Navigator.push(c, MaterialPageRoute(builder: (_) => const DepositPage())), expand: true, fg: fg, line: fg.withValues(alpha: .45))),
-      ]),
-    ]);
-  }
+  Widget _deposit(BuildContext c, AppState s) => _Slide(
+        card: _TulparCard(amount: money(s.depBalance), note: 'За месяц +${money(s.depMonth)} · вывод: ${s.nextWindowText}'),
+        pills: [
+          _Pill(Icons.north_east, 'Вывести', () => DepositPage.withdraw(c, s), fill: kInk, fg: kOn, line: kInk),
+          _Pill(Icons.card_giftcard, 'Подробнее', () => Navigator.push(c, MaterialPageRoute(builder: (_) => const DepositPage())), fill: kSolid, fg: kInk, line: kBorder),
+        ],
+      );
 
   // ---------- шторки ----------
   void _periodPick(BuildContext c, AppState s) {
@@ -238,8 +206,8 @@ class _FinancePageState extends State<FinancePage> {
   }
 
   void _withdraw(BuildContext c, AppState s) {
-    _keypad(c, title: 'Вывести с Яндекс баланса', sub: 'Доступно: ${money(s.available)}', chips: const [5000, 10000, -1], all: () => s.available, selectLabel: 'Карта для вывода', options: s.cards.isEmpty ? const ['Добавьте карту в «Мои карты»'] : [for (final x in s.cards) x.mask], cta: 'Вывести', go: (a, m) {
-      if (s.cards.isEmpty) return 'Сначала добавьте карту в «Мои карты».';
+    _keypad(c, title: 'Вывести с Яндекс баланса', sub: 'Доступно: ${money(s.available)}', chips: const [5000, 10000, -1], all: () => s.available, selectLabel: 'Карта для вывода', options: s.cards.isEmpty ? const ['Добавьте карту'] : [for (final x in s.cards) x.mask], onManage: () => showCardsSheet(c, s), cta: 'Вывести', go: (a, m) {
+      if (s.cards.isEmpty) return 'Сначала добавьте карту в способах выплат.';
       final e = s.withdraw(a.toString(), m!);
       if (e != null) return e;
       toast(c, 'Заявка создана, сумма зарезервирована.');
@@ -316,79 +284,15 @@ class _FinancePageState extends State<FinancePage> {
     ]));
   }
 
-  void _keypad(BuildContext c, {required String title, String? sub, required List<int> chips, int Function()? all, String? selectLabel, List<String>? options, required String cta, required String? Function(int, String?) go}) {
-    sheet(c, (ctx) => _Keypad(title: title, sub: sub, chips: chips, all: all, selectLabel: selectLabel, options: options, cta: cta, go: (a, m) {
+  void _keypad(BuildContext c, {required String title, String? sub, required List<int> chips, int Function()? all, String? selectLabel, List<String>? options, VoidCallback? onManage, required String cta, required String? Function(int, String?) go}) {
+    sheet(c, (ctx) => _Keypad(title: title, sub: sub, chips: chips, all: all, selectLabel: selectLabel, options: options, onManage: onManage, cta: cta, go: (a, m) {
           final e = go(a, m);
           if (e == null) Navigator.pop(ctx);
           return e;
         }));
   }
 
-  void _cards(BuildContext c, AppState s) {
-    sheet(c, (ctx) => AnimatedBuilder(animation: s, builder: (_, _) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      h3('Мои карты'),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
-        decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)),
-        child: Column(children: [
-          for (final x in s.cards)
-            InkWell(
-              onTap: () => _cardOpen(c, s, x),
-              child: Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [
-                toneIcon(Icons.credit_card, Tone.blue),
-                const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(x.mask, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)), Text('Для вывода средств', style: TextStyle(color: kMut, fontSize: 12))])),
-                if (x.main) const StatusChip('Основная'),
-                const Icon(Icons.chevron_right, size: 16, color: Color(0xFFB4B9C8)),
-              ])),
-            ),
-        ]),
-      ),
-      const SizedBox(height: 10),
-      PrimaryButton('+ Добавить карту', outline: true, onPressed: () => _cardAdd(c, s)),
-      note('Хранятся только последние 4 цифры. Полный номер карты приложение не запрашивает.'),
-    ])));
-  }
-
-  void _cardOpen(BuildContext c, AppState s, BankCard card) {
-    sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      h3(card.mask),
-      note('Номер карты скрыт. Карта используется для вывода средств.'),
-      if (!card.main) ...[
-        PrimaryButton('Сделать основной', onPressed: () {
-          s.makeMain(card.id);
-          Navigator.pop(ctx);
-          toast(c, 'Основная карта изменена');
-        }),
-        const SizedBox(height: 8),
-      ],
-      PrimaryButton('Удалить карту', outline: true, onPressed: () {
-        s.removeCard(card.id);
-        Navigator.pop(ctx);
-        toast(c, 'Карта удалена');
-      }),
-    ]));
-  }
-
-  void _cardAdd(BuildContext c, AppState s) {
-    final ctl = TextEditingController();
-    var bank = 'Kaspi';
-    String? err;
-    sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      h3('Новая карта'),
-      DropdownButtonFormField<String>(initialValue: bank, decoration: const InputDecoration(labelText: 'Банк'), items: const [DropdownMenuItem(value: 'Kaspi', child: Text('Kaspi')), DropdownMenuItem(value: 'Halyk', child: Text('Halyk')), DropdownMenuItem(value: 'Другой банк', child: Text('Другой банк'))], onChanged: (v) => bank = v ?? bank),
-      const SizedBox(height: 10),
-      TextField(controller: ctl, keyboardType: TextInputType.number, maxLength: 4, decoration: const InputDecoration(labelText: 'Последние 4 цифры карты', hintText: '0000')),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
-      const SizedBox(height: 10),
-      PrimaryButton('Добавить', onPressed: () {
-        final e = s.addCard(bank, ctl.text);
-        if (e != null) return set(() => err = e);
-        Navigator.pop(ctx);
-        toast(c, 'Карта добавлена');
-      }),
-    ])));
-  }
+  void _cards(BuildContext c, AppState s) => showCardsSheet(c, s);
 
   void _addExpense(BuildContext c, AppState s) {
     final amount = TextEditingController(), desc = TextEditingController();
@@ -410,52 +314,11 @@ class _FinancePageState extends State<FinancePage> {
   }
 }
 
-class _CardShell extends StatelessWidget {
-  const _CardShell(this.colors, this.glow, this.child, {this.border});
-  final List<Color> colors;
-  final Color glow;
-  final Widget child;
-  final Color? border;
-  @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(right: 10),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), border: border == null ? null : Border.all(color: border!), gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: colors), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: kDark ? .5 : .35), blurRadius: 36, offset: const Offset(0, 18), spreadRadius: -18)]),
-          child: Stack(children: [
-            Positioned(right: -70, top: -80, child: Container(width: 220, height: 220, decoration: BoxDecoration(shape: BoxShape.circle, gradient: RadialGradient(colors: [glow.withValues(alpha: .2), Colors.transparent])))),
-            child,
-          ]),
-        ),
-      );
-}
-
-class _Panel extends StatelessWidget {
-  const _Panel({required this.top, required this.amount, required this.amountColor, required this.border, required this.fill, required this.noteColor, this.note});
-  final Widget top;
-  final String amount;
-  final Color amountColor, border, fill, noteColor;
-  final String? note;
-  @override
-  Widget build(BuildContext context) => Container(
-        width: double.infinity,
-        padding: const EdgeInsets.fromLTRB(14, 11, 14, 11),
-        decoration: BoxDecoration(color: fill, borderRadius: BorderRadius.circular(18), border: Border.all(color: border)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          top,
-          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(amount, style: TextStyle(color: amountColor, fontSize: 30, height: 36 / 30, fontWeight: FontWeight.w700, letterSpacing: -1))),
-          if (note != null) Text(note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: noteColor, fontSize: 12)),
-        ]),
-      );
-}
-
 class _Pill extends StatelessWidget {
-  const _Pill(this.icon, this.label, this.onTap, {this.expand = false, this.fill, required this.fg, required this.line});
+  const _Pill(this.icon, this.label, this.onTap, {this.fill, required this.fg, required this.line});
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  final bool expand;
   final Color? fill;
   final Color fg, line;
   @override
@@ -463,12 +326,12 @@ class _Pill extends StatelessWidget {
     final w = GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 32,
-        decoration: BoxDecoration(color: fill ?? Colors.transparent, borderRadius: BorderRadius.circular(16), border: Border.all(color: line)),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 15, color: fg), const SizedBox(width: 6), Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w500)))]),
+        height: 36,
+        decoration: BoxDecoration(color: fill ?? Colors.transparent, borderRadius: BorderRadius.circular(18), border: Border.all(color: line), boxShadow: fill == kSolid ? kShadow : null),
+        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [Icon(icon, size: 15, color: fg), const SizedBox(width: 6), Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: fg, fontSize: 13, fontWeight: FontWeight.w600)))]),
       ),
     );
-    return expand ? w : Expanded(child: w);
+    return Expanded(child: w);
   }
 }
 
@@ -508,12 +371,13 @@ class _QrBox extends StatelessWidget {
 
 /// Ввод суммы: крупное число, быстрые суммы и цифровая клавиатура.
 class _Keypad extends StatefulWidget {
-  const _Keypad({required this.title, this.sub, required this.chips, this.all, this.selectLabel, this.options, required this.cta, required this.go});
+  const _Keypad({required this.title, this.sub, required this.chips, this.all, this.selectLabel, this.options, this.onManage, required this.cta, required this.go});
   final String title, cta;
   final String? sub, selectLabel;
   final List<int> chips;
   final int Function()? all;
   final List<String>? options;
+  final VoidCallback? onManage;
   final String? Function(int, String?) go;
   @override
   State<_Keypad> createState() => _KeypadState();
@@ -566,6 +430,7 @@ class _KeypadState extends State<_Keypad> {
       if (widget.options != null) ...[
         const SizedBox(height: 10),
         DropdownButtonFormField<String>(initialValue: sel, decoration: InputDecoration(labelText: widget.selectLabel), items: [for (final o in widget.options!) DropdownMenuItem(value: o, child: Text(o))], onChanged: (v) => sel = v),
+        if (widget.onManage != null) Align(alignment: Alignment.centerLeft, child: TextButton(onPressed: widget.onManage, style: TextButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 4), minimumSize: Size.zero, tapTargetSize: MaterialTapTargetSize.shrinkWrap), child: Text('Добавить или удалить карту', style: TextStyle(color: kBlue, fontSize: 13)))),
       ],
       const SizedBox(height: 10),
       PrimaryButton(widget.cta, onPressed: () {
@@ -681,4 +546,214 @@ class _History extends StatelessWidget {
       ...rows,
     ]);
   }
+}
+
+// ---------- карты счетов ----------
+class _Slide extends StatelessWidget {
+  const _Slide({required this.card, required this.pills});
+  final Widget card;
+  final List<Widget> pills;
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: Column(children: [
+          AspectRatio(aspectRatio: 1.62, child: card),
+          const SizedBox(height: 10),
+          Row(children: [for (var i = 0; i < pills.length; i++) ...[if (i > 0) const SizedBox(width: 8), pills[i]]]),
+        ]),
+      );
+}
+
+class _Chip extends StatelessWidget {
+  const _Chip();
+  @override
+  Widget build(BuildContext context) {
+    Widget cell() => Expanded(child: Container(decoration: BoxDecoration(border: Border.all(color: const Color(0x73463C28)), borderRadius: BorderRadius.circular(3))));
+    return Container(
+      width: 44,
+      height: 33,
+      padding: const EdgeInsets.all(5),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(7), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFE4DCCD), Color(0xFFB9AE9A)]), border: Border.all(color: const Color(0x2E000000))),
+      child: Column(children: [
+        Expanded(child: Row(children: [cell(), const SizedBox(width: 1), cell()])),
+        const SizedBox(height: 1),
+        Expanded(child: Row(children: [cell(), const SizedBox(width: 1), cell()])),
+      ]),
+    );
+  }
+}
+
+class _YaPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size z) {
+    final sx = z.width / 340, sy = z.height / 200;
+    Offset o(double x, double y) => Offset(x * sx, y * sy);
+    canvas.drawRect(Offset.zero & z, Paint()..shader = const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF34383A), Color(0xFF262829), Color(0xFF1D1E1F)], stops: [0, .55, 1]).createShader(Offset.zero & z));
+    final p = Path()..moveTo(o(-10, -10).dx, o(-10, -10).dy);
+    void l(double x, double y) => p.lineTo(x * sx, y * sy);
+    void q(double cx, double cy, double x, double y) => p.quadraticBezierTo(cx * sx, cy * sy, x * sx, y * sy);
+    l(18, -10); l(74, 54); q(110, 78, 146, 54); l(196, -10); l(226, -10); l(160, 70); q(134, 100, 160, 130); l(226, 210); l(196, 210); l(146, 146); q(110, 122, 74, 146); l(18, 210); l(-10, 210); l(46, 146); q(90, 100, 46, 54);
+    p.close();
+    canvas.drawPath(p, Paint()..color = const Color(0xFFF5B800));
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
+class _WingPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size z) {
+    final sx = z.width / 340, sy = z.height / 200;
+    final line = Paint()..style = PaintingStyle.stroke..strokeWidth = 1.4..strokeCap = StrokeCap.round;
+    const arcs = [
+      [10.0, 200.0, 70.0, 150.0, 120.0, 90.0, 230.0, 40.0, .34],
+      [40.0, 200.0, 100.0, 160.0, 150.0, 110.0, 250.0, 66.0, .26],
+      [70.0, 200.0, 130.0, 170.0, 180.0, 128.0, 270.0, 92.0, .2],
+      [100.0, 200.0, 160.0, 178.0, 205.0, 146.0, 290.0, 118.0, .15],
+      [130.0, 200.0, 185.0, 186.0, 230.0, 164.0, 310.0, 144.0, .1],
+    ];
+    for (final a in arcs) {
+      line.color = Colors.white.withValues(alpha: a[8]);
+      canvas.drawPath(Path()..moveTo(a[0] * sx, a[1] * sy)..cubicTo(a[2] * sx, a[3] * sy, a[4] * sx, a[5] * sy, a[6] * sx, a[7] * sy), line);
+    }
+    line.strokeWidth = 1.2;
+    line.color = Colors.white.withValues(alpha: .08);
+    canvas.drawCircle(Offset(262 * sx, 52 * sy), 64 * sx, line);
+    line.color = Colors.white.withValues(alpha: .05);
+    canvas.drawCircle(Offset(262 * sx, 52 * sy), 96 * sx, line);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter old) => false;
+}
+
+class _YandexCard extends StatelessWidget {
+  const _YandexCard({required this.amount, required this.hidden, required this.onEye, required this.onInfo, this.note});
+  final String amount;
+  final String? note;
+  final bool hidden;
+  final VoidCallback onEye, onInfo;
+  @override
+  Widget build(BuildContext context) => Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .5), blurRadius: 30, offset: const Offset(0, 16), spreadRadius: -16)]),
+        child: LayoutBuilder(builder: (_, cs) => Stack(children: [
+              Positioned.fill(child: CustomPaint(painter: _YaPainter())),
+              Positioned(left: cs.maxWidth * .11, top: cs.maxHeight * .38, child: const _Chip()),
+              const Positioned(right: 14, top: 10, child: Text('Яндекс Про', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -.6))),
+              Positioned(
+                right: 14,
+                bottom: 36,
+                width: cs.maxWidth * .58,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
+                  Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                    const Text('Доступный баланс', style: TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
+                    const SizedBox(width: 6),
+                    GestureDetector(onTap: onEye, child: Icon(hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white70, size: 16)),
+                  ]),
+                  FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: Text(amount, style: const TextStyle(color: Colors.white, fontSize: 28, height: 34 / 28, fontWeight: FontWeight.w700, letterSpacing: -1))),
+                  if (note != null) Text(note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
+                ]),
+              ),
+              Positioned(right: 12, bottom: 10, child: GestureDetector(onTap: onInfo, child: Container(width: 22, height: 22, decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0x40000000), border: Border.all(color: Colors.white54)), alignment: Alignment.center, child: const Text('i', style: TextStyle(color: Colors.white, fontSize: 12, fontStyle: FontStyle.italic, fontWeight: FontWeight.w600))))),
+            ])),
+      );
+}
+
+class _TulparCard extends StatelessWidget {
+  const _TulparCard({required this.amount, required this.note});
+  final String amount, note;
+  @override
+  Widget build(BuildContext context) => Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), gradient: const RadialGradient(center: Alignment(.7, -1), radius: 1.5, colors: [Color(0xFF2C2C31), Color(0xFF121216), Color(0xFF09090B)], stops: [0, .55, 1]), border: Border.all(color: const Color(0x1FFFFFFF)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .55), blurRadius: 30, offset: const Offset(0, 16), spreadRadius: -16)]),
+        child: LayoutBuilder(builder: (_, cs) => Stack(children: [
+              Positioned.fill(child: CustomPaint(painter: _WingPainter())),
+              Positioned(left: cs.maxWidth * .07, top: cs.maxHeight * .33, child: const _Chip()),
+              Positioned(left: 14, top: 12, child: Row(children: [
+                Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), alignment: Alignment.center, child: const Icon(Icons.navigation, size: 13, color: kBlack)),
+                const SizedBox(width: 8),
+                const Text('Tulpar Line', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: .1)),
+              ])),
+              Positioned(
+                left: 14,
+                right: 14,
+                bottom: 12,
+                child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+                  const Text('Депозит-карта · бонус от таксопарка', style: TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text(amount, style: const TextStyle(color: Colors.white, fontSize: 28, height: 34 / 28, fontWeight: FontWeight.w700, letterSpacing: -1))),
+                  Text(note, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
+                ]),
+              ),
+            ])),
+      );
+}
+
+// ---------- способы выплат: добавить / удалить карту ----------
+void showCardsSheet(BuildContext c, AppState s) {
+  sheet(c, (ctx) => AnimatedBuilder(animation: s, builder: (_, _) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        h3('Способы выплат'),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+          decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)),
+          child: s.cards.isEmpty
+              ? Padding(padding: const EdgeInsets.symmetric(vertical: 14), child: Text('Карт пока нет. Добавьте карту, чтобы выводить деньги.', style: TextStyle(color: kMut, fontSize: 13)))
+              : Column(children: [
+                  for (final x in s.cards)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Row(children: [
+                        toneIcon(Icons.credit_card, Tone.blue),
+                        const SizedBox(width: 12),
+                        Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Text(x.mask, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+                          if (x.main) Text('Основная · для вывода', style: TextStyle(color: kMut, fontSize: 12)) else GestureDetector(onTap: () {
+                            s.makeMain(x.id);
+                            toast(c, 'Основная карта изменена');
+                          }, child: Text('Сделать основной', style: TextStyle(color: kBlue, fontSize: 12))),
+                        ])),
+                        GestureDetector(onTap: () => _cardAskDel(c, s, x), child: Container(width: 36, height: 36, decoration: const BoxDecoration(shape: BoxShape.circle, color: Color(0x1FFF4D5A)), child: const Icon(Icons.delete_outline, size: 18, color: Color(0xFFFF4D5A)))),
+                      ]),
+                    ),
+                ]),
+        ),
+        const SizedBox(height: 12),
+        PrimaryButton('+ Добавить карту', onPressed: () => _cardAdd(c, s)),
+        note('Хранятся только банк и последние 4 цифры. Полный номер карты приложение не запрашивает.'),
+      ])));
+}
+
+void _cardAskDel(BuildContext c, AppState s, BankCard card) {
+  sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        h3('Удалить карту?'),
+        note('${card.mask} будет удалена из способов выплат. Уже созданные заявки не изменятся.'),
+        PrimaryButton('Удалить', onPressed: () {
+          s.removeCard(card.id);
+          Navigator.pop(ctx);
+          toast(c, 'Карта удалена');
+        }),
+        const SizedBox(height: 8),
+        PrimaryButton('Отмена', outline: true, onPressed: () => Navigator.pop(ctx)),
+      ]));
+}
+
+void _cardAdd(BuildContext c, AppState s) {
+  final ctl = TextEditingController();
+  var bank = 'Kaspi';
+  String? err;
+  sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        h3('Новая карта'),
+        DropdownButtonFormField<String>(initialValue: bank, decoration: const InputDecoration(labelText: 'Банк'), items: const [DropdownMenuItem(value: 'Kaspi', child: Text('Kaspi')), DropdownMenuItem(value: 'Halyk', child: Text('Halyk')), DropdownMenuItem(value: 'Другой банк', child: Text('Другой банк'))], onChanged: (v) => bank = v ?? bank),
+        const SizedBox(height: 10),
+        TextField(controller: ctl, keyboardType: TextInputType.number, maxLength: 4, decoration: const InputDecoration(labelText: 'Последние 4 цифры карты', hintText: '0000')),
+        if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+        const SizedBox(height: 10),
+        PrimaryButton('Добавить', onPressed: () {
+          final e = s.addCard(bank, ctl.text);
+          if (e != null) return set(() => err = e);
+          Navigator.pop(ctx);
+          toast(c, 'Карта добавлена');
+        }),
+      ])));
 }

@@ -4,6 +4,7 @@ import '../main.dart';
 import '../state.dart';
 import '../ui.dart';
 import 'deposit.dart';
+import 'finance.dart' show showCardsSheet;
 import 'misc.dart';
 import 'service.dart';
 
@@ -46,7 +47,7 @@ class ProfilePage extends StatelessWidget {
       (Icons.person_outline, 'Личные данные', 'ФИО, телефон, дата рождения', () => push(const SettingsPage())),
       (Icons.directions_car_outlined, 'Мой автомобиль', 'Информация о машине', () => push(const CarPage())),
       (Icons.description_outlined, 'Документы', 'Водительские права, техпаспорт, страховка', () => push(const DocumentsPage())),
-      (Icons.account_balance_wallet_outlined, 'Способы выплат', 'Kaspi, реквизиты', () => sheet(context, (_) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Способы выплат'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: kSolid, borderRadius: BorderRadius.circular(18)), child: kv('Kaspi •• 4821', 'Основной')), note('Реквизиты маскированы. Добавление — после согласования платёжного провайдера.')]))),
+      (Icons.account_balance_wallet_outlined, 'Способы выплат', 'Карты для вывода', () => showCardsSheet(context, AppScope.of(context))),
       (Icons.notifications_none, 'Уведомления', 'Настройки уведомлений', () => push(const SettingsPage())),
       (Icons.lock_outline, 'Безопасность', 'Смена пароля, Face ID / Touch ID', () => toast(context, 'Face ID / Touch ID подключаются в полной версии')),
       (Icons.language, 'Язык', 'Қазақша / Русский', () => push(const SettingsPage())),

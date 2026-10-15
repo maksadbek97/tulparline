@@ -69,6 +69,7 @@
     chevl: '<path d="M15 6l-6 6 6 6"/>',
     chevd: '<path d="M6 9l6 6 6-6"/>',
     eye: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+    trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 002 2h6a2 2 0 002-2l1-12M9 7V4h6v3"/>',
     eyeoff: '<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path d="M4 4l16 16"/>',
     more: '<circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/>',
     trend: '<path d="M7 17L17 7M8 7h9v9"/>',
@@ -297,21 +298,26 @@
       '<div class="hfilter">' + labels.map(function (x) { return '<button class="' + (S.histTab === x[0] ? 'on' : '') + '" data-act="histTab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' +
       (out ? '<div class="list">' + out + '</div>' : '<div class="small mut" style="padding:14px 0">Транзакций нет.</div>');
   }
+  var XPATH = 'M-10 -10L18 -10L74 54Q110 78 146 54L196 -10L226 -10L160 70Q134 100 160 130L226 210L196 210L146 146Q110 122 74 146L18 210L-10 210L46 146Q90 100 46 54Z';
+  function chipSvg() { return '<span class="emv"><i></i><i></i><i></i><i></i></span>'; }
   function cardYa() {
     var amountTxt = S.hideBal ? '••••• ₸' : money(available());
-    return '<div class="cardx cardx--ya"><div class="cx-top"><span class="cx-name cx-name--ya"><i class="yadot"></i>Яндекс Про</span><button class="cx-i" data-act="balInfo" aria-label="О балансе">i</button></div>' +
-      '<div class="cx-panel"><div class="row between"><small>Доступный баланс</small><button class="eye" data-act="hideBal" aria-label="Скрыть сумму">' + I(S.hideBal ? 'eyeoff' : 'eye') + '</button></div><b class="cx-amt">' + amountTxt + '</b>' + (S.reserved ? '<small class="cx-res">В резерве под заявки: ' + money(S.reserved) + '</small>' : '') + '</div>' +
-      '<div class="cx-btns"><button class="cx-btn" data-act="topup">' + I('plus') + 'Пополнить</button><button class="cx-btn" data-act="withdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="qrMenu">' + I('qr') + 'Kaspi QR</button></div></div>';
+    return '<div class="cslide"><div class="cardx cardx--ya"><svg class="xart" viewBox="0 0 340 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="' + XPATH + '" fill="#f5b800"/></svg>' + chipSvg() +
+      '<span class="cx-brand">Яндекс Про</span><button class="cx-i" data-act="balInfo" aria-label="О балансе">i</button>' +
+      '<div class="cx-bal"><div class="row between"><small>Доступный баланс</small><button class="eye" data-act="hideBal" aria-label="Скрыть сумму">' + I(S.hideBal ? 'eyeoff' : 'eye') + '</button></div><b class="cx-amt">' + amountTxt + '</b>' + (S.reserved ? '<small class="cx-res">В резерве: ' + money(S.reserved) + '</small>' : '') + '</div></div>' +
+      '<div class="cx-btns"><button class="cx-btn cx-btn--p" data-act="topup">' + I('plus') + 'Пополнить</button><button class="cx-btn" data-act="withdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="qrMenu">' + I('qr') + 'Kaspi QR</button></div></div>';
   }
   function cardDep() {
-    return '<div class="cardx cardx--dep"><div class="cx-top"><span class="cx-name">' + logoMark() + 'Tulpar Line</span>' + chip('Депозит-карта', 'info') + '</div>' +
-      '<div class="cx-panel"><small>Бонусный баланс от таксопарка</small><b class="cx-amt">' + money(S.deposit.balance) + '</b><small class="cx-res">За месяц: +' + money(S.deposit.month) + ' · окно вывода: ' + nextWindow() + '</small></div>' +
-      '<div class="cx-btns cx-btns--2"><button class="cx-btn" data-act="depWithdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="go" data-v="deposit">' + I('gift') + 'Подробнее</button></div></div>';
+    var wing = '<svg class="wing" viewBox="0 0 340 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="#fff" stroke-linecap="round"><path d="M10 200C70 150 120 90 230 40" stroke-opacity=".34" stroke-width="1.4"/><path d="M40 200C100 160 150 110 250 66" stroke-opacity=".26" stroke-width="1.4"/><path d="M70 200C130 170 180 128 270 92" stroke-opacity=".2" stroke-width="1.4"/><path d="M100 200C160 178 205 146 290 118" stroke-opacity=".15" stroke-width="1.4"/><path d="M130 200C185 186 230 164 310 144" stroke-opacity=".1" stroke-width="1.4"/></g><circle cx="262" cy="52" r="64" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="1.2"/><circle cx="262" cy="52" r="96" fill="none" stroke="#fff" stroke-opacity=".05" stroke-width="1.2"/></svg>';
+    return '<div class="cslide"><div class="cardx cardx--dep">' + wing + chipSvg() +
+      '<span class="cx-brand cx-brand--dep">' + logoMark() + 'Tulpar Line</span>' +
+      '<div class="cx-bal"><small>Депозит-карта · бонус от таксопарка</small><b class="cx-amt">' + money(S.deposit.balance) + '</b><small class="cx-res">За месяц +' + money(S.deposit.month) + ' · вывод: ' + nextWindow() + '</small></div></div>' +
+      '<div class="cx-btns cx-btns--2"><button class="cx-btn cx-btn--p" data-act="depWithdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="go" data-v="deposit">' + I('gift') + 'Подробнее</button></div></div>';
   }
   function kpOpen(cfg) {
     S.kp = { val: '', cfg: cfg };
     var chips = (cfg.chips || []).map(function (c) { return '<button type="button" class="kchip" data-act="kpChip" data-v="' + c + '">' + (c === -1 ? 'Всё' : fmtAmt(c)) + '</button>'; }).join('');
-    var sel = cfg.select ? '<label class="f ksel">' + cfg.select.label + '<select id="kpSel">' + cfg.select.options.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select></label>' : '';
+    var sel = cfg.select ? '<label class="f ksel">' + cfg.select.label + '<select id="kpSel">' + cfg.select.options.map(function (o) { return '<option>' + esc(o) + '</option>'; }).join('') + '</select></label>' + (cfg.manage ? '<button type="button" class="lnk mgr" data-act="cardsOpen">Добавить или удалить карту</button>' : '') : '';
     var keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '000', '0', 'back'].map(function (k) { return '<button type="button" class="key" data-act="kpKey" data-v="' + k + '">' + (k === 'back' ? '⌫' : k) + '</button>'; }).join('');
     openSheet('<div class="kptitle">' + cfg.title + '</div>' + (cfg.sub ? '<div class="small mut" style="text-align:center">' + cfg.sub + '</div>' : '') + '<div class="kpamt"><small>Введите сумму</small><b id="kpAmt">0 ₸</b></div><p class="err" id="fe" style="text-align:center"></p><div class="kchips">' + chips + '</div>' + sel + '<button type="button" class="btn" data-act="kpGo">' + (cfg.cta || 'Продолжить') + '</button><div class="keys">' + keys + '</div>');
   }
@@ -400,7 +406,7 @@
 
   V.profile = function () {
     var rows = [['settings', 'user', 'Личные данные', 'ФИО, телефон, дата рождения'], ['car', 'car', 'Мой автомобиль', 'Информация о машине'], ['documents', 'doc', 'Документы', 'Водительские права, техпаспорт, страховка'],
-      ['payMethods', 'wallet', 'Способы выплат', 'Kaspi, реквизиты'], ['settings', 'bell', 'Уведомления', 'Настройки уведомлений'], ['security', 'lock', 'Безопасность', 'Смена пароля, Face ID / Touch ID'],
+      ['payMethods', 'wallet', 'Способы выплат', 'Карты для вывода'], ['settings', 'bell', 'Уведомления', 'Настройки уведомлений'], ['security', 'lock', 'Безопасность', 'Смена пароля, Face ID / Touch ID'],
       ['langSheet', 'globe', t('Язык'), 'Қазақша / Русский'], ['terms', 'gift', 'Условия лояльности', 'Кэшбэк, вывод, правила'], ['support', 'help', 'Помощь', 'Частые вопросы'], ['demo', 'gear', 'Демо-инструменты', 'Только для показа прототипа']];
     return '<div class="head"><div><h2>' + t('Профиль') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="iconbtn themebtn" data-act="themeToggle" aria-label="Сменить тему">' + I(S.theme === 'dark' ? 'moon' : 'sun') + '</button></div>' +
       '<div class="prof"><button class="avatar avatar--lg avbtn" data-act="avatarPick" aria-label="Сменить аватар">' + avatarSvg() + '<span class="avedit">' + I('edit') + '</span></button><div class="grow"><div class="nm">' + esc(S.driver.first) + '<br>' + esc(S.driver.last) + '</div><div class="mut">Водитель</div></div>' +
@@ -601,7 +607,12 @@
     histMode: function (v) { S.histMode = v; var h = $('#hist'); if (h) h.innerHTML = historyHtml(); },
     histTab: function (v) { S.histTab = v; var h = $('#hist'); if (h) h.innerHTML = historyHtml(); },
     cardsOpen: function () {
-      openSheet('<h3>Мои карты</h3><div class="list">' + S.cards.map(function (c) { return '<button class="li" data-act="cardOpen" data-v="' + c.id + '"><span class="ic ic--b">' + I('card') + '</span><span class="grow"><b>' + esc(c.bank) + ' ****' + esc(c.last4) + '</b><div class="small mut">Для вывода средств</div></span>' + (c.main ? chip('Основная', 'info') : '') + I('chev', 'chv') + '</button>'; }).join('') + '</div><button class="btn btn--ghost" style="margin-top:10px" data-act="cardAdd">+ Добавить карту</button><div class="note">Хранятся только последние 4 цифры. Полный номер карты приложение не запрашивает.</div>');
+      var rows = S.cards.map(function (c) { return '<div class="li cardrow"><span class="ic ic--b">' + I('card') + '</span><span class="grow"><b>' + esc(c.bank) + ' •• ' + esc(c.last4) + '</b><div class="small mut">' + (c.main ? 'Основная · для вывода' : '<button class="lnk" data-act="cardMain" data-v="' + c.id + '">Сделать основной</button>') + '</div></span><button class="cdel" data-act="cardAskDel" data-v="' + c.id + '" aria-label="Удалить карту">' + I('trash') + '</button></div>'; }).join('');
+      openSheet('<h3>Способы выплат</h3><div class="list">' + (rows || '<div class="small mut" style="padding:14px 0">Карт пока нет. Добавьте карту, чтобы выводить деньги.</div>') + '</div><button class="btn" style="margin-top:12px" data-act="cardAdd">' + I('plus') + ' Добавить карту</button><div class="note">Хранятся только банк и последние 4 цифры. Полный номер карты приложение не запрашивает.</div>');
+    },
+    cardAskDel: function (v) {
+      var c = S.cards.filter(function (x) { return x.id === v; })[0]; if (!c) return;
+      openSheet('<h3>Удалить карту?</h3><div class="note">' + esc(c.bank) + ' •• ' + esc(c.last4) + ' будет удалена из способов выплат. Уже созданные заявки не изменятся.</div><button class="btn btn--danger" data-act="cardDel" data-v="' + c.id + '">Удалить</button><button class="btn btn--ghost" style="margin-top:8px" data-act="cardsOpen">Отмена</button>');
     },
     qrMenu: function () {
       openSheet('<h3>Kaspi QR</h3><div class="list"><button class="li" data-act="qrPay"><span class="ic ic--r">' + I('qr') + '</span><span class="grow"><b>Принять оплату на сумму</b><div class="small mut">QR на конкретную сумму</div></span>' + I('chev', 'chv') + '</button><button class="li" data-act="qrStatic"><span class="ic ic--b">' + I('qr') + '</span><span class="grow"><b>Постоянный QR</b><div class="small mut">Пассажир вводит сумму сам</div></span>' + I('chev', 'chv') + '</button></div>');
@@ -621,8 +632,8 @@
       var c = S.cards.filter(function (x) { return x.id === v; })[0]; if (!c) return;
       openSheet('<h3>' + esc(c.bank) + ' ****' + esc(c.last4) + '</h3><div class="note">Номер карты скрыт. Карта используется для вывода средств.</div>' + (c.main ? '' : '<button class="btn" data-act="cardMain" data-v="' + c.id + '">Сделать основной</button>') + '<button class="btn btn--ghost" style="margin-top:10px" data-act="cardDel" data-v="' + c.id + '">Удалить карту</button>');
     },
-    cardMain: function (v) { S.cards.forEach(function (c) { c.main = c.id === v; }); closeSheet(); render(); toast('Основная карта изменена'); },
-    cardDel: function (v) { S.cards = S.cards.filter(function (c) { return c.id !== v; }); if (S.cards.length && !S.cards.some(function (c) { return c.main; })) S.cards[0].main = true; closeSheet(); render(); toast('Карта удалена'); },
+    cardMain: function (v) { S.cards.forEach(function (c) { c.main = c.id === v; }); render(); ACT.cardsOpen(); toast('Основная карта изменена'); },
+    cardDel: function (v) { S.cards = S.cards.filter(function (c) { return c.id !== v; }); if (S.cards.length && !S.cards.some(function (c) { return c.main; })) S.cards[0].main = true; render(); ACT.cardsOpen(); toast('Карта удалена'); },
     cardAdd: function () {
       openSheet('<h3>Новая карта</h3><form data-form="card"><label class="f">Банк<select name="bank"><option>Kaspi</option><option>Halyk</option><option>Другой банк</option></select></label><label class="f">Последние 4 цифры карты<input name="last4" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off"></label><p class="err" id="fe"></p><button class="btn" type="submit">Добавить</button></form>');
     },
@@ -657,7 +668,7 @@
       var tot = 0, rows = S.expenses.filter(function (e) { return e.status === 'ok'; }).map(function (e) { tot += e.amount; return '<div class="li row between"><span>' + esc(e.cat) + '<div class="small mut">' + e.when + '</div></span><b>' + money(e.amount) + '</b></div>'; }).join('');
       openSheet('<h3>Расходы за день</h3><div class="list">' + (rows || '<div class="small mut" style="padding:12px 0">Расходов нет.</div>') + '<div class="li row between"><b>Итого</b><b>' + money(tot) + '</b></div></div>');
     },
-    payMethods: function () { openSheet('<h3>Способы выплат</h3><div class="list"><div class="li"><span class="ic ic--b">' + I('wallet') + '</span><span class="grow"><b>Kaspi •• 4821</b><div class="small mut">Реквизиты маскированы</div></span>' + chip('Основной', 'ok') + '</div></div><div class="note">Добавление реквизитов и подтверждение — после согласования платёжного провайдера.</div>'); },
+    payMethods: function () { ACT.cardsOpen(); },
     security: function () { openSheet('<h3>Безопасность</h3><div class="row between" style="padding:10px 0"><span>Вход по Face ID / Touch ID</span>' + sw('faceid', true) + '</div><div class="row between" style="padding:10px 0"><span>Код-пароль</span>' + chip('Включён', 'ok') + '</div><button class="btn btn--ghost" style="margin-top:10px" data-act="closeSheet">Сменить пароль</button>'); },
     langSheet: function () { openSheet('<h3>' + t('Язык') + '</h3><div class="seg"><button class="' + (S.lang === 'kk' ? 'on' : '') + '" data-act="lang" data-v="kk">Қазақша</button><button class="' + (S.lang === 'ru' ? 'on' : '') + '" data-act="lang" data-v="ru">Русский</button></div><div class="note">В прототипе на казахский переведены навигация и основные заголовки.</div>'); },
     tab: function (v) { S.hist = []; go(v, true); },
@@ -680,10 +691,10 @@
         } });
     },
     withdraw: function () {
-      kpOpen({ title: 'Вывести с Яндекс Про', sub: 'Доступно: ' + money(available()), chips: [5000, 10000, -1], all: function () { return available(); }, select: { label: 'Карта для вывода', options: S.cards.map(function (c) { return c.bank + ' ****' + c.last4; }).concat(S.cards.length ? [] : ['Добавьте карту в «Мои карты»']) }, cta: 'Вывести',
+      kpOpen({ title: 'Вывести с Яндекс Про', sub: 'Доступно: ' + money(available()), chips: [5000, 10000, -1], all: function () { return available(); }, select: { label: 'Карта для вывода', options: S.cards.map(function (c) { return c.bank + ' ****' + c.last4; }).concat(S.cards.length ? [] : ['Добавьте карту']) }, manage: true, cta: 'Вывести',
         all: function () { return available(); },
         go: function (a, c) {
-          if (!S.cards.length) return 'Сначала добавьте карту в «Мои карты».';
+          if (!S.cards.length) return 'Сначала добавьте карту в способах выплат.';
           if (a < 1000) return 'Минимальная сумма — 1 000 ₸.';
           if (a > available()) return 'Сумма больше доступного остатка (' + money(available()) + ').';
           S.reserved += a; var id = nidn();
@@ -787,7 +798,7 @@
     },
     card: function (f) {
       var l = f.last4.value.trim(); if (!/^\d{4}$/.test(l)) return ferr('Введите ровно 4 последние цифры карты.');
-      S.cards.push({ id: nid('C'), bank: f.bank.value, last4: l, main: !S.cards.length }); closeSheet(); render(); toast('Карта добавлена');
+      S.cards.push({ id: nid('C'), bank: f.bank.value, last4: l, main: !S.cards.length }); render(); ACT.cardsOpen(); toast('Карта добавлена');
     },
     goal: function (f) {
       var a = parseAmount(f.target.value); if (!(a > 0)) return ferr('Укажите цель числом больше нуля.');
