@@ -58,7 +58,7 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/avatar.jpg
+    - assets/avatars/
     - assets/car-rear.png
     - assets/car-front.png
 

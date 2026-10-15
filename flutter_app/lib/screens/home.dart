@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.fromLTRB(2, 4, 2, 14),
         child: Row(children: [
-          const Avatar(),
+          Avatar(index: s.avatar),
           const SizedBox(width: 10),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text('$greet,\n${s.first}!', style: const TextStyle(fontSize: 18, height: 26 / 21, fontWeight: FontWeight.w700, letterSpacing: -.5)),

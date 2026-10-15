@@ -7,6 +7,34 @@ import 'deposit.dart';
 import 'misc.dart';
 import 'service.dart';
 
+void _pickAvatar(BuildContext c, AppState s) {
+  sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+    h3('Выберите аватар'),
+    GridView.count(
+      crossAxisCount: 5,
+      mainAxisSpacing: 10,
+      crossAxisSpacing: 10,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      children: [
+        for (var i = 1; i <= 10; i++)
+          GestureDetector(
+            onTap: () {
+              s.setAvatar(i);
+              Navigator.pop(ctx);
+              toast(c, 'Аватар изменён');
+            },
+            child: Container(
+              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: s.avatar == i ? kBlue : Colors.transparent, width: 3), boxShadow: kShadow),
+              child: ClipOval(child: Image.asset('assets/avatars/a$i.jpg', fit: BoxFit.cover)),
+            ),
+          ),
+      ],
+    ),
+    note('3D-аватар виден в приложении вам и таксопарку.'),
+  ]));
+}
+
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
@@ -32,7 +60,13 @@ class ProfilePage extends StatelessWidget {
       Padding(
         padding: const EdgeInsets.fromLTRB(2, 0, 2, 12),
         child: Row(children: [
-          const Avatar(size: 64),
+          GestureDetector(
+            onTap: () => _pickAvatar(context, s),
+            child: Stack(clipBehavior: Clip.none, children: [
+              Avatar(size: 64, index: s.avatar),
+              Positioned(right: -2, bottom: -2, child: Container(width: 22, height: 22, decoration: BoxDecoration(color: kInk, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 2)), child: const Icon(Icons.edit, color: Colors.white, size: 11))),
+            ]),
+          ),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${s.first}\n${s.last}', style: const TextStyle(fontSize: 17, height: 24 / 20, fontWeight: FontWeight.w700, letterSpacing: -.5)), const Text('Водитель', style: TextStyle(color: kMut, fontSize: 14))])),
           GestureDetector(

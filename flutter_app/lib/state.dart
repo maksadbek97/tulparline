@@ -25,13 +25,20 @@ const periodLabel = {
 };
 
 class Expense {
-  Expense(this.id, this.amount, this.cat, this.hour, this.comment);
-  final String id;
+  Expense(this.id, this.amount, this.desc, this.hour, this.time);
+  final String id, desc, time;
   final int amount;
-  final String cat;
   final int hour;
-  final String comment;
   bool cancelled = false;
+}
+
+/// Запись об обслуживании автомобиля.
+class ServiceRecord {
+  ServiceRecord(this.id, this.what, this.date, this.km, this.next);
+  final String id, what;
+  final DateTime date;
+  final int km;
+  final int? next;
 }
 
 class Op {
@@ -85,6 +92,17 @@ class AppState extends ChangeNotifier {
   bool hideBalance = false;
   bool healthConsent = false;
   String lang = 'ru';
+  int avatar = 1; // 1..10, 3D-аватарки
+
+  // автомобиль: пробег, документы, обслуживание
+  int odometer = 84300;
+  DateTime techUntil = DateTime(2027, 4, 10);
+  DateTime insUntil = DateTime(2026, 11, 4);
+  final List<ServiceRecord> services = [
+    ServiceRecord('S3', 'Замена масла и фильтров', DateTime(2026, 9, 12), 80100, 90100),
+    ServiceRecord('S2', 'Замена тормозных колодок', DateTime(2026, 6, 3), 72400, 102400),
+    ServiceRecord('S1', 'Сезонная замена шин', DateTime(2026, 4, 20), 68200, null),
+  ];
 
   // главная
   GoalType goalType = GoalType.orders;
@@ -101,12 +119,12 @@ class AppState extends ChangeNotifier {
   int balance = 54300;
   int reserved = 0;
   final List<Expense> expenses = [
-    Expense('EXP-1', 4500, 'Топливо', 8, 'АЗС'),
-    Expense('EXP-2', 1700, 'Питание', 13, ''),
+    Expense('EXP-1', 4500, 'Заправка на АЗС', 8, '08:10'),
+    Expense('EXP-2', 1700, 'Обед', 13, '13:05'),
   ];
   final List<Op> ops = [
-    Op('OP-9003', 'Расход', 'Питание', 'Сегодня, 13:05', -1700, 'Выполнена', 'Ручной ввод', 'EXP-2'),
-    Op('OP-9002', 'Расход', 'Топливо — АЗС', 'Сегодня, 08:10', -4500, 'Выполнена', 'Ручной ввод', 'EXP-1'),
+    Op('OP-9003', 'Расход', 'Обед', 'Сегодня, 13:05', -1700, 'Выполнена', 'Ручной ввод', 'EXP-2'),
+    Op('OP-9002', 'Расход', 'Заправка на АЗС', 'Сегодня, 08:10', -4500, 'Выполнена', 'Ручной ввод', 'EXP-1'),
     Op('OP-9001', 'Доход', 'Заказ #48213', 'Сегодня, 19:12', 2100, 'Выполнена', 'Yandex'),
     Op('OP-9000', 'Доход', 'Заказ #48207', 'Сегодня, 18:40', 1900, 'Выполнена', 'Yandex'),
     Op('OP-8995', 'Пополнение', 'Пополнение баланса', 'Вчера, 21:05', 10000, 'Выполнена', 'Пополнение'),
@@ -230,15 +248,18 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Возвращает текст ошибки или null.
-  String? addExpense(String raw, String cat, String comment) {
+  /// Возвращает текст ошибки или null. Только сумма и описание.
+  String? addExpense(String raw, String desc) {
     final a = int.tryParse(raw.replaceAll(RegExp(r'\s'), ''));
-    if (a == null || a <= 0) return 'Введите корректную сумму: целое число больше нуля.';
+    if (a == null || a <= 0) return 'Введите сумму: целое число больше нуля.';
     if (a > 1000000) return 'Слишком большая сумма для одного расхода.';
+    final d = desc.trim();
+    if (d.isEmpty) return 'Напишите, на что потратили.';
     final now = DateTime.now();
     final id = nid('EXP');
-    expenses.add(Expense(id, a, cat, now.hour, comment));
-    ops.insert(0, Op(nid('OP'), 'Расход', cat + (comment.isEmpty ? '' : ' — $comment'), 'Сегодня, ${pad2(now.hour)}:${pad2(now.minute)}', -a, 'Выполнена', 'Ручной ввод', id));
+    final t = '${pad2(now.hour)}:${pad2(now.minute)}';
+    expenses.add(Expense(id, a, d, now.hour, t));
+    ops.insert(0, Op(nid('OP'), 'Расход', d, 'Сегодня, $t', -a, 'Выполнена', 'Ручной ввод', id));
     period = Period.day;
     notifyListeners();
     return null;
@@ -312,6 +333,47 @@ class AppState extends ChangeNotifier {
     } else {
       reserved -= p.amount;
     }
+    notifyListeners();
+  }
+
+  void setAvatar(int i) {
+    avatar = i;
+    notifyListeners();
+  }
+
+  String? setOdometer(String raw) {
+    final k = int.tryParse(raw.replaceAll(RegExp(r'\s'), ''));
+    if (k == null || k < 0 || k > 2000000) return 'Введите пробег числом, например 84300.';
+    odometer = k;
+    notifyListeners();
+    return null;
+  }
+
+  String? addService(String what, DateTime date, String kmRaw, String nextRaw) {
+    final w = what.trim();
+    final k = int.tryParse(kmRaw.replaceAll(RegExp(r'\s'), ''));
+    final nx = nextRaw.trim().isEmpty ? null : int.tryParse(nextRaw.replaceAll(RegExp(r'\s'), ''));
+    if (w.isEmpty) return 'Напишите, что сделали.';
+    if (k == null || k < 0) return 'Укажите пробег числом.';
+    if (nextRaw.trim().isNotEmpty && (nx == null || nx <= k)) return 'Следующая замена должна быть больше текущего пробега.';
+    services.insert(0, ServiceRecord(nid('S'), w, date, k, nx));
+    if (k > odometer) odometer = k;
+    notifyListeners();
+    return null;
+  }
+
+  void removeService(String id) {
+    services.removeWhere((x) => x.id == id);
+    notifyListeners();
+  }
+
+  void setTechUntil(DateTime d) {
+    techUntil = d;
+    notifyListeners();
+  }
+
+  void setInsUntil(DateTime d) {
+    insUntil = d;
     notifyListeners();
   }
 

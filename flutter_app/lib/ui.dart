@@ -181,15 +181,16 @@ class LogoRow extends StatelessWidget {
 }
 
 class Avatar extends StatelessWidget {
-  const Avatar({super.key, this.size = 52});
+  const Avatar({super.key, this.size = 52, this.index = 1});
   final double size;
+  final int index;
   @override
   Widget build(BuildContext context) => Container(
         width: size,
         height: size,
         decoration: BoxDecoration(shape: BoxShape.circle, color: const Color(0xFFDFE3EE), boxShadow: [BoxShadow(color: const Color(0xFF283C78).withValues(alpha: .35), blurRadius: 18, offset: const Offset(0, 6), spreadRadius: -6)]),
         clipBehavior: Clip.antiAlias,
-        child: Image.asset('assets/avatar.jpg', fit: BoxFit.cover),
+        child: Image.asset('assets/avatars/a$index.jpg', fit: BoxFit.cover),
       );
 }
 

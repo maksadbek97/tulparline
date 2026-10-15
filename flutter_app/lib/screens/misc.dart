@@ -163,20 +163,165 @@ class _SchedulePageState extends State<SchedulePage> {
 
 class CarPage extends StatelessWidget {
   const CarPage({super.key});
+
+  static String fmt(DateTime d) => '${pad2(d.day)}.${pad2(d.month)}.${d.year}';
+  static String km(int n) => '${money(n).replaceAll('\u00A0₸', '')} км';
+
+  Widget _due(DateTime d) {
+    final left = d.difference(DateTime.now()).inDays + 1;
+    return StatusChip(left < 0 ? 'Просрочено' : left <= 30 ? 'Осталось $left дн.' : 'Действует');
+  }
+
   @override
   Widget build(BuildContext context) {
     final s = AppScope.of(context);
     return SubPage(title: 'Автомобиль', children: [
-      DarkCard(padding: EdgeInsets.zero, child: SizedBox(height: 130, child: Center(child: SizedBox(width: 280, child: AspectRatio(aspectRatio: 330 / 120, child: const CustomPaint(painter: CarPainter())))))),
-      AppCard(child: Column(children: [
-        kv('Марка / модель', '${s.carMake} ${s.carModel}'), kv('Год', '${s.carYear}'), kv('Госномер', s.carPlate), kv('Цвет', 'Белый'), kv('Класс', s.carClass), kv('Статус', 'Активен'),
+      AppCard(
+        padding: const EdgeInsets.all(12),
+        child: Row(children: [
+          ClipRRect(borderRadius: BorderRadius.circular(14), child: Container(width: 92, height: 64, color: Colors.black, child: Image.asset('assets/car-front.png', fit: BoxFit.cover))),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('${s.carMake} ${s.carModel}', style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -.3)),
+            Text('${s.carYear} · Белый · ${s.carClass}', style: const TextStyle(color: kMut, fontSize: 12)),
+            const SizedBox(height: 6),
+            Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1), decoration: BoxDecoration(border: Border.all(color: const Color(0x803C4664), width: 1.5), borderRadius: BorderRadius.circular(7)), child: Text(s.carPlate, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, letterSpacing: .6))),
+          ])),
+        ]),
+      ),
+      AppCard(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        onTap: () => _odo(context, s),
+        child: Row(children: [
+          toneIcon(Icons.speed, Tone.violet),
+          const SizedBox(width: 12),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Пробег сейчас', style: TextStyle(color: kMut, fontSize: 12)), Text(km(s.odometer), style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, letterSpacing: -.3))])),
+          const Text('Изменить', style: TextStyle(color: kMut, fontSize: 12)),
+        ]),
+      ),
+      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        h3('Документы'),
+        _DocRow(Icons.description_outlined, Tone.green, 'Техосмотр', 'до ${fmt(s.techUntil)}', _due(s.techUntil), () => _pickDate(context, s.techUntil, s.setTechUntil)),
+        const Divider(height: 1, color: kLine),
+        _DocRow(Icons.shield_outlined, Tone.amber, 'Страховка', 'до ${fmt(s.insUntil)}', _due(s.insUntil), () => _pickDate(context, s.insUntil, s.setInsUntil)),
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        h3('Напоминания'),
-        for (final r in const [('Техосмотр', 'до 10.04.2027'), ('Страхование', 'до 04.11.2026 — 21 день'), ('Масло и фильтры', 'через 1 200 км'), ('Шины', 'сезонная замена в ноябре'), ('Обслуживание', 'ТО-2 через 3 800 км')]) kv(r.$1, r.$2),
+        Row(children: [
+          const Expanded(child: Text('Обслуживание', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15))),
+          GestureDetector(onTap: () => _addService(context, s), child: const Text('+ Добавить', style: TextStyle(color: kBlue, fontSize: 13))),
+        ]),
+        const SizedBox(height: 4),
+        if (s.services.isEmpty) const Padding(padding: EdgeInsets.symmetric(vertical: 8), child: Text('Записей пока нет. Добавьте, когда меняли масло, колодки или шины.', style: TextStyle(color: kMut, fontSize: 13))),
+        for (final x in s.services)
+          InkWell(
+            onTap: () => _open(context, s, x),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                toneIcon(Icons.build_outlined, Tone.blue),
+                const SizedBox(width: 12),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(x.what, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)),
+                  Text('${fmt(x.date)} · ${km(x.km)}${x.next != null ? ' · следующий раз на ${km(x.next!)}' : ''}', style: const TextStyle(color: kMut, fontSize: 12)),
+                  if (x.next != null) Padding(padding: const EdgeInsets.only(top: 4), child: _svcChip(x.next! - s.odometer)),
+                ])),
+                const Icon(Icons.chevron_right, size: 16, color: Color(0xFFB4B9C8)),
+              ]),
+            ),
+          ),
+        note('Укажите пробег при замене и на сколько км вперёд — приложение напомнит, когда пора.'),
       ])),
     ]);
   }
+
+  Widget _svcChip(int left) => StatusChip(left <= 0 ? 'Пора менять' : left <= 1000 ? 'Скоро: осталось ${km(left)}' : 'Осталось ${km(left)}');
+
+  Future<void> _pickDate(BuildContext c, DateTime cur, void Function(DateTime) apply) async {
+    final d = await showDatePicker(context: c, initialDate: cur, firstDate: DateTime(2020), lastDate: DateTime(2040));
+    if (d != null) apply(d);
+  }
+
+  void _odo(BuildContext c, AppState s) {
+    final ctl = TextEditingController(text: '${s.odometer}');
+    String? err;
+    sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      h3('Пробег сейчас'),
+      TextField(controller: ctl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Километров')),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(err!, style: const TextStyle(color: kErr, fontSize: 13))),
+      const SizedBox(height: 10),
+      PrimaryButton('Сохранить', onPressed: () {
+        final e = s.setOdometer(ctl.text);
+        if (e != null) return set(() => err = e);
+        Navigator.pop(ctx);
+        toast(c, 'Пробег обновлён');
+      }),
+    ])));
+  }
+
+  void _addService(BuildContext c, AppState s) {
+    final what = TextEditingController(), kmC = TextEditingController(text: '${s.odometer}'), next = TextEditingController();
+    var date = DateTime.now();
+    String? err;
+    sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      h3('Новая запись'),
+      TextField(controller: what, maxLength: 60, decoration: const InputDecoration(labelText: 'Что сделали', hintText: 'Например: замена масла')),
+      const SizedBox(height: 6),
+      GestureDetector(
+        onTap: () async {
+          final d = await showDatePicker(context: ctx, initialDate: date, firstDate: DateTime(2020), lastDate: DateTime.now());
+          if (d != null) set(() => date = d);
+        },
+        child: Container(height: 46, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.centerLeft, decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(10)), child: Row(children: [const Icon(Icons.calendar_today_outlined, size: 16, color: kMut), const SizedBox(width: 8), Text('Дата: ${fmt(date)}')])),
+      ),
+      const SizedBox(height: 10),
+      TextField(controller: kmC, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Пробег при замене, км')),
+      const SizedBox(height: 10),
+      TextField(controller: next, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: 'Следующая замена на, км', hintText: 'Например: ${s.odometer + 10000}')),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 6), child: Text(err!, style: const TextStyle(color: kErr, fontSize: 13))),
+      const SizedBox(height: 10),
+      PrimaryButton('Сохранить', onPressed: () {
+        final e = s.addService(what.text, date, kmC.text, next.text);
+        if (e != null) return set(() => err = e);
+        Navigator.pop(ctx);
+        toast(c, 'Запись добавлена');
+      }),
+    ])));
+  }
+
+  void _open(BuildContext c, AppState s, ServiceRecord x) {
+    sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      h3(x.what),
+      Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [kv('Дата', fmt(x.date)), kv('Пробег при замене', km(x.km)), kv('Следующий раз на', x.next == null ? '—' : km(x.next!))])),
+      const SizedBox(height: 12),
+      PrimaryButton('Удалить запись', outline: true, onPressed: () {
+        s.removeService(x.id);
+        Navigator.pop(ctx);
+        toast(c, 'Запись удалена');
+      }),
+    ]));
+  }
+}
+
+class _DocRow extends StatelessWidget {
+  const _DocRow(this.icon, this.tone, this.title, this.sub, this.chip, this.onTap);
+  final IconData icon;
+  final Tone tone;
+  final String title, sub;
+  final Widget chip;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => InkWell(
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 9),
+          child: Row(children: [
+            toneIcon(icon, tone),
+            const SizedBox(width: 12),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)), Text(sub, style: const TextStyle(color: kMut, fontSize: 12))])),
+            chip,
+          ]),
+        ),
+      );
 }
 
 class ReferralPage extends StatelessWidget {

@@ -16,7 +16,7 @@ IconData _opIcon(Op o) {
     case 'Начисление':
       return Icons.card_giftcard;
     case 'Расход':
-      return o.desc.contains('Топл') ? Icons.local_gas_station_outlined : RegExp('Ремонт|Масло|Шино|Мойк').hasMatch(o.desc) ? Icons.build_outlined : Icons.receipt_long_outlined;
+      return RegExp('Топл|Заправ|бензин|АЗС', caseSensitive: false).hasMatch(o.desc) ? Icons.local_gas_station_outlined : RegExp('Ремонт|Масл|Шин|Мойк', caseSensitive: false).hasMatch(o.desc) ? Icons.build_outlined : Icons.receipt_long_outlined;
     default:
       return Icons.description_outlined;
   }
@@ -201,17 +201,19 @@ class FinancePage extends StatelessWidget {
   }
 
   void _breakdown(BuildContext c, AppState s) {
-    final by = <String, int>{};
-    var tot = 0;
-    for (final e in s.expenses.where((e) => !e.cancelled)) {
-      by[e.cat] = (by[e.cat] ?? 0) + e.amount;
-      tot += e.amount;
-    }
+    final list = s.expenses.where((e) => !e.cancelled).toList();
+    final tot = list.fold(0, (a, e) => a + e.amount);
     sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      h3('Расходы за день по категориям'),
-      if (by.isEmpty) const Text('Расходов нет.', style: TextStyle(color: kMut)),
-      for (final e in by.entries) kv(e.key, money(e.value)),
-      kv('Итого', money(tot)),
+      h3('Расходы за день'),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+        child: Column(children: [
+          if (list.isEmpty) const Padding(padding: EdgeInsets.symmetric(vertical: 14), child: Text('Расходов нет.', style: TextStyle(color: kMut))),
+          for (final e in list) kv('${e.desc} · ${e.time}', money(e.amount)),
+          kv('Итого', money(tot)),
+        ]),
+      ),
     ]));
   }
 
@@ -258,25 +260,17 @@ class FinancePage extends StatelessWidget {
   }
 
   void _addExpense(BuildContext c, AppState s) {
-    final amount = TextEditingController(), comment = TextEditingController();
-    var cat = 'Топливо';
+    final amount = TextEditingController(), desc = TextEditingController();
     String? err;
-    const cats = ['Топливо', 'Мойка', 'Парковка', 'Ремонт', 'Масло/фильтры', 'Шиномонтаж', 'Питание', 'Штрафы', 'Другое'];
-    final n = DateTime.now();
     sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3('Добавить расход'),
-      TextField(controller: amount, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Сумма, ₸')),
-      const SizedBox(height: 12),
-      DropdownButtonFormField<String>(initialValue: cat, decoration: const InputDecoration(labelText: 'Категория'), items: [for (final x in cats) DropdownMenuItem(value: x, child: Text(x))], onChanged: (v) => cat = v ?? cat),
-      const SizedBox(height: 12),
-      TextField(readOnly: true, controller: TextEditingController(text: 'Сегодня, ${pad2(n.hour)}:${pad2(n.minute)}'), decoration: const InputDecoration(labelText: 'Дата и время')),
-      const SizedBox(height: 12),
-      TextField(controller: comment, maxLength: 120, decoration: const InputDecoration(labelText: 'Комментарий (необязательно)')),
-      OutlinedButton.icon(onPressed: () => toast(c, 'Фото чека: выбор из камеры/галереи (в этом прототипе не подключён)'), icon: const Icon(Icons.photo_camera_outlined), label: const Text('Фото чека (необязательно)')),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600))),
-      const SizedBox(height: 12),
-      PrimaryButton('Сохранить расход', onPressed: () {
-        final e = s.addExpense(amount.text, cat, comment.text.trim());
+      TextField(controller: amount, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Сумма, ₸', hintText: '0')),
+      const SizedBox(height: 10),
+      TextField(controller: desc, maxLength: 80, decoration: const InputDecoration(labelText: 'На что потратили', hintText: 'Например: заправка, мойка, обед')),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+      const SizedBox(height: 10),
+      PrimaryButton('Сохранить', onPressed: () {
+        final e = s.addExpense(amount.text, desc.text);
         if (e != null) return set(() => err = e);
         Navigator.pop(ctx);
         toast(c, 'Расход сохранён: итоги и график обновлены');

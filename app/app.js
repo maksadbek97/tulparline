@@ -23,6 +23,8 @@
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   var MONTHS = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
   function dmy(d) { return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+  function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  function load(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
   var uid = 1000;
   function nid(p) { return p + '-' + (++uid); }
   var ICONS = {
@@ -62,6 +64,7 @@
     more: '<circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/>',
     trend: '<path d="M7 17L17 7M8 7h9v9"/>',
     tenge: '<path d="M6 6h12M12 6v13M8 10.500h8"/>',
+    edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     coins: '<circle cx="12" cy="12" r="9"/><path d="M8.500 8.500h7M12 8.500v7M9.500 11.500h5"/>'
   };
   function ic(name, cls) { return '<svg class="i ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + ICONS[name] + '</svg>'; }
@@ -69,13 +72,13 @@
   function logoMark() { return '<svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="20" fill="#fff"/><path d="M20 8l11 24-11-6-11 6z" fill="#0b0b0f" stroke="#0b0b0f" stroke-linejoin="round" stroke-width="2"/></svg>'; }
   function logo() { return '<div class="logo">' + logoMark() + '<div>TULPAR LINE<small>ТАКСОПАРК</small></div></div>'; }
   function carArt(src) { return '<img class="carimg" src="assets/' + (src || 'car-rear.jpg') + '" alt="">'; }
-  function avatarSvg() { return '<img src="assets/avatar.jpg" alt="Аватар">'; }
+  function avatarSvg() { return '<img src="assets/avatars/a' + S.avatar + '.jpg" alt="Аватар">'; }
 
   // ---------- state (деньги — целые тенге, без float) ----------
   var now = new Date();
   var firstOfNext = new Date(now.getFullYear(), now.getMonth() + (now.getDate() === 1 ? 0 : 1), 1);
   var S = {
-    lang: 'ru', tab: 'home', route: 'home', hist: [],
+    avatar: 1, lang: 'ru', tab: 'home', route: 'home', hist: [],
     driver: { first: 'Данияр', last: 'Сейтказин', status: 'Активен', car: { make: 'Toyota', model: 'Camry', year: 2021, plate: '777 TLP 02', color: 'Белый', cls: 'Комфорт' } },
     demo: { windowOpen: false, synced: true },
     privacyShowName: true,
@@ -87,12 +90,12 @@
     balance: 54300, reserved: 0,
     deposit: { balance: 18640, month: 7200, reserved: 0 },
     expenses: [
-      { id: 'EXP-1', amount: 4500, cat: 'Топливо', hour: 8, when: '08:10', comment: 'АЗС', receipt: true, status: 'ok' },
-      { id: 'EXP-2', amount: 1700, cat: 'Питание', hour: 13, when: '13:05', comment: '', receipt: false, status: 'ok' }
+      { id: 'EXP-1', amount: 4500, cat: 'Заправка на АЗС', hour: 8, when: '08:10', status: 'ok' },
+      { id: 'EXP-2', amount: 1700, cat: 'Обед', hour: 13, when: '13:05', status: 'ok' }
     ],
     ops: [
-      { id: 'OP-9003', ref: 'EXP-2', type: 'Расход', desc: 'Питание', date: 'Сегодня, 13:05', amount: -1700, status: 'Выполнена', src: 'Ручной ввод' },
-      { id: 'OP-9002', ref: 'EXP-1', type: 'Расход', desc: 'Топливо — АЗС', date: 'Сегодня, 08:10', amount: -4500, status: 'Выполнена', src: 'Ручной ввод' },
+      { id: 'OP-9003', ref: 'EXP-2', type: 'Расход', desc: 'Обед', date: 'Сегодня, 13:05', amount: -1700, status: 'Выполнена', src: 'Ручной ввод' },
+      { id: 'OP-9002', ref: 'EXP-1', type: 'Расход', desc: 'Заправка на АЗС', date: 'Сегодня, 08:10', amount: -4500, status: 'Выполнена', src: 'Ручной ввод' },
       { id: 'OP-9001', type: 'Доход', desc: 'Заказ #48213', date: 'Сегодня, 19:12', amount: 2100, status: 'Выполнена', src: 'Yandex' },
       { id: 'OP-9000', type: 'Доход', desc: 'Заказ #48207', date: 'Сегодня, 18:40', amount: 1900, status: 'Выполнена', src: 'Yandex' },
       { id: 'OP-8995', type: 'Пополнение', desc: 'Пополнение баланса', date: 'Вчера, 21:05', amount: 10000, status: 'Выполнена', src: 'Пополнение' },
@@ -145,8 +148,17 @@
     health: { consent: false },
     sos: { contact: 'Айгерим (жена) +7 700 000-00-00', log: [] },
     tickets: [{ id: 'SUP-114', topic: 'Вопрос по начислению', st: 'В работе', d: '12 окт' }, { id: 'SUP-102', topic: 'Документы', st: 'Решено', d: '3 окт' }],
-    me: 10
+    me: 10,
+    car: {
+      odo: 84300, tech: '2027-04-10', ins: '2026-11-04',
+      services: [
+        { id: 'S3', what: 'Замена масла и фильтров', date: '2026-09-12', km: 80100, next: 90100 },
+        { id: 'S2', what: 'Замена тормозных колодок', date: '2026-06-03', km: 72400, next: 102400 },
+        { id: 'S1', what: 'Сезонная замена шин', date: '2026-04-20', km: 68200, next: null }
+      ]
+    }
   };
+  S.avatar = load('tl_avatar', 1); S.car = load('tl_car', S.car);
   var rivals = ['Руслан Т.', 'Нурлан Б.', 'Айдос М.', 'Серик О.', 'Данияр С.', 'Талгат Е.', 'Бауыржан К.', 'Алмас Ж.', 'Ерлан Н.', 'Тимур Д.', 'Асхат Р.', 'Марат В.'];
 
   // ---------- derived ----------
@@ -229,7 +241,7 @@
     if (o.type === 'Пополнение') return ['down', 'g'];
     if (o.type === 'Выплата') return ['up', 'b'];
     if (o.type === 'Начисление') return ['gift', 'y'];
-    if (o.type === 'Расход') return /Топл/.test(d) ? ['fuel', ''] : /Ремонт|Масло|Шино|Мойк/.test(d) ? ['wrench', ''] : ['doc', ''];
+    if (o.type === 'Расход') return /Топл|Заправ|бензин|АЗС/i.test(d) ? ['fuel', ''] : /Ремонт|Масл|Шин|Мойк|мойк/i.test(d) ? ['wrench', ''] : ['doc', ''];
     return ['doc', 'v'];
   }
   function opRow(o) {
@@ -313,10 +325,10 @@
 
   V.service = function () {
     var c = S.driver.car;
-    var items = [['documents', 'doc', 'Документы', 'Все документы в одном месте', 'b'], ['goals', 'target', 'Цели', 'Поставьте цели на день, неделю', 'g'], ['tasks', 'clip', 'Задания', 'Выполняйте задания и получайте награды', 'v'],
-      ['rating', 'trophy', 'Рейтинг', 'Ваше место среди водителей', 'y'], ['schedule', 'cal', 'График', 'Рабочие дни и время', 'b'], ['car', 'car', 'Автомобиль', 'Информация и обслуживание', 'r'],
-      ['deposit', 'tenge', 'Депозит-карта Tulpar Line', 'Бонусный баланс и вывод', 'd'], ['referral', 'userplus', 'Пригласи друга', 'Бонусы за новых водителей', 'y'], ['health', 'heart', 'Здоровье', 'Шаги, активность и статистика', 'r'],
-      ['sos', 'sos', 'SOS', 'Экстренная помощь на дороге', 'd'], ['support', 'headset', 'Поддержка', 'Свяжитесь с нами 24/7', 'v']];
+    var items = [['documents', 'doc', 'Документы', 'Все файлы', 'b'], ['goals', 'target', 'Цели', 'День и неделя', 'g'], ['tasks', 'clip', 'Задания', 'Награды', 'v'],
+      ['rating', 'trophy', 'Рейтинг', 'Ваше место', 'y'], ['schedule', 'cal', 'График', 'Расписание', 'b'], ['car', 'car', 'Автомобиль', 'Обслуживание', 'r'],
+      ['deposit', 'tenge', 'Депозит-карта Tulpar Line', 'Бонусы', 'd'], ['referral', 'userplus', 'Пригласи друга', 'Бонусы за друга', 'y'], ['health', 'heart', 'Здоровье', 'Активность', 'r'],
+      ['sos', 'sos', 'SOS', 'Экстренно', 'd'], ['support', 'headset', 'Поддержка', '24/7', 'v']];
     return '<div class="head"><div><h2>' + t('Сервис') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="iconbtn" data-act="go" data-v="notifications" aria-label="Уведомления">' + I('bell') + (S.notifs.some(function (n) { return n.unread; }) ? '<span class="dot"></span>' : '') + '</button></div>' +
       '<div class="card card--dark carcard"><div class="glow">' + logoMark() + '</div>' + carArt('car-front.jpg') + '<span class="chevbtn">' + I('chev') + '</span>' + logo() + '<div class="carname">' + esc(c.make + ' ' + c.model) + '</div><div class="carsub">' + c.year + ' • ' + esc(c.cls) + '</div><div class="plate">' + esc(c.plate) + '<small><i></i>KZ</small></div></div>' +
       '<div class="grid3">' + items.map(function (x) { return '<button class="tile" data-act="go" data-v="' + x[0] + '"><span class="top"><span class="ic ic--' + x[4] + '">' + I(x[1]) + '</span>' + I('chev', 'chv') + '</span><b>' + esc(t(x[2])) + '</b><small>' + x[3] + '</small></button>'; }).join('') + '</div>';
@@ -327,7 +339,7 @@
       ['payMethods', 'wallet', 'Способы выплат', 'Kaspi, реквизиты'], ['settings', 'bell', 'Уведомления', 'Настройки уведомлений'], ['security', 'lock', 'Безопасность', 'Смена пароля, Face ID / Touch ID'],
       ['langSheet', 'globe', t('Язык'), 'Қазақша / Русский'], ['terms', 'gift', 'Условия лояльности', 'Кэшбэк, вывод, правила'], ['support', 'help', 'Помощь', 'Частые вопросы'], ['demo', 'gear', 'Демо-инструменты', 'Только для показа прототипа']];
     return '<div class="head"><div><h2>' + t('Профиль') + '</h2><small><b>TULPAR LINE</b>Таксопарк</small></div><button class="iconbtn" data-act="go" data-v="settings" aria-label="Настройки">' + I('gear') + '</button></div>' +
-      '<div class="prof"><div class="avatar avatar--lg">' + avatarSvg() + '</div><div class="grow"><div class="nm">' + esc(S.driver.first) + '<br>' + esc(S.driver.last) + '</div><div class="mut">Водитель</div></div>' +
+      '<div class="prof"><button class="avatar avatar--lg avbtn" data-act="avatarPick" aria-label="Сменить аватар">' + avatarSvg() + '<span class="avedit">' + I('edit') + '</span></button><div class="grow"><div class="nm">' + esc(S.driver.first) + '<br>' + esc(S.driver.last) + '</div><div class="mut">Водитель</div></div>' +
       '<button class="bonus" data-act="go" data-v="deposit"><span class="ic ic--b">' + I('tenge') + '</span><span><small>Бонусы</small><b>' + NF.format(S.deposit.balance).replace(/ | /g, ' ') + ' ₸</b></span>' + I('chev', 'chv') + '</button></div>' +
       rows.map(function (r) { var act = ['payMethods', 'security', 'langSheet'].indexOf(r[0]) >= 0 ? r[0] : 'go'; return '<button class="row-card" data-act="' + act + '" data-v="' + r[0] + '"><span class="ic">' + I(r[1]) + '</span><span class="grow"><b>' + r[2] + '</b><small>' + r[3] + '</small></span>' + I('chev', 'chv') + '</button>'; }).join('') +
       '<button class="row-card" data-act="logout"><span class="ic">' + I('logout') + '</span><span class="grow"><b>Выйти из аккаунта</b></span>' + I('chev', 'chv') + '</button>';
@@ -419,11 +431,29 @@
   };
 
   // --- Car & docs ---
+  function fmtDate(iso) { if (!iso) return '—'; var p = iso.split('-'); return p[2] + '.' + p[1] + '.' + p[0]; }
+  function daysLeft(iso) { return Math.ceil((new Date(iso + 'T00:00:00') - new Date(new Date().toDateString())) / 86400000); }
+  function dueChip(iso) {
+    var d = daysLeft(iso);
+    return d < 0 ? chip('Просрочено', 'err') : d <= 30 ? chip('Осталось ' + d + ' дн.', 'warn') : chip('Действует', 'ok');
+  }
+  function svcStatus(x) {
+    if (!x.next) return null;
+    var left = x.next - S.car.odo;
+    return left <= 0 ? { t: 'Пора: пробег ' + NF.format(S.car.odo).replace(/\u00a0|\u202f/g, ' ') + ' км', k: 'err' } : left <= 1000 ? { t: 'Скоро: осталось ' + NF.format(left).replace(/\u00a0|\u202f/g, ' ') + ' км', k: 'warn' } : { t: 'Осталось ' + NF.format(left).replace(/\u00a0|\u202f/g, ' ') + ' км', k: 'ok' };
+  }
+  function km(n) { return NF.format(n).replace(/\u00a0|\u202f/g, ' ') + ' км'; }
   V.car = function () {
-    var c = S.driver.car;
-    return back('Назад') + '<h2>' + t('Автомобиль') + '</h2><div class="card"><div class="card--dark" style="position:relative;height:130px;border-radius:22px;margin-bottom:10px;overflow:hidden">' + carArt('car-front.jpg').replace('class="carimg"','class="carimg" style="width:80%;right:10%;bottom:-10px"') + '</div><div class="list">' +
-      [['Марка / модель', c.make + ' ' + c.model], ['Год', c.year], ['Госномер', c.plate], ['Цвет', c.color], ['Класс', c.cls], ['Статус', 'Активен']].map(function (r) { return '<div class="li row between"><span class="mut">' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('') + '</div></div>' +
-      '<div class="card"><h3>Напоминания</h3>' + [['Техосмотр', 'до 10.04.2027', 'ok'], ['Страхование', 'до 04.11.2026 — 21 день', 'warn'], ['Масло и фильтры', 'через 1 200 км', 'warn'], ['Шины', 'сезонная замена в ноябре', 'info'], ['Обслуживание', 'ТО-2 через 3 800 км', 'info']].map(function (r) { return '<div class="row between" style="padding:7px 0"><span>' + r[0] + '</span>' + chip(r[1], r[2]) + '</div>'; }).join('') + '</div>';
+    var c = S.driver.car, cr = S.car;
+    var svc = cr.services.map(function (x) {
+      var st = svcStatus(x);
+      return '<button class="li" data-act="svcOpen" data-v="' + x.id + '"><span class="ic ic--b">' + I('wrench') + '</span><span class="grow"><b>' + esc(x.what) + '</b><div class="small mut">' + fmtDate(x.date) + ' · ' + km(x.km) + (x.next ? ' · следующий раз на ' + km(x.next) : '') + '</div>' + (st ? '<div style="margin-top:4px">' + chip(st.t, st.k) + '</div>' : '') + '</span>' + I('chev', 'chv') + '</button>';
+    }).join('');
+    return back('Назад') + '<h2>' + t('Автомобиль') + '</h2>' +
+      '<div class="card carmini"><img class="carthumb" src="assets/car-front.jpg" alt=""><div class="grow"><b class="mid">' + esc(c.make + ' ' + c.model) + '</b><div class="small mut">' + c.year + ' · ' + esc(c.color) + ' · ' + esc(c.cls) + '</div><div class="plate plate--sm">' + esc(c.plate) + '</div></div></div>' +
+      '<button class="card odo" data-act="odoEdit"><span class="ic ic--v">' + I('clock') + '</span><span class="grow"><small class="mut">Пробег сейчас</small><b class="mid">' + km(cr.odo) + '</b></span><span class="mut small">Изменить</span></button>' +
+      '<div class="card"><h3>Документы</h3><button class="li" data-act="dateEdit" data-v="tech"><span class="ic ic--g">' + I('doc') + '</span><span class="grow"><b>Техосмотр</b><div class="small mut">до ' + fmtDate(cr.tech) + '</div></span>' + dueChip(cr.tech) + '</button><button class="li" data-act="dateEdit" data-v="ins"><span class="ic ic--y">' + I('lock') + '</span><span class="grow"><b>Страховка</b><div class="small mut">до ' + fmtDate(cr.ins) + '</div></span>' + dueChip(cr.ins) + '</button></div>' +
+      '<div class="card"><div class="cardhead"><h3>Обслуживание</h3><button class="lnk" data-act="svcAdd">+ Добавить</button></div>' + (svc ? '<div class="list">' + svc + '</div>' : '<div class="small mut">Записей пока нет. Добавьте, когда меняли масло, колодки или шины.</div>') + '<div class="note">Укажите пробег при замене и на сколько км вперёд — приложение напомнит, когда пора.</div></div>';
   };
   V.documents = function () {
     return back('Назад') + '<h2>' + t('Документы') + '</h2>' + S.docs.map(function (d) {
@@ -476,6 +506,26 @@
   // ---------- actions ----------
   function addOp(o) { S.ops.unshift(o); }
   var ACT = {
+    avatarPick: function () {
+      var g = ''; for (var i = 1; i <= 10; i++) g += '<button class="avopt' + (S.avatar === i ? ' on' : '') + '" data-act="avatarSet" data-v="' + i + '" aria-label="Аватар ' + i + '"><img src="assets/avatars/a' + i + '.jpg" alt=""></button>';
+      openSheet('<h3>Выберите аватар</h3><div class="avgrid">' + g + '</div><div class="note">3D-аватар виден в приложении вам и таксопарку.</div>');
+    },
+    avatarSet: function (v) { S.avatar = +v; save('tl_avatar', S.avatar); closeSheet(); render(); toast('Аватар изменён'); },
+    odoEdit: function () {
+      openSheet('<h3>Пробег сейчас</h3><form data-form="odo"><label class="f">Километров<input name="km" inputmode="numeric" value="' + S.car.odo + '"></label><p class="err" id="fe"></p><button class="btn" type="submit">Сохранить</button></form>');
+    },
+    dateEdit: function (v) {
+      openSheet('<h3>' + (v === 'tech' ? 'Техосмотр' : 'Страховка') + '</h3><form data-form="cdate" data-k="' + v + '"><label class="f">Действует до<input type="date" name="d" value="' + S.car[v] + '"></label><p class="err" id="fe"></p><button class="btn" type="submit">Сохранить</button></form>');
+    },
+    svcAdd: function () {
+      var today = new Date().toISOString().slice(0, 10);
+      openSheet('<h3>Новая запись</h3><form data-form="svc"><label class="f">Что сделали<input name="what" maxlength="60" placeholder="Например: замена масла" autocomplete="off"></label><label class="f">Дата<input type="date" name="date" value="' + today + '"></label><label class="f">Пробег при замене, км<input name="km" inputmode="numeric" value="' + S.car.odo + '"></label><label class="f">Следующая замена на, км<input name="next" inputmode="numeric" placeholder="Например: ' + (S.car.odo + 10000) + '"></label><p class="err" id="fe"></p><button class="btn" type="submit">Сохранить</button></form>');
+    },
+    svcOpen: function (v) {
+      var x = S.car.services.filter(function (y) { return y.id === v; })[0]; if (!x) return;
+      openSheet('<h3>' + esc(x.what) + '</h3><div class="list">' + [['Дата', fmtDate(x.date)], ['Пробег при замене', km(x.km)], ['Следующий раз на', x.next ? km(x.next) : '—']].map(function (r) { return '<div class="li row between"><span class="mut">' + r[0] + '</span><b>' + r[1] + '</b></div>'; }).join('') + '</div><button class="btn btn--ghost" style="margin-top:12px" data-act="svcDel" data-v="' + x.id + '">Удалить запись</button>');
+    },
+    svcDel: function (v) { S.car.services = S.car.services.filter(function (y) { return y.id !== v; }); save('tl_car', S.car); closeSheet(); render(); toast('Запись удалена'); },
     workTab: function (v) { S.workTab = v; render(); },
     hideBal: function () { S.hideBal = !S.hideBal; render(); },
     periodPick: function () {
@@ -485,8 +535,8 @@
     balInfo: function () { openSheet('<h3>О балансе</h3><p>Здесь показан баланс приложения Tulpar Line. Баланс Yandex и бонусный баланс депозит-карты — отдельные суммы, они не складываются.</p><div class="list"><div class="li row between"><span class="mut">Баланс приложения</span><b>' + money(available()) + '</b></div><div class="li row between"><span class="mut">Баланс Yandex</span><b>не синхронизирован (демо)</b></div><div class="li row between"><span class="mut">Депозит-карта</span><b>' + money(S.deposit.balance) + '</b></div></div>'); },
     allOps: function () { openSheet('<h3>Все операции</h3><div class="list">' + S.ops.map(opRow).join('') + '</div>'); },
     expBreak: function () {
-      var by = {}, tot = 0; S.expenses.forEach(function (e) { if (e.status === 'ok') { by[e.cat] = (by[e.cat] || 0) + e.amount; tot += e.amount; } });
-      openSheet('<h3>Расходы за день по категориям</h3><div class="list">' + (Object.keys(by).map(function (k) { return '<div class="li row between"><span>' + esc(k) + '</span><b>' + money(by[k]) + '</b></div>'; }).join('') || '<div class="small mut">Расходов нет.</div>') + '<div class="li row between"><b>Итого</b><b>' + money(tot) + '</b></div></div>');
+      var tot = 0, rows = S.expenses.filter(function (e) { return e.status === 'ok'; }).map(function (e) { tot += e.amount; return '<div class="li row between"><span>' + esc(e.cat) + '<div class="small mut">' + e.when + '</div></span><b>' + money(e.amount) + '</b></div>'; }).join('');
+      openSheet('<h3>Расходы за день</h3><div class="list">' + (rows || '<div class="small mut" style="padding:12px 0">Расходов нет.</div>') + '<div class="li row between"><b>Итого</b><b>' + money(tot) + '</b></div></div>');
     },
     payMethods: function () { openSheet('<h3>Способы выплат</h3><div class="list"><div class="li"><span class="ic ic--b">' + I('wallet') + '</span><span class="grow"><b>Kaspi •• 4821</b><div class="small mut">Реквизиты маскированы</div></span>' + chip('Основной', 'ok') + '</div></div><div class="note">Добавление реквизитов и подтверждение — после согласования платёжного провайдера.</div>'); },
     security: function () { openSheet('<h3>Безопасность</h3><div class="row between" style="padding:10px 0"><span>Вход по Face ID / Touch ID</span>' + sw('faceid', true) + '</div><div class="row between" style="padding:10px 0"><span>Код-пароль</span>' + chip('Включён', 'ok') + '</div><button class="btn btn--ghost" style="margin-top:10px" data-act="closeSheet">Сменить пароль</button>'); },
@@ -508,8 +558,7 @@
       openSheet('<h3>Вывести с баланса</h3><div class="small mut">Доступно: <b>' + money(available()) + '</b></div><form data-form="withdraw" style="margin-top:12px"><label class="f">Сумма, ₸<input name="amount" inputmode="numeric" placeholder="Минимум 1 000"></label><label class="f">Реквизиты<select name="req"><option>Kaspi •• 4821</option></select></label><p class="err" id="fe"></p><button class="btn" type="submit">Создать заявку</button><div class="note">Лимиты: от 1 000 ₸ (демо, утверждает владелец). Сумма резервируется. Мгновенный вывод не обещается — срок обработки сообщит таксопарк. Статусы: Создана → На проверке → В обработке → Выполнена / Отклонена.</div></form>');
     },
     addExpense: function () {
-      var n = new Date(), tm = pad(n.getHours()) + ':' + pad(n.getMinutes());
-      openSheet('<h3>Добавить расход</h3><form data-form="expense"><label class="f">Сумма, ₸<input name="amount" inputmode="numeric" placeholder="0"></label><label class="f">Категория<select name="cat">' + ['Топливо', 'Мойка', 'Парковка', 'Ремонт', 'Масло/фильтры', 'Шиномонтаж', 'Питание', 'Штрафы', 'Другое'].map(function (c) { return '<option>' + c + '</option>'; }).join('') + '</select></label><label class="f">Дата и время<input name="when" value="Сегодня, ' + tm + '" readonly></label><label class="f">Комментарий (необязательно)<input name="comment" maxlength="120"></label><label class="f">Фото чека (необязательно)<input name="photo" type="file" accept="image/*"></label><p class="err" id="fe"></p><button class="btn" type="submit">Сохранить расход</button></form>');
+      openSheet('<h3>Добавить расход</h3><form data-form="expense"><label class="f">Сумма, ₸<input name="amount" inputmode="numeric" placeholder="0" autocomplete="off"></label><label class="f">На что потратили<input name="desc" maxlength="80" placeholder="Например: заправка, мойка, обед" autocomplete="off"></label><p class="err" id="fe"></p><button class="btn" type="submit">Сохранить</button></form>');
     },
     opDetail: function (v) {
       var o = S.ops.filter(function (x) { return x.id === v; })[0]; if (!o) return;
@@ -587,13 +636,32 @@
       closeSheet(); render(); toast('Заявка отправлена. Сумма зарезервирована.');
     },
     expense: function (f) {
-      var a = parseAmount(f.amount.value);
-      if (!(a > 0)) return ferr('Введите корректную сумму: целое число больше нуля.');
+      var a = parseAmount(f.amount.value), d = f.desc.value.trim();
+      if (!(a > 0)) return ferr('Введите сумму: целое число больше нуля.');
       if (a > 1000000) return ferr('Слишком большая сумма для одного расхода.');
+      if (!d) return ferr('Напишите, на что потратили.');
       var n = new Date(), id = nid('EXP');
-      S.expenses.push({ id: id, amount: a, cat: f.cat.value, hour: n.getHours(), when: pad(n.getHours()) + ':' + pad(n.getMinutes()), comment: f.comment.value, receipt: !!(f.photo.files && f.photo.files.length), status: 'ok' });
-      addOp({ id: nid('OP'), ref: id, type: 'Расход', desc: f.cat.value + (f.comment.value ? ' — ' + f.comment.value : ''), date: 'Сегодня, ' + pad(n.getHours()) + ':' + pad(n.getMinutes()), amount: -a, status: 'Выполнена', src: 'Ручной ввод' });
+      S.expenses.push({ id: id, amount: a, cat: d, hour: n.getHours(), when: pad(n.getHours()) + ':' + pad(n.getMinutes()), status: 'ok' });
+      addOp({ id: nid('OP'), ref: id, type: 'Расход', desc: d, date: 'Сегодня, ' + pad(n.getHours()) + ':' + pad(n.getMinutes()), amount: -a, status: 'Выполнена', src: 'Ручной ввод' });
       S.period = 'day'; closeSheet(); render(); toast('Расход сохранён: итоги и график обновлены');
+    },
+    odo: function (f) {
+      var k = parseAmount(f.km.value); if (isNaN(k) || k < 0 || k > 2000000) return ferr('Введите пробег числом, например 84300.');
+      S.car.odo = k; save('tl_car', S.car); closeSheet(); render(); toast('Пробег обновлён');
+    },
+    cdate: function (f, el) {
+      if (!f.d.value) return ferr('Укажите дату.');
+      S.car[el.getAttribute('data-k')] = f.d.value; save('tl_car', S.car); closeSheet(); render(); toast('Сохранено');
+    },
+    svc: function (f) {
+      var w = f.what.value.trim(), k = parseAmount(f.km.value), nx = f.next.value.trim() ? parseAmount(f.next.value) : null;
+      if (!w) return ferr('Напишите, что сделали.');
+      if (!f.date.value) return ferr('Укажите дату.');
+      if (isNaN(k) || k < 0) return ferr('Укажите пробег числом.');
+      if (nx !== null && (isNaN(nx) || nx <= k)) return ferr('Следующая замена должна быть больше текущего пробега.');
+      S.car.services.unshift({ id: nid('S'), what: w, date: f.date.value, km: k, next: nx });
+      if (k > S.car.odo) S.car.odo = k;
+      save('tl_car', S.car); closeSheet(); render(); toast('Запись добавлена');
     },
     goal: function (f) {
       var a = parseAmount(f.target.value); if (!(a > 0)) return ferr('Укажите цель числом больше нуля.');
