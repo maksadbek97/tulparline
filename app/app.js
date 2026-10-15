@@ -299,17 +299,17 @@
       (out ? '<div class="list">' + out + '</div>' : '<div class="small mut" style="padding:14px 0">Транзакций нет.</div>');
   }
   var XPATH = 'M-10 -10L18 -10L74 54Q110 78 146 54L196 -10L226 -10L160 70Q134 100 160 130L226 210L196 210L146 146Q110 122 74 146L18 210L-10 210L46 146Q90 100 46 54Z';
-  function chipSvg() { return '<span class="emv"><i></i><i></i><i></i><i></i></span>'; }
   function cardYa() {
     var amountTxt = S.hideBal ? '••••• ₸' : money(available());
-    return '<div class="cslide"><div class="cardx cardx--ya"><svg class="xart" viewBox="0 0 340 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="' + XPATH + '" fill="#f5b800"/></svg>' + chipSvg() +
+    return '<div class="cslide"><div class="cardx cardx--ya"><svg class="xart" viewBox="0 0 340 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="' + XPATH + '" fill="#f5b800"/></svg>' +
       '<span class="cx-brand">Яндекс Про</span><button class="cx-i" data-act="balInfo" aria-label="О балансе">i</button>' +
       '<div class="cx-bal"><div class="row between"><small>Доступный баланс</small><button class="eye" data-act="hideBal" aria-label="Скрыть сумму">' + I(S.hideBal ? 'eyeoff' : 'eye') + '</button></div><b class="cx-amt">' + amountTxt + '</b>' + (S.reserved ? '<small class="cx-res">В резерве: ' + money(S.reserved) + '</small>' : '') + '</div></div>' +
       '<div class="cx-btns"><button class="cx-btn cx-btn--p" data-act="topup">' + I('plus') + 'Пополнить</button><button class="cx-btn" data-act="withdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="qrMenu">' + I('qr') + 'Kaspi QR</button></div></div>';
   }
   function cardDep() {
     var wing = '<svg class="wing" viewBox="0 0 340 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><g fill="none" stroke="#fff" stroke-linecap="round"><path d="M10 200C70 150 120 90 230 40" stroke-opacity=".34" stroke-width="1.4"/><path d="M40 200C100 160 150 110 250 66" stroke-opacity=".26" stroke-width="1.4"/><path d="M70 200C130 170 180 128 270 92" stroke-opacity=".2" stroke-width="1.4"/><path d="M100 200C160 178 205 146 290 118" stroke-opacity=".15" stroke-width="1.4"/><path d="M130 200C185 186 230 164 310 144" stroke-opacity=".1" stroke-width="1.4"/></g><circle cx="262" cy="52" r="64" fill="none" stroke="#fff" stroke-opacity=".08" stroke-width="1.2"/><circle cx="262" cy="52" r="96" fill="none" stroke="#fff" stroke-opacity=".05" stroke-width="1.2"/></svg>';
-    return '<div class="cslide"><div class="cardx cardx--dep">' + wing + chipSvg() +
+    var mark = '<svg class="bigmark" viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="none" stroke="#fff" stroke-width=".6"/><path d="M20 8l11 24-11-6-11 6z" fill="#fff" stroke="#fff" stroke-linejoin="round" stroke-width="2"/></svg>';
+    return '<div class="cslide"><div class="cardx cardx--dep">' + wing + mark +
       '<span class="cx-brand cx-brand--dep">' + logoMark() + 'Tulpar Line</span>' +
       '<div class="cx-bal"><small>Депозит-карта · бонус от таксопарка</small><b class="cx-amt">' + money(S.deposit.balance) + '</b><small class="cx-res">За месяц +' + money(S.deposit.month) + ' · вывод: ' + nextWindow() + '</small></div></div>' +
       '<div class="cx-btns cx-btns--2"><button class="cx-btn cx-btn--p" data-act="depWithdraw">' + I('up') + 'Вывести</button><button class="cx-btn" data-act="go" data-v="deposit">' + I('gift') + 'Подробнее</button></div></div>';

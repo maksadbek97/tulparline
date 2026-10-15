@@ -564,25 +564,6 @@ class _Slide extends StatelessWidget {
       );
 }
 
-class _Chip extends StatelessWidget {
-  const _Chip();
-  @override
-  Widget build(BuildContext context) {
-    Widget cell() => Expanded(child: Container(decoration: BoxDecoration(border: Border.all(color: const Color(0x73463C28)), borderRadius: BorderRadius.circular(3))));
-    return Container(
-      width: 44,
-      height: 33,
-      padding: const EdgeInsets.all(5),
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(7), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFFE4DCCD), Color(0xFFB9AE9A)]), border: Border.all(color: const Color(0x2E000000))),
-      child: Column(children: [
-        Expanded(child: Row(children: [cell(), const SizedBox(width: 1), cell()])),
-        const SizedBox(height: 1),
-        Expanded(child: Row(children: [cell(), const SizedBox(width: 1), cell()])),
-      ]),
-    );
-  }
-}
-
 class _YaPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size z) {
@@ -640,19 +621,18 @@ class _YandexCard extends StatelessWidget {
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .5), blurRadius: 30, offset: const Offset(0, 16), spreadRadius: -16)]),
         child: LayoutBuilder(builder: (_, cs) => Stack(children: [
               Positioned.fill(child: CustomPaint(painter: _YaPainter())),
-              Positioned(left: cs.maxWidth * .11, top: cs.maxHeight * .38, child: const _Chip()),
               const Positioned(right: 14, top: 10, child: Text('Яндекс Про', style: TextStyle(color: Colors.white, fontSize: 19, fontWeight: FontWeight.w700, letterSpacing: -.6))),
               Positioned(
                 right: 14,
                 bottom: 36,
-                width: cs.maxWidth * .58,
+                width: cs.maxWidth * .72,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.end, mainAxisSize: MainAxisSize.min, children: [
                   Row(mainAxisAlignment: MainAxisAlignment.end, children: [
                     const Text('Доступный баланс', style: TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
                     const SizedBox(width: 6),
                     GestureDetector(onTap: onEye, child: Icon(hidden ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white70, size: 16)),
                   ]),
-                  FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: Text(amount, style: const TextStyle(color: Colors.white, fontSize: 28, height: 34 / 28, fontWeight: FontWeight.w700, letterSpacing: -1))),
+                  FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerRight, child: Text(amount, style: const TextStyle(color: Colors.white, fontSize: 38, height: 44 / 38, fontWeight: FontWeight.w700, letterSpacing: -1.4))),
                   if (note != null) Text(note!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
                 ]),
               ),
@@ -670,9 +650,9 @@ class _TulparCard extends StatelessWidget {
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), gradient: const RadialGradient(center: Alignment(.7, -1), radius: 1.5, colors: [Color(0xFF2C2C31), Color(0xFF121216), Color(0xFF09090B)], stops: [0, .55, 1]), border: Border.all(color: const Color(0x1FFFFFFF)), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .55), blurRadius: 30, offset: const Offset(0, 16), spreadRadius: -16)]),
         child: LayoutBuilder(builder: (_, cs) => Stack(children: [
               Positioned.fill(child: CustomPaint(painter: _WingPainter())),
-              Positioned(left: cs.maxWidth * .07, top: cs.maxHeight * .33, child: const _Chip()),
+              Positioned(right: -18, top: -22, child: Opacity(opacity: .1, child: Container(width: 190, height: 190, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.white, width: .6)), alignment: Alignment.center, child: const Icon(Icons.navigation, size: 110, color: Colors.white)))),
               Positioned(left: 14, top: 12, child: Row(children: [
-                Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), alignment: Alignment.center, child: const Icon(Icons.navigation, size: 13, color: kBlack)),
+                Container(width: 24, height: 24, decoration: const BoxDecoration(color: Color(0x8CFFFFFF), shape: BoxShape.circle), alignment: Alignment.center, child: const Icon(Icons.navigation, size: 13, color: kBlack)),
                 const SizedBox(width: 8),
                 const Text('Tulpar Line', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: .1)),
               ])),
@@ -682,7 +662,7 @@ class _TulparCard extends StatelessWidget {
                 bottom: 12,
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
                   const Text('Депозит-карта · бонус от таксопарка', style: TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
-                  FittedBox(fit: BoxFit.scaleDown, child: Text(amount, style: const TextStyle(color: Colors.white, fontSize: 28, height: 34 / 28, fontWeight: FontWeight.w700, letterSpacing: -1))),
+                  FittedBox(fit: BoxFit.scaleDown, child: Text(amount, style: const TextStyle(color: Colors.white, fontSize: 38, height: 44 / 38, fontWeight: FontWeight.w700, letterSpacing: -1.4))),
                   Text(note, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Color(0xB3FFFFFF), fontSize: 11.5)),
                 ]),
               ),
