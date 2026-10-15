@@ -42,11 +42,22 @@ class ServiceRecord {
 }
 
 class Op {
-  Op(this.id, this.type, this.desc, this.date, this.amount, this.status, this.src, [this.ref]);
-  final String id, type, desc, date, src;
+  Op(this.id, this.type, this.desc, this.ts, this.amount, this.status, this.src, [this.ref]);
+  final String id, type, desc, src;
+  final DateTime ts;
   final int amount;
   String status;
   final String? ref;
+
+  /// «15.10.26 02:52»
+  String get date => '${pad2(ts.day)}.${pad2(ts.month)}.${pad2(ts.year % 100)} ${pad2(ts.hour)}:${pad2(ts.minute)}';
+}
+
+class BankCard {
+  BankCard(this.id, this.bank, this.last4, this.main);
+  final String id, bank, last4;
+  bool main;
+  String get mask => '$bank ****$last4';
 }
 
 class DepRecord {
@@ -122,16 +133,30 @@ class AppState extends ChangeNotifier {
     Expense('EXP-1', 4500, 'Заправка на АЗС', 8, '08:10'),
     Expense('EXP-2', 1700, 'Обед', 13, '13:05'),
   ];
-  final List<Op> ops = [
-    Op('OP-9003', 'Расход', 'Обед', 'Сегодня, 13:05', -1700, 'Выполнена', 'Ручной ввод', 'EXP-2'),
-    Op('OP-9002', 'Расход', 'Заправка на АЗС', 'Сегодня, 08:10', -4500, 'Выполнена', 'Ручной ввод', 'EXP-1'),
-    Op('OP-9001', 'Доход', 'Заказ #48213', 'Сегодня, 19:12', 2100, 'Выполнена', 'Yandex'),
-    Op('OP-9000', 'Доход', 'Заказ #48207', 'Сегодня, 18:40', 1900, 'Выполнена', 'Yandex'),
-    Op('OP-8995', 'Пополнение', 'Пополнение баланса', 'Вчера, 21:05', 10000, 'Выполнена', 'Пополнение'),
-    Op('OP-8990', 'Начисление', 'Ежедневный кэшбэк', 'Вчера, 23:59', 480, 'Выполнена', 'Лояльность'),
-    Op('OP-8981', 'Выплата', 'Вывод на Kaspi •• 4821', '11 окт, 10:20', -25000, 'Выполнена', 'Выплата'),
-    Op('OP-8970', 'Корректировка', 'Корректировка комиссии', '10 окт, 12:00', 350, 'Выполнена', 'Корректировка'),
+  static DateTime _at(int day, int h, int m) {
+    final n = DateTime.now();
+    return DateTime(n.year, n.month, n.day + day, h, m);
+  }
+
+  late final List<Op> ops = [
+    Op('OP-9001', 'Доход', 'Заказ #48213', _at(0, 19, 12), 2100, 'Выполнена', 'Yandex'),
+    Op('OP-9000', 'Доход', 'Заказ #48207', _at(0, 18, 40), 1900, 'Выполнена', 'Yandex'),
+    Op('OP-9003', 'Расход', 'Обед', _at(0, 13, 5), -1700, 'Выполнена', 'Ручной ввод', 'EXP-2'),
+    Op('OP-9002', 'Расход', 'Заправка на АЗС', _at(0, 8, 10), -4500, 'Выполнена', 'Ручной ввод', 'EXP-1'),
+    Op('#1670255', 'Выплата', 'Вывод на ****0716', _at(0, 2, 52), -3229, 'Выполнена', 'Выплата'),
+    Op('OP-8990', 'Начисление', 'Ежедневный кэшбэк', _at(-1, 23, 59), 480, 'Выполнена', 'Лояльность'),
+    Op('#1669844', 'Выплата', 'Вывод на ****0716', _at(-1, 22, 19), -21614, 'Выполнена', 'Выплата'),
+    Op('#1669790', 'Пополнение', 'Пополнение через Kaspi', _at(-1, 20, 19), 800, 'Отклонена', 'Kaspi'),
+    Op('#1669721', 'Оплата QR', 'Оплата через Kaspi QR', _at(-1, 18, 5), 3500, 'Выполнена', 'Kaspi QR'),
+    Op('#1669402', 'Пополнение', 'Пополнение через Kaspi', _at(-1, 11, 0), 10000, 'Выполнена', 'Kaspi'),
+    Op('#1668310', 'Выплата', 'Вывод на ****0716', _at(-4, 10, 20), -25000, 'Выполнена', 'Выплата'),
+    Op('OP-8970', 'Корректировка', 'Корректировка комиссии', _at(-5, 12, 0), 350, 'Выполнена', 'Корректировка'),
   ];
+
+  // карты для вывода (хранятся только последние 4 цифры)
+  final List<BankCard> cards = [BankCard('C1', 'Kaspi', '0716', true), BankCard('C2', 'Halyk', '4821', false)];
+  String histTab = 'all'; // all | in | out | qr
+  String histMode = 'ops'; // ops | cards
 
   // депозит-карта
   int depBalance = 18640;
@@ -153,6 +178,7 @@ class AppState extends ChangeNotifier {
 
   int _seq = 1000;
   String nid(String p) => '$p-${++_seq}';
+  String nidn() => '#${1670300 + (++_seq)}';
 
   // ---------- производные ----------
   int get incomeToday => inc.fold(0, (a, b) => a + b);
@@ -259,7 +285,7 @@ class AppState extends ChangeNotifier {
     final id = nid('EXP');
     final t = '${pad2(now.hour)}:${pad2(now.minute)}';
     expenses.add(Expense(id, a, d, now.hour, t));
-    ops.insert(0, Op(nid('OP'), 'Расход', d, 'Сегодня, $t', -a, 'Выполнена', 'Ручной ввод', id));
+    ops.insert(0, Op(nid('OP'), 'Расход', d, now, -a, 'Выполнена', 'Ручной ввод', id));
     period = Period.day;
     notifyListeners();
     return null;
@@ -275,24 +301,24 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? topup(String raw) {
+  String? topup(String raw, String method) {
     final a = int.tryParse(raw.replaceAll(RegExp(r'\s'), ''));
     if (a == null || a <= 0) return 'Введите сумму целым числом, больше нуля.';
     if (a < 500 || a > 1000000) return 'Сумма должна быть от 500 до 1 000 000 ₸.';
-    ops.insert(0, Op(nid('OP'), 'Пополнение', 'Пополнение баланса', 'Сегодня, сейчас', a, 'Создана', 'Пополнение'));
+    ops.insert(0, Op(nidn(), 'Пополнение', 'Пополнение через $method', DateTime.now(), a, 'Создана', method));
     notifyListeners();
     return null;
   }
 
-  String? withdraw(String raw) {
+  String? withdraw(String raw, String cardMask) {
     final a = int.tryParse(raw.replaceAll(RegExp(r'\s'), ''));
     if (a == null || a <= 0) return 'Введите сумму целым числом.';
     if (a < 1000) return 'Минимальная сумма — 1 000 ₸.';
     if (a > available) return 'Сумма больше доступного остатка (${money(available)}).';
     reserved += a;
-    final id = nid('WD');
+    final id = nidn();
     payouts.insert(0, Payout(id, a, 'Создана', 'Сегодня', false));
-    ops.insert(0, Op(id, 'Выплата', 'Заявка на вывод', 'Сегодня, сейчас', -a, 'Создана', 'Выплата'));
+    ops.insert(0, Op(id, 'Выплата', 'Вывод на ****${cardMask.split('****').last}', DateTime.now(), -a, 'Создана', 'Выплата'));
     notifyListeners();
     return null;
   }
@@ -333,6 +359,43 @@ class AppState extends ChangeNotifier {
     } else {
       reserved -= p.amount;
     }
+    notifyListeners();
+  }
+
+  void setHistTab(String v) {
+    histTab = v;
+    notifyListeners();
+  }
+
+  void setHistMode(String v) {
+    histMode = v;
+    notifyListeners();
+  }
+
+  String? addCard(String bank, String last4) {
+    if (!RegExp(r'^\d{4}$').hasMatch(last4.trim())) return 'Введите ровно 4 последние цифры карты.';
+    cards.add(BankCard(nid('C'), bank, last4.trim(), cards.isEmpty));
+    notifyListeners();
+    return null;
+  }
+
+  void makeMain(String id) {
+    for (final c in cards) {
+      c.main = c.id == id;
+    }
+    notifyListeners();
+  }
+
+  void removeCard(String id) {
+    cards.removeWhere((c) => c.id == id);
+    if (cards.isNotEmpty && !cards.any((c) => c.main)) cards.first.main = true;
+    notifyListeners();
+  }
+
+  /// Демо: имитация подтверждения платежа Kaspi QR (в реальности подтверждает провайдер).
+  void qrPaid(int amount) {
+    balance += amount;
+    ops.insert(0, Op(nidn(), 'Оплата QR', 'Оплата через Kaspi QR', DateTime.now(), amount, 'Выполнена', 'Kaspi QR'));
     notifyListeners();
   }
 
@@ -383,7 +446,7 @@ class AppState extends ChangeNotifier {
     for (var i = 0; i < n; i++) {
       orders++;
       inc[inc.length - 1] += 1900;
-      ops.insert(0, Op(nid('OP'), 'Доход', 'Заказ #${48214 + orders}', 'Сегодня, сейчас', 1900, 'Выполнена', 'Yandex'));
+      ops.insert(0, Op(nid('OP'), 'Доход', 'Заказ #${48214 + orders}', DateTime.now(), 1900, 'Выполнена', 'Yandex'));
     }
     minutes += 12 * n;
     if (place > 5 && orders % 2 == 0) place--;

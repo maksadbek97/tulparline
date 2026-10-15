@@ -25,7 +25,15 @@
   function dmy(d) { return d.getDate() + ' ' + MONTHS[d.getMonth()]; }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function load(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+  function at(dayOffset, h, m) { var d = new Date(); d.setDate(d.getDate() + dayOffset); d.setHours(h, m, 0, 0); return d.getTime(); }
+  function qrSvg(text) {
+    var q = qrcode(0, 'M'); q.addData(text); q.make();
+    var n = q.getModuleCount(), p = '', r, c;
+    for (r = 0; r < n; r++) for (c = 0; c < n; c++) if (q.isDark(r, c)) p += 'M' + c + ' ' + r + 'h1v1h-1z';
+    return '<svg viewBox="-2 -2 ' + (n + 4) + ' ' + (n + 4) + '" shape-rendering="crispEdges" role="img" aria-label="QR-код"><rect x="-2" y="-2" width="' + (n + 4) + '" height="' + (n + 4) + '" fill="#fff"/><path d="' + p + '" fill="#0b0b0f"/></svg>';
+  }
   var uid = 1000;
+  function nidn() { return '#' + (1670300 + (++uid)); }
   function nid(p) { return p + '-' + (++uid); }
   var ICONS = {
     home: '<path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
@@ -64,6 +72,7 @@
     more: '<circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/>',
     trend: '<path d="M7 17L17 7M8 7h9v9"/>',
     tenge: '<path d="M6 6h12M12 6v13M8 10.500h8"/>',
+    qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h3v3M20 14v.01M14 20h.01M17 20h3v-3"/>',
     edit: '<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/>',
     coins: '<circle cx="12" cy="12" r="9"/><path d="M8.500 8.500h7M12 8.500v7M9.500 11.500h5"/>'
   };
@@ -94,15 +103,21 @@
       { id: 'EXP-2', amount: 1700, cat: 'Обед', hour: 13, when: '13:05', status: 'ok' }
     ],
     ops: [
-      { id: 'OP-9003', ref: 'EXP-2', type: 'Расход', desc: 'Обед', date: 'Сегодня, 13:05', amount: -1700, status: 'Выполнена', src: 'Ручной ввод' },
-      { id: 'OP-9002', ref: 'EXP-1', type: 'Расход', desc: 'Заправка на АЗС', date: 'Сегодня, 08:10', amount: -4500, status: 'Выполнена', src: 'Ручной ввод' },
-      { id: 'OP-9001', type: 'Доход', desc: 'Заказ #48213', date: 'Сегодня, 19:12', amount: 2100, status: 'Выполнена', src: 'Yandex' },
-      { id: 'OP-9000', type: 'Доход', desc: 'Заказ #48207', date: 'Сегодня, 18:40', amount: 1900, status: 'Выполнена', src: 'Yandex' },
-      { id: 'OP-8995', type: 'Пополнение', desc: 'Пополнение баланса', date: 'Вчера, 21:05', amount: 10000, status: 'Выполнена', src: 'Пополнение' },
-      { id: 'OP-8990', type: 'Начисление', desc: 'Ежедневный кэшбэк', date: 'Вчера, 23:59', amount: 480, status: 'Выполнена', src: 'Лояльность' },
-      { id: 'OP-8981', type: 'Выплата', desc: 'Вывод на Kaspi •• 4821', date: '11 окт, 10:20', amount: -25000, status: 'Выполнена', src: 'Выплата' },
-      { id: 'OP-8970', type: 'Корректировка', desc: 'Корректировка комиссии', date: '10 окт, 12:00', amount: 350, status: 'Выполнена', src: 'Корректировка' }
+      { id: 'OP-9001', type: 'Доход', desc: 'Заказ #48213', ts: at(0, 19, 12), amount: 2100, status: 'Выполнена', src: 'Yandex' },
+      { id: 'OP-9000', type: 'Доход', desc: 'Заказ #48207', ts: at(0, 18, 40), amount: 1900, status: 'Выполнена', src: 'Yandex' },
+      { id: 'OP-9003', ref: 'EXP-2', type: 'Расход', desc: 'Обед', ts: at(0, 13, 5), amount: -1700, status: 'Выполнена', src: 'Ручной ввод' },
+      { id: 'OP-9002', ref: 'EXP-1', type: 'Расход', desc: 'Заправка на АЗС', ts: at(0, 8, 10), amount: -4500, status: 'Выполнена', src: 'Ручной ввод' },
+      { id: '#1670255', type: 'Выплата', desc: 'Вывод на ****0716', ts: at(0, 2, 52), amount: -3229, status: 'Выполнена', src: 'Выплата' },
+      { id: 'OP-8990', type: 'Начисление', desc: 'Ежедневный кэшбэк', ts: at(-1, 23, 59), amount: 480, status: 'Выполнена', src: 'Лояльность' },
+      { id: '#1669844', type: 'Выплата', desc: 'Вывод на ****0716', ts: at(-1, 22, 19), amount: -21614, status: 'Выполнена', src: 'Выплата' },
+      { id: '#1669790', type: 'Пополнение', desc: 'Пополнение через Kaspi', ts: at(-1, 20, 19), amount: 800, status: 'Отклонена', src: 'Kaspi' },
+      { id: '#1669721', type: 'Оплата QR', desc: 'Оплата через Kaspi QR', ts: at(-1, 18, 5), amount: 3500, status: 'Выполнена', src: 'Kaspi QR' },
+      { id: '#1669402', type: 'Пополнение', desc: 'Пополнение через Kaspi', ts: at(-1, 11, 0), amount: 10000, status: 'Выполнена', src: 'Kaspi' },
+      { id: '#1668310', type: 'Выплата', desc: 'Вывод на ****0716', ts: at(-4, 10, 20), amount: -25000, status: 'Выполнена', src: 'Выплата' },
+      { id: 'OP-8970', type: 'Корректировка', desc: 'Корректировка комиссии', ts: at(-5, 12, 0), amount: 350, status: 'Выполнена', src: 'Корректировка' }
     ],
+    cards: [{ id: 'C1', bank: 'Kaspi', last4: '0716', main: true }, { id: 'C2', bank: 'Halyk', last4: '4821', main: false }],
+    histTab: 'all', histMode: 'ops', qr: null,
     dep: [
       { id: 'DEP-3012', type: 'Ежедневный кэшбэк', period: 'Вчера', orders: 27, base: 120000, rate: '0,4%', amount: 480, status: 'Начислено', src: 'Правило v1', comment: '' },
       { id: 'DEP-3005', type: 'Ежедневный кэшбэк', period: '10 окт', orders: 26, base: 112500, rate: '0,4%', amount: 450, status: 'Начислено', src: 'Правило v1', comment: '' },
@@ -235,18 +250,43 @@
   function nextWindow() { return S.demo.windowOpen ? 'Сегодня (демо)' : dmy(firstOfNext); }
 
   var V = {};
+  function opTime(o) { var d = new Date(o.ts); return pad(d.getDate()) + '.' + pad(d.getMonth() + 1) + '.' + String(d.getFullYear()).slice(2) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+  function dayLabel(ts) {
+    var d = new Date(ts), t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    var diff = Math.round((t0 - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+    return diff === 0 ? 'Сегодня' : diff === 1 ? 'Вчера' : dmy(d);
+  }
   function opIcon(o) {
     var d = o.desc || '';
     if (o.type === 'Доход') return ['car', ''];
     if (o.type === 'Пополнение') return ['down', 'g'];
-    if (o.type === 'Выплата') return ['up', 'b'];
+    if (o.type === 'Оплата QR') return ['qr', 'r'];
+    if (o.type === 'Выплата') return ['up', ''];
     if (o.type === 'Начисление') return ['gift', 'y'];
     if (o.type === 'Расход') return /Топл|Заправ|бензин|АЗС/i.test(d) ? ['fuel', ''] : /Ремонт|Масл|Шин|Мойк|мойк/i.test(d) ? ['wrench', ''] : ['doc', ''];
     return ['doc', 'v'];
   }
   function opRow(o) {
-    var pos = o.amount > 0, x = opIcon(o), cx = o.status === 'Отменён' ? 'strike' : '';
-    return '<button class="li" data-act="opDetail" data-v="' + o.id + '"><span class="ic' + (x[1] ? ' ic--' + x[1] : '') + '">' + I(x[0]) + '</span><span class="grow"><b class="' + cx + '">' + esc(o.desc) + '</b><div class="small mut">' + esc(o.date) + ' · ' + esc(o.src) + '</div></span><span style="text-align:right"><div class="amt ' + (pos ? 'pos' : 'neg') + ' ' + cx + '">' + (pos ? '+' : '') + money(o.amount) + '</div>' + (o.status === 'Выполнена' ? '' : statusChip(o.status)) + '</span>' + I('chev', 'chv') + '</button>';
+    var pos = o.amount > 0, x = opIcon(o), cx = o.status === 'Отменён' || o.status === 'Отклонена' ? 'strike' : '';
+    var right = o.status === 'Выполнена' ? '<div class="small mut">' + esc(/^#/.test(o.id) ? o.id : '') + '</div>' : statusChip(o.status);
+    return '<button class="li" data-act="opDetail" data-v="' + esc(o.id) + '"><span class="ic' + (x[1] ? ' ic--' + x[1] : '') + '">' + I(x[0]) + '</span><span class="grow"><b class="' + cx + '">' + esc(o.desc) + '</b><div class="small mut">' + opTime(o) + '</div></span><span style="text-align:right"><div class="amt ' + (pos ? 'pos' : 'neg') + ' ' + cx + '">' + (pos ? '+' : '−') + money(Math.abs(o.amount)).replace(/^−/, '') + '</div>' + right + '</span></button>';
+  }
+  function histFilter() { return { all: null, in: 'Пополнение', out: 'Выплата', qr: 'Оплата QR' }[S.histTab]; }
+  function historyHtml() {
+    var tabs = '<div class="seg"><button class="' + (S.histMode === 'ops' ? 'on' : '') + '" data-act="histMode" data-v="ops">История операций</button><button class="' + (S.histMode === 'cards' ? 'on' : '') + '" data-act="histMode" data-v="cards">Мои карты</button></div>';
+    if (S.histMode === 'cards') {
+      return tabs + '<div class="list">' + S.cards.map(function (c) { return '<button class="li" data-act="cardOpen" data-v="' + c.id + '"><span class="ic ic--b">' + I('card') + '</span><span class="grow"><b>' + esc(c.bank) + ' ****' + esc(c.last4) + '</b><div class="small mut">Для вывода средств</div></span>' + (c.main ? chip('Основная', 'info') : '') + I('chev', 'chv') + '</button>'; }).join('') + '</div><button class="btn btn--ghost" style="margin-top:10px" data-act="cardAdd">+ Добавить карту</button><div class="note">Хранятся только последние 4 цифры. Полный номер карты приложение не запрашивает.</div>';
+    }
+    var f = histFilter();
+    var list = S.ops.slice().sort(function (a, b) { return b.ts - a.ts; }).filter(function (o) { return !f || o.type === f; });
+    var out = '', last = '';
+    list.forEach(function (o) {
+      var g = dayLabel(o.ts);
+      if (g !== last) { out += '<div class="dayh">' + g + '</div>'; last = g; }
+      out += opRow(o);
+    });
+    return tabs + '<div class="hfilter">' + [['all', 'Все'], ['in', 'Пополнение'], ['out', 'Вывод'], ['qr', 'Оплаты QR']].map(function (x) { return '<button class="' + (S.histTab === x[0] ? 'on' : '') + '" data-act="histTab" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+      (out ? '<div class="list">' + out + '</div>' : '<div class="small mut" style="padding:14px 0">Операций нет.</div>');
   }
   function workChart() {
     var hrs = [], i, k, bars = '', peakHour = -1, mx = 1, vals = {};
@@ -318,9 +358,8 @@
       '<div class="stat stat--r"><div class="row"><span class="ic"><svg class="i" viewBox="0 0 24 24"><path d="M7 7l10 10M17 8v9H8"/></svg></span></div><b class="t">Расходы</b><div class="v">' + money(tt.e) + '</div><small>' + pl + '</small></div>' +
       '<div class="stat stat--v"><div class="row"><span class="ic">' + I('chart') + '</span></div><b class="t">Чистый результат</b><div class="v">' + money(net) + '</div><small>' + pl + '</small></div></div>' +
       '<button class="addbtn" data-act="addExpense"><u>' + I('plus') + '</u>' + t('Добавить расход') + I('chev', 'chv') + '</button>' +
-      '<div class="card"><div class="cardhead"><h3>График доходов и расходов</h3></div><div class="tabsm" style="display:inline-flex">' + [['day', 'За день'], ['week', 'Неделя'], ['month', 'Месяц']].map(function (x) { return '<button class="' + (S.period === x[0] ? 'on' : '') + '" data-act="period" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>' + chartHtml() +
-      '<div class="lg"><div><span><i class="dot2" style="background:#2f6bff"></i>Доходы</span><b>' + money(tt.i) + '</b></div><div><span><i class="dot2" style="background:#ff7a85"></i>Расходы</span><b>' + money(tt.e) + '</b></div><button class="more2" data-act="expBreak">Подробнее ' + I('chev') + '</button></div>' + (S.period === 'range' ? '<div class="note">Демо: произвольный период — последние 14 дней.</div>' : '') + '</div>' +
-      '<div class="card"><div class="cardhead"><h3 style="font-size:19px">' + t('Последние операции') + '</h3><button class="lnk" data-act="allOps">Все ' + I('chev') + '</button></div><div class="list">' + ops + '</div></div>';
+      '<div class="qrrow"><button class="qrbtn" data-act="qrPay">' + I('qr') + 'Принять оплату · Kaspi QR</button><button class="qrbtn qrbtn--light" data-act="qrStatic">Постоянный QR</button></div>' +
+      '<div class="card hist">' + historyHtml() + '</div>';
   };
 
   V.service = function () {
@@ -504,7 +543,7 @@
   };
 
   // ---------- actions ----------
-  function addOp(o) { S.ops.unshift(o); }
+  function addOp(o) { o.ts = o.ts || Date.now(); S.ops.unshift(o); }
   var ACT = {
     avatarPick: function () {
       var g = ''; for (var i = 1; i <= 10; i++) g += '<button class="avopt' + (S.avatar === i ? ' on' : '') + '" data-act="avatarSet" data-v="' + i + '" aria-label="Аватар ' + i + '"><img src="assets/avatars/a' + i + '.jpg" alt=""></button>';
@@ -526,6 +565,30 @@
       openSheet('<h3>' + esc(x.what) + '</h3><div class="list">' + [['Дата', fmtDate(x.date)], ['Пробег при замене', km(x.km)], ['Следующий раз на', x.next ? km(x.next) : '—']].map(function (r) { return '<div class="li row between"><span class="mut">' + r[0] + '</span><b>' + r[1] + '</b></div>'; }).join('') + '</div><button class="btn btn--ghost" style="margin-top:12px" data-act="svcDel" data-v="' + x.id + '">Удалить запись</button>');
     },
     svcDel: function (v) { S.car.services = S.car.services.filter(function (y) { return y.id !== v; }); save('tl_car', S.car); closeSheet(); render(); toast('Запись удалена'); },
+    histMode: function (v) { S.histMode = v; render(); },
+    histTab: function (v) { S.histTab = v; render(); },
+    cardOpen: function (v) {
+      var c = S.cards.filter(function (x) { return x.id === v; })[0]; if (!c) return;
+      openSheet('<h3>' + esc(c.bank) + ' ****' + esc(c.last4) + '</h3><div class="note">Номер карты скрыт. Карта используется для вывода средств.</div>' + (c.main ? '' : '<button class="btn" data-act="cardMain" data-v="' + c.id + '">Сделать основной</button>') + '<button class="btn btn--ghost" style="margin-top:10px" data-act="cardDel" data-v="' + c.id + '">Удалить карту</button>');
+    },
+    cardMain: function (v) { S.cards.forEach(function (c) { c.main = c.id === v; }); closeSheet(); render(); toast('Основная карта изменена'); },
+    cardDel: function (v) { S.cards = S.cards.filter(function (c) { return c.id !== v; }); if (S.cards.length && !S.cards.some(function (c) { return c.main; })) S.cards[0].main = true; closeSheet(); render(); toast('Карта удалена'); },
+    cardAdd: function () {
+      openSheet('<h3>Новая карта</h3><form data-form="card"><label class="f">Банк<select name="bank"><option>Kaspi</option><option>Halyk</option><option>Другой банк</option></select></label><label class="f">Последние 4 цифры карты<input name="last4" inputmode="numeric" maxlength="4" placeholder="0000" autocomplete="off"></label><p class="err" id="fe"></p><button class="btn" type="submit">Добавить</button></form>');
+    },
+    qrPay: function () {
+      openSheet('<h3>Принять оплату · Kaspi QR</h3><form data-form="qrAmount"><label class="f">Сумма к оплате, ₸<input name="amount" inputmode="numeric" placeholder="0" autocomplete="off"></label><p class="err" id="fe"></p><button class="btn" type="submit">Показать QR</button></form><div class="note">Пассажир сканирует QR в приложении Kaspi. Деньги поступят на баланс после подтверждения платежа Kaspi.</div>');
+    },
+    qrPaid: function () {
+      if (!S.qr) return; var a = S.qr.amount; S.balance += a;
+      addOp({ id: nidn(), type: 'Оплата QR', desc: 'Оплата через Kaspi QR', amount: a, status: 'Выполнена', src: 'Kaspi QR' });
+      S.qr = null; closeSheet(); render(); toast('Оплата получена: ' + money(a) + ' (демо)');
+    },
+    qrStatic: function () {
+      openSheet('<h3>Постоянный QR</h3><div class="qrbox">' + qrSvg('TULPAR-DEMO|DRIVER|TLP7K2') + '</div><div class="small mut" style="text-align:center">Пассажир сканирует код и вводит сумму сам</div><div class="grid2" style="margin-top:12px"><button class="btn btn--ghost" data-act="qrSave">Сохранить</button><button class="btn" data-act="qrShare">Поделиться</button></div><div class="banner banner--info" style="margin-top:12px">Демонстрационный код: он не принимает платежи. Настоящий QR формируется официальным сервисом Kaspi после подключения.</div>');
+    },
+    qrSave: function () { toast('QR сохранён в Фото (демо)'); },
+    qrShare: function () { toast('Откроется системное меню «Поделиться»'); },
     workTab: function (v) { S.workTab = v; render(); },
     hideBal: function () { S.hideBal = !S.hideBal; render(); },
     periodPick: function () {
@@ -555,7 +618,7 @@
       openSheet('<h3>Пополнить баланс</h3><form data-form="topup"><label class="f">Сумма, ₸<input name="amount" inputmode="numeric" placeholder="Например, 10000"></label><label class="f">Способ<select name="method"><option>Kaspi (требуется подтверждённый сценарий провайдера)</option><option>Банковская карта</option></select></label><p class="err" id="fe"></p><button class="btn" type="submit">Создать платёж</button><div class="note">Баланс увеличится только после подтверждения платежа сервером через официальный механизм провайдера. Возврат в приложение — не подтверждение.</div></form>');
     },
     withdraw: function () {
-      openSheet('<h3>Вывести с баланса</h3><div class="small mut">Доступно: <b>' + money(available()) + '</b></div><form data-form="withdraw" style="margin-top:12px"><label class="f">Сумма, ₸<input name="amount" inputmode="numeric" placeholder="Минимум 1 000"></label><label class="f">Реквизиты<select name="req"><option>Kaspi •• 4821</option></select></label><p class="err" id="fe"></p><button class="btn" type="submit">Создать заявку</button><div class="note">Лимиты: от 1 000 ₸ (демо, утверждает владелец). Сумма резервируется. Мгновенный вывод не обещается — срок обработки сообщит таксопарк. Статусы: Создана → На проверке → В обработке → Выполнена / Отклонена.</div></form>');
+      openSheet('<h3>Вывести с баланса</h3><div class="small mut">Доступно: <b>' + money(available()) + '</b></div><form data-form="withdraw" style="margin-top:12px"><label class="f">Сумма, ₸<input name="amount" inputmode="numeric" placeholder="Минимум 1 000"></label><label class="f">Карта для вывода<select name="req">' + (S.cards.map(function (c) { return '<option>' + esc(c.bank) + ' ****' + esc(c.last4) + '</option>'; }).join('') || '<option>Добавьте карту в «Мои карты»</option>') + '</select></label><p class="err" id="fe"></p><button class="btn" type="submit">Создать заявку</button><div class="note">Лимиты: от 1 000 ₸ (демо, утверждает владелец). Сумма резервируется. Мгновенный вывод не обещается — срок обработки сообщит таксопарк. Статусы: Создана → На проверке → В обработке → Выполнена / Отклонена.</div></form>');
     },
     addExpense: function () {
       openSheet('<h3>Добавить расход</h3><form data-form="expense"><label class="f">Сумма, ₸<input name="amount" inputmode="numeric" placeholder="0" autocomplete="off"></label><label class="f">На что потратили<input name="desc" maxlength="80" placeholder="Например: заправка, мойка, обед" autocomplete="off"></label><p class="err" id="fe"></p><button class="btn" type="submit">Сохранить</button></form>');
@@ -563,7 +626,7 @@
     opDetail: function (v) {
       var o = S.ops.filter(function (x) { return x.id === v; })[0]; if (!o) return;
       var canCancel = /^EXP-/.test(o.ref || '') && o.status !== 'Отменён';
-      openSheet('<h3>' + esc(o.desc) + '</h3><div class="list">' + [['ID', o.id], ['Тип', o.type], ['Дата', o.date], ['Сумма', money(o.amount)], ['Источник', o.src]].map(function (r) { return '<div class="li row between"><span class="mut">' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('') + '<div class="li row between"><span class="mut">Статус</span>' + statusChip(o.status) + '</div></div>' + (canCancel ? '<button class="btn btn--ghost" style="margin-top:12px" data-act="cancelExp" data-v="' + o.ref + '">Отменить расход</button><div class="note">Запись не удаляется: статус меняется, действие фиксируется в журнале аудита.</div>' : ''));
+      openSheet('<h3>' + esc(o.desc) + '</h3><div class="list">' + [['ID', o.id], ['Тип', o.type], ['Дата', opTime(o)], ['Сумма', money(o.amount)], ['Источник', o.src]].map(function (r) { return '<div class="li row between"><span class="mut">' + r[0] + '</span><b>' + esc(r[1]) + '</b></div>'; }).join('') + '<div class="li row between"><span class="mut">Статус</span>' + statusChip(o.status) + '</div></div>' + (canCancel ? '<button class="btn btn--ghost" style="margin-top:12px" data-act="cancelExp" data-v="' + o.ref + '">Отменить расход</button><div class="note">Запись не удаляется: статус меняется, действие фиксируется в журнале аудита.</div>' : ''));
     },
     cancelExp: function (v) {
       S.expenses.forEach(function (e) { if (e.id === v) e.status = 'cancel'; });
@@ -614,7 +677,7 @@
       var a = parseAmount(f.amount.value);
       if (!(a > 0)) return ferr('Введите сумму целым числом, больше нуля.');
       if (a < 500 || a > 1000000) return ferr('Сумма должна быть от 500 до 1 000 000 ₸.');
-      addOp({ id: nid('OP'), type: 'Пополнение', desc: 'Пополнение баланса', date: 'Сегодня, сейчас', amount: a, status: 'Создана', src: 'Пополнение' });
+      addOp({ id: nidn(), type: 'Пополнение', desc: 'Пополнение через ' + (f.method.value.indexOf('Kaspi') === 0 ? 'Kaspi' : 'карту'), amount: a, status: 'Создана', src: f.method.value.indexOf('Kaspi') === 0 ? 'Kaspi' : 'Карта' });
       closeSheet(); render(); toast('Платёж создан. Баланс обновится после подтверждения провайдером.');
     },
     withdraw: function (f) {
@@ -622,9 +685,9 @@
       if (!(a > 0)) return ferr('Введите сумму целым числом.');
       if (a < 1000) return ferr('Минимальная сумма — 1 000 ₸.');
       if (a > available()) return ferr('Сумма больше доступного остатка (' + money(available()) + ').');
-      S.reserved += a; var id = nid('WD');
+      S.reserved += a; var id = nidn();
       S.payouts.unshift({ id: id, amount: a, status: 'Создана', date: 'Сегодня', kind: 'main' });
-      addOp({ id: id, type: 'Выплата', desc: 'Заявка на вывод', date: 'Сегодня, сейчас', amount: -a, status: 'Создана', src: 'Выплата' });
+      addOp({ id: id, type: 'Выплата', desc: 'Вывод на ' + (f.req.value.split(' ')[1] || '****'), amount: -a, status: 'Создана', src: 'Выплата' });
       closeSheet(); render(); toast('Заявка создана, сумма зарезервирована.');
     },
     depwd: function (f) {
@@ -662,6 +725,17 @@
       S.car.services.unshift({ id: nid('S'), what: w, date: f.date.value, km: k, next: nx });
       if (k > S.car.odo) S.car.odo = k;
       save('tl_car', S.car); closeSheet(); render(); toast('Запись добавлена');
+    },
+    card: function (f) {
+      var l = f.last4.value.trim(); if (!/^\d{4}$/.test(l)) return ferr('Введите ровно 4 последние цифры карты.');
+      S.cards.push({ id: nid('C'), bank: f.bank.value, last4: l, main: !S.cards.length }); closeSheet(); render(); toast('Карта добавлена');
+    },
+    qrAmount: function (f) {
+      var a = parseAmount(f.amount.value);
+      if (!(a > 0)) return ferr('Введите сумму: целое число больше нуля.');
+      if (a > 1000000) return ferr('Слишком большая сумма.');
+      S.qr = { amount: a, id: nidn() };
+      openSheet('<h3>Покажите QR пассажиру</h3><div class="qrbox">' + qrSvg('TULPAR-DEMO|PAY|' + S.qr.id + '|' + a) + '</div><div class="mid" style="text-align:center">' + money(a) + '</div><div style="text-align:center;margin:6px 0 10px">' + chip('Ожидает оплаты', 'warn') + '</div><button class="btn" data-act="qrPaid">Имитировать оплату (демо)</button><button class="btn btn--ghost" style="margin-top:8px" data-act="closeSheet">Отменить</button><div class="banner banner--info" style="margin-top:12px">Демо: настоящий платёж подтверждает Kaspi. Кнопка выше имитирует подтверждение.</div>');
     },
     goal: function (f) {
       var a = parseAmount(f.target.value); if (!(a > 0)) return ferr('Укажите цель числом больше нуля.');

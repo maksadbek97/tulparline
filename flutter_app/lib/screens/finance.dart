@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../state.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+
 import '../ui.dart';
 import 'service.dart' show ScreenHead;
 
@@ -11,6 +13,8 @@ IconData _opIcon(Op o) {
       return Icons.directions_car_outlined;
     case 'Пополнение':
       return Icons.south_rounded;
+    case 'Оплата QR':
+      return Icons.qr_code_2;
     case 'Выплата':
       return Icons.north_east_rounded;
     case 'Начисление':
@@ -24,6 +28,7 @@ IconData _opIcon(Op o) {
 
 Tone _opTone(Op o) => switch (o.type) {
       'Пополнение' => Tone.green,
+      'Оплата QR' => Tone.red,
       'Выплата' => Tone.blue,
       'Начисление' => Tone.amber,
       'Корректировка' => Tone.violet,
@@ -36,7 +41,7 @@ class OpTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pos = o.amount > 0, cancelled = o.status == 'Отменён';
-    final deco = cancelled ? TextDecoration.lineThrough : null;
+    final deco = cancelled || o.status == 'Отклонена' ? TextDecoration.lineThrough : null;
     return InkWell(
       onTap: () => _detail(context, o),
       child: Container(
@@ -47,12 +52,12 @@ class OpTile extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Text(o.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, height: 22 / 17, letterSpacing: -.3, decoration: deco)),
-            Text('${o.date} · ${o.src}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMut, fontSize: 13, height: 18 / 14)),
+            Text(o.date, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMut, fontSize: 13, height: 18 / 14)),
           ])),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text('${pos ? '+' : ''}${money(o.amount)}', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: -.3, color: pos ? kOk : kErr, decoration: deco)),
-            if (o.status != 'Выполнена') StatusChip(o.status),
+            Text('${pos ? '+' : ''}${money(o.amount)}', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, letterSpacing: -.3, color: pos ? kOk : kInk, decoration: deco)),
+            if (o.status != 'Выполнена') StatusChip(o.status) else if (o.id.startsWith('#')) Text(o.id, style: const TextStyle(color: kMut, fontSize: 12)),
           ]),
           const SizedBox(width: 4),
           const Icon(Icons.chevron_right, size: 17, color: Color(0xFFB4B9C8)),
@@ -86,7 +91,7 @@ class FinancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = AppScope.of(context);
-    final tt = s.totals(), net = tt.inc - tt.exp, ser = s.series();
+    final tt = s.totals(), net = tt.inc - tt.exp;
     final pl = s.period == Period.day ? 'за день' : periodLabel[s.period]!.toLowerCase();
     return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
       ScreenHead('Финансы', trailing: GestureDetector(
@@ -152,30 +157,16 @@ class FinancePage extends StatelessWidget {
           ]),
         ),
       ),
-      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('График доходов и расходов', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: -.3)),
-        const SizedBox(height: 8),
-        Align(alignment: Alignment.centerLeft, child: MiniTabs(items: const [('day', 'За день'), ('week', 'Неделя'), ('month', 'Месяц')], value: s.period.name, onChanged: (v) => s.setPeriod(Period.values.byName(v)))),
-        const SizedBox(height: 8),
-        IncomeExpenseChart(inc: ser.inc, exp: ser.exp, labels: ser.labels),
-        const SizedBox(height: 12),
-        Row(children: [
-          _Legend(kBlue, 'Доходы', money(tt.inc)),
-          const SizedBox(width: 18),
-          _Legend(const Color(0xFFFF7A85), 'Расходы', money(tt.exp)),
-          const Spacer(),
-          GestureDetector(onTap: () => _breakdown(context, s), child: Container(height: 32, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.center, decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(16)), child: const Text('Подробнее ›', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)))),
+      // Принять оплату через Kaspi QR — компактные кнопки на месте графика
+      Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: Row(children: [
+          Expanded(flex: 3, child: _QrBtn(Icons.qr_code_2, 'Принять оплату · Kaspi QR', true, () => _qrPay(context, s))),
+          const SizedBox(width: 8),
+          Expanded(flex: 2, child: _QrBtn(null, 'Постоянный QR', false, () => _qrStatic(context))),
         ]),
-        if (s.period == Period.range) note('Демо: произвольный период — последние 14 дней.'),
-      ])),
-      AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          const Expanded(child: Text('Последние операции', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: -.4))),
-          GestureDetector(onTap: () => sheet(context, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Все операции'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [for (final o in s.ops) OpTile(o)]))])), child: const Text('Все ›', style: TextStyle(color: kMut, fontSize: 14, fontWeight: FontWeight.w500))),
-        ]),
-        const SizedBox(height: 4),
-        for (final o in s.ops.take(4)) OpTile(o),
-      ])),
+      ),
+      AppCard(padding: const EdgeInsets.fromLTRB(14, 12, 14, 6), child: _History(s: s, onCard: (c) => _cardOpen(context, s, c), onAddCard: () => _cardAdd(context, s))),
     ]);
   }
 
@@ -200,35 +191,19 @@ class FinancePage extends StatelessWidget {
     ]));
   }
 
-  void _breakdown(BuildContext c, AppState s) {
-    final list = s.expenses.where((e) => !e.cancelled).toList();
-    final tot = list.fold(0, (a, e) => a + e.amount);
-    sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      h3('Расходы за день'),
-      Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14),
-        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
-        child: Column(children: [
-          if (list.isEmpty) const Padding(padding: EdgeInsets.symmetric(vertical: 14), child: Text('Расходов нет.', style: TextStyle(color: kMut))),
-          for (final e in list) kv('${e.desc} · ${e.time}', money(e.amount)),
-          kv('Итого', money(tot)),
-        ]),
-      ),
-    ]));
-  }
-
   void _topup(BuildContext c, AppState s) {
     final ctl = TextEditingController();
+    var method = 'Kaspi';
     String? err;
     sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3('Пополнить баланс'),
       TextField(controller: ctl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Сумма, ₸', hintText: 'Например, 10000')),
-      const SizedBox(height: 12),
-      DropdownButtonFormField<String>(initialValue: 'Kaspi', decoration: const InputDecoration(labelText: 'Способ'), items: const [DropdownMenuItem(value: 'Kaspi', child: Text('Kaspi (нужен подтверждённый сценарий)')), DropdownMenuItem(value: 'Card', child: Text('Банковская карта'))], onChanged: (_) {}),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600))),
-      const SizedBox(height: 12),
+      const SizedBox(height: 10),
+      DropdownButtonFormField<String>(initialValue: method, decoration: const InputDecoration(labelText: 'Способ'), items: const [DropdownMenuItem(value: 'Kaspi', child: Text('Kaspi (нужен подтверждённый сценарий)')), DropdownMenuItem(value: 'карту', child: Text('Банковская карта'))], onChanged: (v) => method = v ?? method),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+      const SizedBox(height: 10),
       PrimaryButton('Создать платёж', onPressed: () {
-        final e = s.topup(ctl.text);
+        final e = s.topup(ctl.text, method);
         if (e != null) return set(() => err = e);
         Navigator.pop(ctx);
         toast(c, 'Платёж создан. Баланс обновится после подтверждения провайдером.');
@@ -240,22 +215,128 @@ class FinancePage extends StatelessWidget {
   void _withdraw(BuildContext c, AppState s) {
     final ctl = TextEditingController();
     String? err;
+    var card = s.cards.isEmpty ? null : (s.cards.firstWhere((x) => x.main, orElse: () => s.cards.first)).mask;
     sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       h3('Вывести с баланса'),
       Text('Доступно: ${money(s.available)}', style: const TextStyle(color: kMut)),
       const SizedBox(height: 10),
       TextField(controller: ctl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Сумма, ₸', hintText: 'Минимум 1 000')),
-      const SizedBox(height: 12),
-      DropdownButtonFormField<String>(initialValue: 'k', decoration: const InputDecoration(labelText: 'Реквизиты'), items: const [DropdownMenuItem(value: 'k', child: Text('Kaspi •• 4821'))], onChanged: (_) {}),
-      if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600))),
-      const SizedBox(height: 12),
+      const SizedBox(height: 10),
+      if (s.cards.isEmpty)
+        const Text('Добавьте карту в «Мои карты», чтобы вывести деньги.', style: TextStyle(color: kMut))
+      else
+        DropdownButtonFormField<String>(initialValue: card, decoration: const InputDecoration(labelText: 'Карта для вывода'), items: [for (final x in s.cards) DropdownMenuItem(value: x.mask, child: Text(x.mask))], onChanged: (v) => card = v ?? card),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+      const SizedBox(height: 10),
       PrimaryButton('Создать заявку', onPressed: () {
-        final e = s.withdraw(ctl.text);
+        if (card == null) return set(() => err = 'Сначала добавьте карту.');
+        final e = s.withdraw(ctl.text, card!);
         if (e != null) return set(() => err = e);
         Navigator.pop(ctx);
         toast(c, 'Заявка создана, сумма зарезервирована.');
       }),
       note('Лимиты: от 1 000 ₸ (демо, утверждает владелец). Мгновенный вывод не обещается — срок обработки сообщит таксопарк. Статусы: Создана → На проверке → В обработке → Выполнена / Отклонена.'),
+    ])));
+  }
+
+  // ----- Kaspi QR -----
+  void _qrPay(BuildContext c, AppState s) {
+    final ctl = TextEditingController();
+    String? err;
+    int? amount;
+    sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) {
+      if (amount == null) {
+        return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          h3('Принять оплату · Kaspi QR'),
+          TextField(controller: ctl, keyboardType: TextInputType.number, decoration: const InputDecoration(labelText: 'Сумма к оплате, ₸', hintText: '0')),
+          if (err != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+          const SizedBox(height: 10),
+          PrimaryButton('Показать QR', onPressed: () {
+            final a = int.tryParse(ctl.text.replaceAll(RegExp(r'\s'), ''));
+            if (a == null || a <= 0) return set(() => err = 'Введите сумму: целое число больше нуля.');
+            if (a > 1000000) return set(() => err = 'Слишком большая сумма.');
+            set(() => amount = a);
+          }),
+          note('Пассажир сканирует QR в приложении Kaspi. Деньги поступят на баланс после подтверждения платежа Kaspi.'),
+        ]);
+      }
+      final a = amount!;
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        h3('Покажите QR пассажиру'),
+        Center(child: _QrBox('TULPAR-DEMO|PAY|${s.nidn()}|$a')),
+        const SizedBox(height: 10),
+        Center(child: Text(money(a), style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700))),
+        const SizedBox(height: 6),
+        const Center(child: StatusChip('Ожидает оплаты')),
+        const SizedBox(height: 12),
+        PrimaryButton('Имитировать оплату (демо)', onPressed: () {
+          s.qrPaid(a);
+          Navigator.pop(ctx);
+          toast(c, 'Оплата получена: ${money(a)} (демо)');
+        }),
+        const SizedBox(height: 8),
+        PrimaryButton('Отменить', outline: true, onPressed: () => Navigator.pop(ctx)),
+        const SizedBox(height: 8),
+        banner('Демо: настоящий платёж подтверждает Kaspi. Кнопка выше имитирует подтверждение.', info: true),
+      ]);
+    }));
+  }
+
+  void _qrStatic(BuildContext c) {
+    sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      h3('Постоянный QR'),
+      const Center(child: _QrBox('TULPAR-DEMO|DRIVER|TLP7K2')),
+      const SizedBox(height: 8),
+      const Center(child: Text('Пассажир сканирует код и вводит сумму сам', style: TextStyle(color: kMut, fontSize: 13))),
+      const SizedBox(height: 12),
+      Row(children: [
+        Expanded(child: PrimaryButton('Сохранить', outline: true, onPressed: () => toast(c, 'QR сохранён в Фото (демо)'))),
+        const SizedBox(width: 10),
+        Expanded(child: PrimaryButton('Поделиться', onPressed: () => toast(c, 'Откроется системное меню «Поделиться»'))),
+      ]),
+      const SizedBox(height: 12),
+      banner('Демонстрационный код: он не принимает платежи. Настоящий QR формируется официальным сервисом Kaspi после подключения.', info: true),
+    ]));
+  }
+
+  // ----- карты -----
+  void _cardOpen(BuildContext c, AppState s, BankCard card) {
+    sheet(c, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      h3(card.mask),
+      note('Номер карты скрыт. Карта используется для вывода средств.'),
+      if (!card.main) ...[
+        PrimaryButton('Сделать основной', onPressed: () {
+          s.makeMain(card.id);
+          Navigator.pop(ctx);
+          toast(c, 'Основная карта изменена');
+        }),
+        const SizedBox(height: 8),
+      ],
+      PrimaryButton('Удалить карту', outline: true, onPressed: () {
+        s.removeCard(card.id);
+        Navigator.pop(ctx);
+        toast(c, 'Карта удалена');
+      }),
+    ]));
+  }
+
+  void _cardAdd(BuildContext c, AppState s) {
+    final ctl = TextEditingController();
+    var bank = 'Kaspi';
+    String? err;
+    sheet(c, (ctx) => StatefulBuilder(builder: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      h3('Новая карта'),
+      DropdownButtonFormField<String>(initialValue: bank, decoration: const InputDecoration(labelText: 'Банк'), items: const [DropdownMenuItem(value: 'Kaspi', child: Text('Kaspi')), DropdownMenuItem(value: 'Halyk', child: Text('Halyk')), DropdownMenuItem(value: 'Другой банк', child: Text('Другой банк'))], onChanged: (v) => bank = v ?? bank),
+      const SizedBox(height: 10),
+      TextField(controller: ctl, keyboardType: TextInputType.number, maxLength: 4, decoration: const InputDecoration(labelText: 'Последние 4 цифры карты', hintText: '0000')),
+      if (err != null) Padding(padding: const EdgeInsets.only(top: 4), child: Text(err!, style: const TextStyle(color: kErr, fontWeight: FontWeight.w600, fontSize: 13))),
+      const SizedBox(height: 10),
+      PrimaryButton('Добавить', onPressed: () {
+        final e = s.addCard(bank, ctl.text);
+        if (e != null) return set(() => err = e);
+        Navigator.pop(ctx);
+        toast(c, 'Карта добавлена');
+      }),
     ])));
   }
 
@@ -320,13 +401,112 @@ class _Stat extends StatelessWidget {
       );
 }
 
-class _Legend extends StatelessWidget {
-  const _Legend(this.color, this.label, this.value);
-  final Color color;
-  final String label, value;
+class _QrBtn extends StatelessWidget {
+  const _QrBtn(this.icon, this.label, this.red, this.onTap);
+  final IconData? icon;
+  final String label;
+  final bool red;
+  final VoidCallback onTap;
   @override
-  Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [Container(width: 11, height: 11, decoration: BoxDecoration(color: color, shape: BoxShape.circle)), const SizedBox(width: 6), Text(label, style: const TextStyle(color: kMut, fontSize: 13, height: 18 / 14))]),
-        FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, height: 22 / 17, letterSpacing: -.4))),
+  Widget build(BuildContext context) => GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 40,
+          decoration: BoxDecoration(color: red ? const Color(0xFFF14635) : Colors.white.withValues(alpha: .9), borderRadius: BorderRadius.circular(14), boxShadow: red ? [BoxShadow(color: const Color(0xFFF14635).withValues(alpha: .45), blurRadius: 20, offset: const Offset(0, 10), spreadRadius: -12)] : kShadow),
+          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+            if (icon != null) ...[Icon(icon, size: 18, color: Colors.white), const SizedBox(width: 8)],
+            Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: red ? Colors.white : kInk))),
+          ]),
+        ),
+      );
+}
+
+class _QrBox extends StatelessWidget {
+  const _QrBox(this.data);
+  final String data;
+  @override
+  Widget build(BuildContext context) => Container(
+        width: 210,
+        height: 210,
+        margin: const EdgeInsets.symmetric(vertical: 6),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), boxShadow: kShadow),
+        child: QrImageView(data: data, padding: EdgeInsets.zero, backgroundColor: Colors.white),
+      );
+}
+
+/// История операций + «Мои карты»: фильтры, группировка по дням, ID и статусы.
+class _History extends StatelessWidget {
+  const _History({required this.s, required this.onCard, required this.onAddCard});
+  final AppState s;
+  final void Function(BankCard) onCard;
+  final VoidCallback onAddCard;
+
+  String _day(DateTime d) {
+    final n = DateTime.now();
+    final diff = DateTime(n.year, n.month, n.day).difference(DateTime(d.year, d.month, d.day)).inDays;
+    return diff == 0 ? 'Сегодня' : diff == 1 ? 'Вчера' : s.dmy(d);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tabs = Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(12)),
+      child: Row(children: [
+        for (final (k, label) in const [('ops', 'История операций'), ('cards', 'Мои карты')])
+          Expanded(child: GestureDetector(
+            onTap: () => s.setHistMode(k),
+            child: Container(height: 30, alignment: Alignment.center, decoration: BoxDecoration(color: s.histMode == k ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(10)), child: Text(label, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: s.histMode == k ? Colors.white : const Color(0xFF5A6075)))),
+          )),
+      ]),
+    );
+    if (s.histMode == 'cards') {
+      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        tabs,
+        for (final c in s.cards)
+          InkWell(
+            onTap: () => onCard(c),
+            child: Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [
+              toneIcon(Icons.credit_card, Tone.blue),
+              const SizedBox(width: 12),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(c.mask, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 15)), const Text('Для вывода средств', style: TextStyle(color: kMut, fontSize: 12))])),
+              if (c.main) const StatusChip('Основная'),
+              const Icon(Icons.chevron_right, size: 16, color: Color(0xFFB4B9C8)),
+            ])),
+          ),
+        const SizedBox(height: 6),
+        PrimaryButton('+ Добавить карту', outline: true, onPressed: onAddCard),
+        note('Хранятся только последние 4 цифры. Полный номер карты приложение не запрашивает.'),
       ]);
+    }
+    final type = {'all': null, 'in': 'Пополнение', 'out': 'Выплата', 'qr': 'Оплата QR'}[s.histTab];
+    final list = s.ops.where((o) => type == null || o.type == type).toList()..sort((a, b) => b.ts.compareTo(a.ts));
+    final rows = <Widget>[];
+    String? last;
+    for (final o in list) {
+      final g = _day(o.ts);
+      if (g != last) {
+        rows.add(Padding(padding: const EdgeInsets.only(top: 10, bottom: 2), child: Text(g, style: const TextStyle(color: kMut, fontSize: 13, fontWeight: FontWeight.w600))));
+        last = g;
+      }
+      rows.add(OpTile(o));
+    }
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      tabs,
+      SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(children: [
+          for (final (k, label) in const [('all', 'Все'), ('in', 'Пополнение'), ('out', 'Вывод'), ('qr', 'Оплаты QR')])
+            GestureDetector(
+              onTap: () => s.setHistTab(k),
+              child: Container(margin: const EdgeInsets.only(right: 6), height: 30, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.center, decoration: BoxDecoration(color: s.histTab == k ? kInk : const Color(0x21787F9E), borderRadius: BorderRadius.circular(15)), child: Text(label, style: TextStyle(fontSize: 12.5, fontWeight: FontWeight.w500, color: s.histTab == k ? Colors.white : const Color(0xFF4A5066)))),
+            ),
+        ]),
+      ),
+      if (rows.isEmpty) const Padding(padding: EdgeInsets.symmetric(vertical: 14), child: Text('Операций нет.', style: TextStyle(color: kMut))),
+      ...rows,
+    ]);
+  }
 }
