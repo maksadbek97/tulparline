@@ -40,7 +40,7 @@ class DocumentsPage extends StatelessWidget {
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Expanded(child: Text(d.$1, style: const TextStyle(fontWeight: FontWeight.w700))), StatusChip(d.$4 == 'На проверке' ? 'Ожидает проверки' : d.$4)]),
           const SizedBox(height: 6),
-          Text('Выдан: ${d.$2} · Действует до: ${d.$3}', style: const TextStyle(color: kMut, fontSize: 12)),
+          Text('Выдан: ${d.$2} · Действует до: ${d.$3}', style: const TextStyle(color: kMut, fontSize: 11.5)),
           const SizedBox(height: 6),
           StatusChip(d.$5),
           if (d.$6.isNotEmpty) note(d.$6),
@@ -64,7 +64,7 @@ class GoalsPage extends StatelessWidget {
           final tgt = g.type == GoalType.minutes ? '${g.target ~/ 60} ч' : g.type == GoalType.earn ? money(g.target) : '${g.target}';
           return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(children: [
-              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${names[g.type]} — ${g.period.toLowerCase()}', style: const TextStyle(fontWeight: FontWeight.w700)), Text('Цель: $tgt', style: const TextStyle(color: kMut, fontSize: 12))])),
+              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${names[g.type]} — ${g.period.toLowerCase()}', style: const TextStyle(fontWeight: FontWeight.w700)), Text('Цель: $tgt', style: const TextStyle(color: kMut, fontSize: 11.5))])),
               Switch(value: g.on, activeTrackColor: kBlue, onChanged: (v) {
                 g.on = v;
                 s.notify();
@@ -73,7 +73,7 @@ class GoalsPage extends StatelessWidget {
             const SizedBox(height: 8),
             ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: pct / 100, minHeight: 12, backgroundColor: const Color(0xFFE7EBF5), color: kBlue)),
             const SizedBox(height: 6),
-            Text('$pct% выполнено${g.on ? '' : ' · отключена'}', style: const TextStyle(color: kMut, fontSize: 12)),
+            Text('$pct% выполнено${g.on ? '' : ' · отключена'}', style: const TextStyle(color: kMut, fontSize: 11.5)),
           ]);
         })),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('История'), const Text('Вчера: 27 из 25 заказов — выполнено ✓\n10 окт: 22 из 25 заказов — не выполнено', style: TextStyle(color: kMut, height: 1.5))])),
@@ -95,10 +95,10 @@ class TasksPage extends StatelessWidget {
       for (final t in tasks)
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(children: [Expanded(child: Text(t.$1, style: const TextStyle(fontWeight: FontWeight.w700))), StatusChip(t.$7)]),
-          Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(t.$2, style: const TextStyle(color: kMut, fontSize: 12))),
+          Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(t.$2, style: const TextStyle(color: kMut, fontSize: 11.5))),
           ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(value: (t.$3 / t.$4).clamp(0, 1), minHeight: 12, backgroundColor: const Color(0xFFE7EBF5), color: kBlue)),
           const SizedBox(height: 8),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(t.$5, style: const TextStyle(fontSize: 12)), Text('Награда: ${money(t.$6)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12))]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(t.$5, style: const TextStyle(fontSize: 11.5)), Text('Награда: ${money(t.$6)}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 11.5))]),
         ])),
       note('Денежная награда начисляется на депозит-карту отдельной операцией после проверки. Совместимость с кэшбэком настраивает администратор.'),
     ]);
@@ -126,7 +126,7 @@ class _SchedulePageState extends State<SchedulePage> {
               SizedBox(width: 34, child: Text(days[i][0] as String, style: const TextStyle(fontWeight: FontWeight.w700))),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 days[i][1] as bool ? Text('${days[i][2]} – ${days[i][3]}') : const Text('Выходной', style: TextStyle(color: kMut)),
-                if (i == 2 && days[i][1] as bool) const Text('Факт сегодня: на линии с 08:12 (6 ч 40 мин)', style: TextStyle(color: kMut, fontSize: 12)),
+                if (i == 2 && days[i][1] as bool) const Text('Факт сегодня: на линии с 08:12 (6 ч 40 мин)', style: TextStyle(color: kMut, fontSize: 11.5)),
               ])),
               if (days[i][1] as bool) TextButton(onPressed: () => _edit(i), child: const Text('Изм.')),
               Switch(value: days[i][1] as bool, activeTrackColor: kBlue, onChanged: (v) => setState(() {
@@ -186,7 +186,7 @@ class ReferralPage extends StatelessWidget {
         DarkCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           const Text('Ваша ссылка', style: TextStyle(color: Colors.white70)),
           const SizedBox(height: 4),
-          const Text('[APP_DOMAIN]/r/TLP7K2', style: TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w700)),
+          const Text('[APP_DOMAIN]/r/TLP7K2', style: TextStyle(color: Colors.white, fontSize: 15, fontWeight: FontWeight.w700)),
           const SizedBox(height: 14),
           Row(children: [
             Expanded(child: PrimaryButton('Копировать', light: true, onPressed: () => toast(context, 'Ссылка скопирована'))),
@@ -194,13 +194,13 @@ class ReferralPage extends StatelessWidget {
             Expanded(child: PrimaryButton('Поделиться', light: true, onPressed: () => toast(context, 'Откроется системное меню «Поделиться»'))),
           ]),
           const SizedBox(height: 10),
-          const Text('Домен утверждает владелец. Условия и суммы бонусов задаёт администратор.', style: TextStyle(color: Colors.white54, fontSize: 12)),
+          const Text('Домен утверждает владелец. Условия и суммы бонусов задаёт администратор.', style: TextStyle(color: Colors.white54, fontSize: 11.5)),
         ])),
         AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           h3('Приглашённые'),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Ержан А.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выполнил 12 из 25 заказов', style: TextStyle(color: kMut, fontSize: 12))]), const StatusChip('В процессе')]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Ержан А.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выполнил 12 из 25 заказов', style: TextStyle(color: kMut, fontSize: 11.5))]), const StatusChip('В процессе')]),
           const Divider(height: 24),
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Мадина К.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Условие выполнено', style: TextStyle(color: kMut, fontSize: 12))]), const StatusChip('Ожидает утверждения суммы')]),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Мадина К.', style: TextStyle(fontWeight: FontWeight.w700)), Text('Условие выполнено', style: TextStyle(color: kMut, fontSize: 11.5))]), const StatusChip('Ожидает утверждения суммы')]),
         ])),
         note('Бонус начисляется на депозит-карту только после выполнения условий активации и проверки (защита от самоприглашений и дублей).'),
       ]);
@@ -213,7 +213,7 @@ class HealthPage extends StatelessWidget {
     final s = AppScope.of(context);
     return SubPage(title: 'Здоровье', children: [
       AppCard(child: Row(children: [
-        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Доступ к данным здоровья', style: TextStyle(fontWeight: FontWeight.w700)), Text('Apple HealthKit / Google Health Connect. Только с вашего согласия, отзывается в любой момент.', style: TextStyle(color: kMut, fontSize: 12))])),
+        const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Доступ к данным здоровья', style: TextStyle(fontWeight: FontWeight.w700)), Text('Apple HealthKit / Google Health Connect. Только с вашего согласия, отзывается в любой момент.', style: TextStyle(color: kMut, fontSize: 11.5))])),
         Switch(value: s.healthConsent, activeTrackColor: kBlue, onChanged: (v) {
           s.healthConsent = v;
           s.notify();
@@ -221,7 +221,7 @@ class HealthPage extends StatelessWidget {
       ])),
       if (s.healthConsent) ...[
         Row(children: [
-          for (final x in const [('6 840', 'шагов'), ('4,9', 'км'), ('38', 'мин актив.')]) Expanded(child: AppCard(margin: const EdgeInsets.only(right: 8, bottom: 8), padding: const EdgeInsets.all(12), child: Column(children: [Text(x.$1, style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)), Text(x.$2, style: const TextStyle(color: kMut, fontSize: 12))]))),
+          for (final x in const [('6 840', 'шагов'), ('4,9', 'км'), ('38', 'мин актив.')]) Expanded(child: AppCard(margin: const EdgeInsets.only(right: 8, bottom: 8), padding: const EdgeInsets.all(12), child: Column(children: [Text(x.$1, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)), Text(x.$2, style: const TextStyle(color: kMut, fontSize: 11.5))]))),
         ]),
         note('Демо-значения. Приложение не даёт медицинских заключений.'),
       ] else
@@ -353,17 +353,17 @@ class DemoPage extends StatelessWidget {
     final s = AppScope.of(context);
     return SubPage(title: 'Демо-инструменты', back: 'Профиль', children: [
       banner('Только для демонстрации прототипа. В реальном приложении этих экранов нет.', info: true),
-      AppCard(child: Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Имитировать 1-е число', style: TextStyle(fontWeight: FontWeight.w700)), Text('Открывает окно вывода с депозит-карты', style: TextStyle(color: kMut, fontSize: 12))])), Switch(value: s.windowOpen, activeTrackColor: kBlue, onChanged: (v) {
+      AppCard(child: Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Имитировать 1-е число', style: TextStyle(fontWeight: FontWeight.w700)), Text('Открывает окно вывода с депозит-карты', style: TextStyle(color: kMut, fontSize: 11.5))])), Switch(value: s.windowOpen, activeTrackColor: kBlue, onChanged: (v) {
         s.windowOpen = v;
         s.notify();
       })])),
-      AppCard(child: Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Данные Yandex синхронизированы', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выключите, чтобы увидеть предупреждение', style: TextStyle(color: kMut, fontSize: 12))])), Switch(value: s.synced, activeTrackColor: kBlue, onChanged: (v) {
+      AppCard(child: Row(children: [const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Данные Yandex синхронизированы', style: TextStyle(fontWeight: FontWeight.w700)), Text('Выключите, чтобы увидеть предупреждение', style: TextStyle(color: kMut, fontSize: 11.5))])), Switch(value: s.synced, activeTrackColor: kBlue, onChanged: (v) {
         s.synced = v;
         s.notify();
       })])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Заказы', style: TextStyle(fontWeight: FontWeight.w700)),
-        Text('Сейчас завершено: ${s.orders}. Заказ обновляет цель, рейтинг, статус кэшбэка и график.', style: const TextStyle(color: kMut, fontSize: 12)),
+        Text('Сейчас завершено: ${s.orders}. Заказ обновляет цель, рейтинг, статус кэшбэка и график.', style: const TextStyle(color: kMut, fontSize: 11.5)),
         const SizedBox(height: 10),
         Row(children: [
           Expanded(child: PrimaryButton('+1 заказ', onPressed: () => _sim(context, s, 1))),
@@ -373,7 +373,7 @@ class DemoPage extends StatelessWidget {
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         const Text('Заявки на вывод', style: TextStyle(fontWeight: FontWeight.w700)),
-        Text('Последняя заявка: ${s.payouts.isEmpty ? 'нет' : '${s.payouts.first.id} — ${s.payouts.first.status}'}', style: const TextStyle(color: kMut, fontSize: 12)),
+        Text('Последняя заявка: ${s.payouts.isEmpty ? 'нет' : '${s.payouts.first.id} — ${s.payouts.first.status}'}', style: const TextStyle(color: kMut, fontSize: 11.5)),
         const SizedBox(height: 10),
         Row(children: [
           Expanded(child: PrimaryButton('Выполнить', onPressed: s.payoutDone)),

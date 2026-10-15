@@ -40,7 +40,7 @@ class _TulparAppState extends State<TulparApp> {
           colorScheme: ColorScheme.fromSeed(seedColor: kBlue, brightness: Brightness.light).copyWith(primary: kBlue, surface: kBg),
           splashFactory: NoSplash.splashFactory,
           highlightColor: Colors.transparent,
-          textTheme: Typography.blackCupertino.apply(bodyColor: kInk, displayColor: kInk).copyWith(bodyMedium: const TextStyle(fontSize: 15, height: 20 / 15, color: kInk), bodyLarge: const TextStyle(fontSize: 15, height: 20 / 15, color: kInk), titleMedium: const TextStyle(fontSize: 15, color: kInk), labelLarge: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+          textTheme: Typography.blackCupertino.apply(bodyColor: kInk, displayColor: kInk).copyWith(bodyMedium: const TextStyle(fontSize: 14, height: 20 / 15, color: kInk), bodyLarge: const TextStyle(fontSize: 14, height: 20 / 15, color: kInk), titleMedium: const TextStyle(fontSize: 14, color: kInk), labelLarge: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
           scaffoldBackgroundColor: kBg,
           fontFamily: null,
           inputDecorationTheme: InputDecorationTheme(
@@ -48,7 +48,7 @@ class _TulparAppState extends State<TulparApp> {
             fillColor: Colors.white,
             isDense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 13),
-            labelStyle: const TextStyle(fontSize: 15, color: kMut),
+            labelStyle: const TextStyle(fontSize: 14, color: kMut),
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: kBlue, width: 1.5)),
@@ -94,15 +94,15 @@ class _ShellState extends State<Shell> {
         Positioned(
           left: kM,
           right: kM,
-          bottom: 14 + bottom,
+          bottom: 12 + bottom,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(31),
+            borderRadius: BorderRadius.circular(28),
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 26, sigmaY: 26),
               child: Container(
-                height: 62,
-                padding: const EdgeInsets.symmetric(horizontal: 7),
-                decoration: BoxDecoration(color: Colors.white.withValues(alpha: .82), borderRadius: BorderRadius.circular(31), border: Border.all(color: Colors.white), boxShadow: [BoxShadow(color: const Color(0xFF1E2D64).withValues(alpha: .3), blurRadius: 40, offset: const Offset(0, 18), spreadRadius: -14)]),
+                height: 56,
+                padding: const EdgeInsets.symmetric(horizontal: 6),
+                decoration: BoxDecoration(color: Colors.white.withValues(alpha: .82), borderRadius: BorderRadius.circular(28), border: Border.all(color: Colors.white), boxShadow: [BoxShadow(color: const Color(0xFF1E2D64).withValues(alpha: .3), blurRadius: 40, offset: const Offset(0, 18), spreadRadius: -14)]),
                 child: Row(children: [
                   for (var i = 0; i < _tabs.length; i++)
                     Expanded(
@@ -111,11 +111,11 @@ class _ShellState extends State<Shell> {
                         onTap: () => goTab(i),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          height: 48,
-                          decoration: BoxDecoration(color: tab == i ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(24)),
+                          height: 44,
+                          decoration: BoxDecoration(color: tab == i ? kInk : Colors.transparent, borderRadius: BorderRadius.circular(22)),
                           child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Icon(_tabs[i].$1, size: 23, color: tab == i ? Colors.white : const Color(0xFF7E8497)),
-                            Text(_tabs[i].$2, style: TextStyle(fontSize: 11.5, height: 14 / 11.5, fontWeight: FontWeight.w500, color: tab == i ? Colors.white : const Color(0xFF7E8497))),
+                            Icon(_tabs[i].$1, size: 22, color: tab == i ? Colors.white : const Color(0xFF7E8497)),
+                            Text(_tabs[i].$2, style: TextStyle(fontSize: 11, height: 14 / 11.5, fontWeight: FontWeight.w500, color: tab == i ? Colors.white : const Color(0xFF7E8497))),
                           ]),
                         ),
                       ),

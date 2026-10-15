@@ -28,22 +28,22 @@ class ProfilePage extends StatelessWidget {
       (Icons.logout, 'Выйти из аккаунта', '', () => toast(context, 'Выход (демо)')),
     ];
     return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
-      ScreenHead('Профиль', trailing: GestureDetector(onTap: () => push(const SettingsPage()), child: Container(width: 42, height: 42, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: kShadow), child: const Icon(Icons.settings_outlined, size: 22)))),
+      ScreenHead('Профиль', trailing: GestureDetector(onTap: () => push(const SettingsPage()), child: Container(width: 38, height: 38, decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle, boxShadow: kShadow), child: const Icon(Icons.settings_outlined, size: 20)))),
       Padding(
-        padding: const EdgeInsets.fromLTRB(2, 0, 2, 16),
+        padding: const EdgeInsets.fromLTRB(2, 0, 2, 12),
         child: Row(children: [
-          const Avatar(size: 72),
+          const Avatar(size: 64),
           const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${s.first}\n${s.last}', style: const TextStyle(fontSize: 20, height: 24 / 20, fontWeight: FontWeight.w700, letterSpacing: -.5)), const Text('Водитель', style: TextStyle(color: kMut, fontSize: 15))])),
+          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('${s.first}\n${s.last}', style: const TextStyle(fontSize: 17, height: 24 / 20, fontWeight: FontWeight.w700, letterSpacing: -.5)), const Text('Водитель', style: TextStyle(color: kMut, fontSize: 14))])),
           GestureDetector(
             onTap: () => push(const DepositPage()),
             child: Container(
               padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
               decoration: BoxDecoration(color: Colors.white.withValues(alpha: .9), borderRadius: BorderRadius.circular(20), boxShadow: kShadow),
               child: Row(mainAxisSize: MainAxisSize.min, children: [
-                IconBox(Icons.currency_exchange, bg: Tone.blue.bg, fg: kBlue, size: 30),
+                IconBox(Icons.currency_exchange, bg: Tone.blue.bg, fg: kBlue, size: 28),
                 const SizedBox(width: 6),
-                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Бонусы', style: TextStyle(color: kMut, fontSize: 12.5, height: 15 / 12.5)), Text(money(s.depBalance), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18, height: 22 / 18, letterSpacing: -.5))]),
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [const Text('Бонусы', style: TextStyle(color: kMut, fontSize: 11.5, height: 15 / 12.5)), Text(money(s.depBalance), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, height: 22 / 18, letterSpacing: -.5))]),
               ]),
             ),
           ),
@@ -51,13 +51,13 @@ class ProfilePage extends StatelessWidget {
       ),
       for (final r in rows)
         AppCard(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
+          margin: const EdgeInsets.only(bottom: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
           onTap: r.$4,
           child: Row(children: [
             toneIcon(r.$1, Tone.gray),
             const SizedBox(width: 14),
-            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(r.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17, height: 21 / 17, letterSpacing: -.3)), if (r.$3.isNotEmpty) Text(r.$3, style: const TextStyle(color: kMut, fontSize: 13, height: 17 / 13))])),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(r.$2, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, height: 21 / 17, letterSpacing: -.3)), if (r.$3.isNotEmpty) Text(r.$3, style: const TextStyle(color: kMut, fontSize: 12, height: 17 / 13))])),
             const Icon(Icons.chevron_right, size: 17, color: Color(0xFFB4B9C8)),
           ]),
         ),

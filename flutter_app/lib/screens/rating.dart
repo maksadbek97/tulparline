@@ -11,7 +11,7 @@ class RatingPage extends StatelessWidget {
     final s = AppScope.of(context);
     return SubPage(title: 'Рейтинг', children: [
       DarkCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('Ваше место · период: сегодня', style: TextStyle(color: Colors.white70, fontSize: 12)),
+        const Text('Ваше место · период: сегодня', style: TextStyle(color: Colors.white70, fontSize: 11.5)),
         Text('${s.place}-е из 100', style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w700, letterSpacing: -1)),
       ])),
       AppCard(padding: const EdgeInsets.all(12), child: Column(children: [

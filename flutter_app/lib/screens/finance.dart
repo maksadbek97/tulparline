@@ -40,18 +40,18 @@ class OpTile extends StatelessWidget {
     return InkWell(
       onTap: () => _detail(context, o),
       child: Container(
-        constraints: const BoxConstraints(minHeight: 56),
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        constraints: const BoxConstraints(minHeight: 50),
+        padding: const EdgeInsets.symmetric(vertical: 7),
         child: Row(children: [
           toneIcon(_opIcon(o), _opTone(o)),
           const SizedBox(width: 12),
           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(o.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17, height: 22 / 17, letterSpacing: -.3, decoration: deco)),
-            Text('${o.date} · ${o.src}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMut, fontSize: 14, height: 18 / 14)),
+            Text(o.desc, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, height: 22 / 17, letterSpacing: -.3, decoration: deco)),
+            Text('${o.date} · ${o.src}', maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: kMut, fontSize: 13, height: 18 / 14)),
           ])),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            Text('${pos ? '+' : ''}${money(o.amount)}', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, letterSpacing: -.3, color: pos ? kOk : kErr, decoration: deco)),
+            Text('${pos ? '+' : ''}${money(o.amount)}', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: -.3, color: pos ? kOk : kErr, decoration: deco)),
             if (o.status != 'Выполнена') StatusChip(o.status),
           ]),
           const SizedBox(width: 4),
@@ -91,7 +91,7 @@ class FinancePage extends StatelessWidget {
     return ListView(padding: const EdgeInsets.fromLTRB(kM, 4, kM, 120), children: [
       ScreenHead('Финансы', trailing: GestureDetector(
         onTap: () => _periodPick(context, s),
-        child: Container(height: 40, padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), boxShadow: kShadow), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.calendar_today_outlined, size: 18), const SizedBox(width: 8), Text(periodLabel[s.period]!, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)), const Icon(Icons.keyboard_arrow_down, size: 20)])),
+        child: Container(height: 34, padding: const EdgeInsets.symmetric(horizontal: 12), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(17), boxShadow: kShadow), child: Row(mainAxisSize: MainAxisSize.min, children: [const Icon(Icons.calendar_today_outlined, size: 16), const SizedBox(width: 8), Text(periodLabel[s.period]!, style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14)), const Icon(Icons.keyboard_arrow_down, size: 20)])),
       )),
       if (!s.synced) banner('Данные не синхронизированы с Yandex. Показаны последние известные значения (обновлено в 14:20).'),
       DarkCard(
@@ -102,24 +102,24 @@ class FinancePage extends StatelessWidget {
         glow: true,
         glowRight: 62,
         glowTop: 14,
-        minHeight: 208,
+        minHeight: 184,
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
             const LogoRow(),
-            GestureDetector(onTap: () => _info(context, s), child: Container(width: 32, height: 32, decoration: const BoxDecoration(color: Color(0x24FFFFFF), shape: BoxShape.circle), child: const Icon(Icons.more_horiz, color: Colors.white, size: 18))),
+            GestureDetector(onTap: () => _info(context, s), child: Container(width: 28, height: 28, decoration: const BoxDecoration(color: Color(0x24FFFFFF), shape: BoxShape.circle), child: const Icon(Icons.more_horiz, color: Colors.white, size: 16))),
           ]),
-          const SizedBox(height: 14),
+          const SizedBox(height: 10),
           Row(children: [
-            const Text('Баланс', style: TextStyle(color: Colors.white70, fontSize: 16)),
+            const Text('Баланс', style: TextStyle(color: Colors.white70, fontSize: 14)),
             const SizedBox(width: 8),
             GestureDetector(onTap: () {
               s.hideBalance = !s.hideBalance;
               s.notify();
-            }, child: Icon(s.hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white60, size: 18)),
+            }, child: Icon(s.hideBalance ? Icons.visibility_off_outlined : Icons.visibility_outlined, color: Colors.white60, size: 16)),
           ]),
-          Text(s.hideBalance ? '••••• ₸' : money(s.available), style: const TextStyle(color: Colors.white, fontSize: 40, height: 46 / 40, fontWeight: FontWeight.w700, letterSpacing: -1.4)),
-          if (s.reserved > 0) Text('В резерве под заявки: ${money(s.reserved)}', style: const TextStyle(color: Colors.white60, fontSize: 13)),
-          const SizedBox(height: 14),
+          Text(s.hideBalance ? '••••• ₸' : money(s.available), style: const TextStyle(color: Colors.white, fontSize: 34, height: 46 / 40, fontWeight: FontWeight.w700, letterSpacing: -1.4)),
+          if (s.reserved > 0) Text('В резерве под заявки: ${money(s.reserved)}', style: const TextStyle(color: Colors.white60, fontSize: 12)),
+          const SizedBox(height: 12),
           Row(children: [
             Expanded(child: _BalBtn(Icons.add, 'Пополнить', true, () => _topup(context, s))),
             const SizedBox(width: 10),
@@ -139,21 +139,21 @@ class FinancePage extends StatelessWidget {
       GestureDetector(
         onTap: () => _addExpense(context, s),
         child: Container(
-          height: 48,
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1D1E24), Color(0xFF050506)]), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .45), blurRadius: 28, offset: const Offset(0, 16), spreadRadius: -16)]),
+          height: 44,
+          margin: const EdgeInsets.only(bottom: 10),
+          decoration: BoxDecoration(borderRadius: BorderRadius.circular(22), gradient: const LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [Color(0xFF1D1E24), Color(0xFF050506)]), boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: .45), blurRadius: 28, offset: const Offset(0, 16), spreadRadius: -16)]),
           child: Stack(alignment: Alignment.center, children: [
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Container(width: 28, height: 28, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.add, size: 18, color: kInk)),
+              Container(width: 24, height: 24, decoration: const BoxDecoration(color: Colors.white, shape: BoxShape.circle), child: const Icon(Icons.add, size: 16, color: kInk)),
               const SizedBox(width: 12),
-              const Text('Добавить расход', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 18)),
+              const Text('Добавить расход', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 16)),
             ]),
             const Positioned(right: 16, child: Icon(Icons.chevron_right, color: Colors.white60, size: 20)),
           ]),
         ),
       ),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Text('График доходов и расходов', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17, letterSpacing: -.3)),
+        const Text('График доходов и расходов', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, letterSpacing: -.3)),
         const SizedBox(height: 8),
         Align(alignment: Alignment.centerLeft, child: MiniTabs(items: const [('day', 'За день'), ('week', 'Неделя'), ('month', 'Месяц')], value: s.period.name, onChanged: (v) => s.setPeriod(Period.values.byName(v)))),
         const SizedBox(height: 8),
@@ -164,14 +164,14 @@ class FinancePage extends StatelessWidget {
           const SizedBox(width: 18),
           _Legend(const Color(0xFFFF7A85), 'Расходы', money(tt.exp)),
           const Spacer(),
-          GestureDetector(onTap: () => _breakdown(context, s), child: Container(height: 36, padding: const EdgeInsets.symmetric(horizontal: 14), alignment: Alignment.center, decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(16)), child: const Text('Подробнее ›', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500)))),
+          GestureDetector(onTap: () => _breakdown(context, s), child: Container(height: 32, padding: const EdgeInsets.symmetric(horizontal: 12), alignment: Alignment.center, decoration: BoxDecoration(color: const Color(0x21787F9E), borderRadius: BorderRadius.circular(16)), child: const Text('Подробнее ›', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500)))),
         ]),
         if (s.period == Period.range) note('Демо: произвольный период — последние 14 дней.'),
       ])),
       AppCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          const Expanded(child: Text('Последние операции', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 19, letterSpacing: -.4))),
-          GestureDetector(onTap: () => sheet(context, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Все операции'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [for (final o in s.ops) OpTile(o)]))])), child: const Text('Все ›', style: TextStyle(color: kMut, fontSize: 15, fontWeight: FontWeight.w500))),
+          const Expanded(child: Text('Последние операции', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16, letterSpacing: -.4))),
+          GestureDetector(onTap: () => sheet(context, (ctx) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [h3('Все операции'), Container(padding: const EdgeInsets.symmetric(horizontal: 14), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Column(children: [for (final o in s.ops) OpTile(o)]))])), child: const Text('Все ›', style: TextStyle(color: kMut, fontSize: 14, fontWeight: FontWeight.w500))),
         ]),
         const SizedBox(height: 4),
         for (final o in s.ops.take(4)) OpTile(o),
@@ -295,12 +295,12 @@ class _BalBtn extends StatelessWidget {
   Widget build(BuildContext context) => GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 42,
-          decoration: BoxDecoration(color: white ? Colors.white : Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(21)),
+          height: 38,
+          decoration: BoxDecoration(color: white ? Colors.white : Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(19)),
           child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            Container(width: 26, height: 26, decoration: BoxDecoration(color: white ? kInk : const Color(0xFF0B0B0F), shape: BoxShape.circle), child: Icon(icon, size: 15, color: Colors.white)),
-            const SizedBox(width: 10),
-            Text(label, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 17, color: white ? kInk : Colors.white)),
+            Container(width: 22, height: 22, decoration: BoxDecoration(color: white ? kInk : const Color(0xFF0B0B0F), shape: BoxShape.circle), child: Icon(icon, size: 13, color: Colors.white)),
+            const SizedBox(width: 8),
+            Text(label, style: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, color: white ? kInk : Colors.white)),
           ]),
         ),
       );
@@ -314,14 +314,14 @@ class _Stat extends StatelessWidget {
   final String title, sub, value;
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: bg), borderRadius: BorderRadius.circular(22), border: Border.all(color: Colors.white), boxShadow: kShadow),
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: bg), borderRadius: BorderRadius.circular(20), border: Border.all(color: Colors.white), boxShadow: kShadow),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          IconBox(icon, bg: Colors.white, fg: color, size: 30),
+          IconBox(icon, bg: Colors.white, fg: color, size: 26),
           const SizedBox(height: 6),
-          Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15, height: 18 / 15)),
-          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 19, height: 24 / 19, letterSpacing: -.6))),
-          Text(sub, style: const TextStyle(color: kMut, fontSize: 12.5, height: 15 / 12.5)),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14, height: 18 / 15)),
+          FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.centerLeft, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16, height: 24 / 19, letterSpacing: -.6))),
+          Text(sub, style: const TextStyle(color: kMut, fontSize: 11.5, height: 15 / 12.5)),
         ]),
       );
 }
@@ -332,7 +332,7 @@ class _Legend extends StatelessWidget {
   final String label, value;
   @override
   Widget build(BuildContext context) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [Container(width: 11, height: 11, decoration: BoxDecoration(color: color, shape: BoxShape.circle)), const SizedBox(width: 6), Text(label, style: const TextStyle(color: kMut, fontSize: 14, height: 18 / 14))]),
-        FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 17, height: 22 / 17, letterSpacing: -.4))),
+        Row(children: [Container(width: 11, height: 11, decoration: BoxDecoration(color: color, shape: BoxShape.circle)), const SizedBox(width: 6), Text(label, style: const TextStyle(color: kMut, fontSize: 13, height: 18 / 14))]),
+        FittedBox(fit: BoxFit.scaleDown, child: Text(value, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15, height: 22 / 17, letterSpacing: -.4))),
       ]);
 }
